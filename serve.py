@@ -4,11 +4,15 @@ AlumnusCare PDF Fill Server
 from flask import Flask, request, jsonify
 from pypdf import PdfReader, PdfWriter
 from reportlab.pdfgen import canvas as rl_canvas
-import io, base64, os, traceback, datetime
+import io, base64, os, traceback, datetime, urllib.request
 
 app = Flask(__name__)
-import urllib.request
 
+BASE_DIR        = os.path.dirname(os.path.abspath(__file__))
+SANITAS_TPL     = os.path.join(BASE_DIR, "sanitas.pdf")
+NUEVA_MUTUA_TPL = os.path.join(BASE_DIR, "nueva_mutua.pdf")
+
+# Descargar templates frescos de GitHub al arrancar
 def download_templates():
     base = "https://raw.githubusercontent.com/joseignacio11166-art/PDF-Solicitudes/master/"
     for filename in ["sanitas.pdf", "nueva_mutua.pdf"]:
@@ -17,9 +21,6 @@ def download_templates():
 
 download_templates()
 
-BASE_DIR        = os.path.dirname(os.path.abspath(__file__))
-SANITAS_TPL     = os.path.join(BASE_DIR, "sanitas.pdf")
-NUEVA_MUTUA_TPL = os.path.join(BASE_DIR, "nueva_mutua.pdf")
 # ─────────────────────────────────────────────
 # HELPERS
 # ─────────────────────────────────────────────
@@ -111,7 +112,7 @@ def fill_sanitas(data):
         "peso10": peso,
         "estatura10": altura,
         "nacionalidado210": nacionalidad,
-        "Sí_510": "/On",   # "No" de ¿Ex-Sanitas? (campo mal nombrado en template)
+        "Sí_510": "/On",
         **( {"No_310": "/On"} if q1 in ("no","n") else {} ),
         **( {"No_430": "/On"} if q2 in ("no","n") else {"Sí_730": "/On"} ),
         **( {"No_530": "/On"} if q3 in ("no","n") else {"Sí_830": "/On"} ),
@@ -122,7 +123,6 @@ def fill_sanitas(data):
         "año_730": str(today.year),
     }
 
-    # Tipo documento
     doc_map = {
         "Pasaporte": ["Pasaporte","Pasaporte_211"],
         "NIE":       ["NIE","NIE_210"],
@@ -131,13 +131,11 @@ def fill_sanitas(data):
     for f in doc_map.get(tipo_doc, doc_map["Pasaporte"]):
         fv[f] = "/On"
 
-    # Sexo
     if sexo in ("mujer","female","f","woman"):
         fv["Mujer"] = "/On";  fv["Mujer_210"] = "/On"
     else:
         fv["Hombre"] = "/On"; fv["Hombre_210"] = "/On"
 
-    # Paso 1: rellenar campos con pypdf
     reader = PdfReader(SANITAS_TPL)
     writer = PdfWriter()
     writer.append(reader)
@@ -146,13 +144,11 @@ def fill_sanitas(data):
             writer.pages[page_idx], fv, auto_regenerate=False
         )
 
-    # Paso 2: overlay ReportLab en página 4 para el email (campo no existe en template)
     if email:
         PAGE_W, PAGE_H = 595.0, 842.0
         packet = io.BytesIO()
         c = rl_canvas.Canvas(packet, pagesize=(PAGE_W, PAGE_H))
         c.setFont("Helvetica", 8)
-        # E-mail label en y_fitz=255.4 → y_rl = 842 - 255.4 = 586.6
         c.drawString(50, 586.6, email)
         c.save()
         packet.seek(0)
