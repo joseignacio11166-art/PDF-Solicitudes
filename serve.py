@@ -5,7 +5,8 @@ Solo escribe los campos variables del asegurado.
 """
 from flask import Flask, request, jsonify
 from pypdf import PdfReader, PdfWriter
-import io, base64, os, traceback, datetime, subprocess, tempfile
+import io, base64, os, traceback, datetime
+import pikepdf, subprocess, tempfile
 
 app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -146,6 +147,9 @@ def fill_sanitas(data):
         "día_730": str(today.day).zfill(2),
         "mes_730": str(today.month).zfill(2),
         "año_730": str(today.year),
+        "día_3": str(today.day).zfill(2),
+        "mes_4": str(today.month).zfill(2),
+        "año_4": str(today.year),
     }
 
     # Tipo documento
@@ -279,7 +283,19 @@ def fill_nueva_mutua(data):
     out = io.BytesIO()
     writer.write(out)
     out.seek(0)
-    return out.read()
+
+    # pikepdf hace visibles los campos sin aplanar
+    try:
+        with pikepdf.Pdf.open(out) as p:
+            if "/AcroForm" in p.Root:
+                p.Root.AcroForm["/NeedAppearances"] = pikepdf.Boolean(True)
+            final = io.BytesIO()
+            p.save(final)
+        final.seek(0)
+        return final.read()
+    except Exception:
+        out.seek(0)
+        return out.read()
 
 
 # ── ENDPOINTS ─────────────────────────────────────────────────────────────────
