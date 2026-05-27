@@ -1,6 +1,5 @@
 """
-AlumnusCare PDF Fill Server — v8
-pypdf + set_need_appearances_writer(True)
+AlumnusCare PDF Fill Server — v9
 """
 from flask import Flask, request, jsonify
 from pypdf import PdfReader, PdfWriter
@@ -84,6 +83,7 @@ def fill_sanitas(data):
     s(1,"dia2",fn_d); s(1,"mes2",fn_m); s(1,"año2",fn_y)
     s(1,"nacionalidad",nac)
     s(1,"movil1",tel)
+    s(1,"movil2",email)
     s(1,"email",email)
     s(1,"empresa","")
     s(1,"domicilio tomador",dir_)
@@ -108,7 +108,7 @@ def fill_sanitas(data):
     s(4,"día_410",fn_d); s(4,"mes_510",fn_m); s(4,"año_510",fn_y)
     s(4,"nacionalidado210",nac)
     s(4,"movil1 pag310",tel)
-    s(4,"Teléfono 2_210",email)
+    s(4,"movil2 pag310",email)
     s(4,"mes_610",fi_m); s(4,"año_610",fi_y)
     s(4,"parentesco10","el mismo")
     s(4,"peso10",peso)
@@ -120,15 +120,29 @@ def fill_sanitas(data):
     if sexo in ("mujer","f","female","woman"): s(4,"Mujer_210","/On")
     else:                                       s(4,"Hombre_210","/On")
 
-    # Preguntas salud
+    # Página 5
+    s(5,"nacionaqlidado210" if False else "nacionalidado210",nac)
+    s(5,"movil2 pxag310",email)
+
+    # Página 6
+    s(6,"nacionaalidado210",nac)
+    s(6,"movil2 paag310",email)
+
+    # Página 7
+    s(7,"naciosnalidado210",nac)
+    s(7,"movil2 pag3s10",email)
+
+    # Página 8
+    s(8,"nacionaqlidado210",nac)
+
+    # Preguntas salud — campo exacto por página
     s(4,"No_310" if q1 in ("no","n") else "Sí_630","/On")
     s(4,"No_430" if q2 in ("no","n") else "Sí_730","/On")
     s(4,"No_530","/On")
-    s(4,"No_5a30","/On")
-    s(4,"No_5s30","/On")
-    s(4,"No_530a","/On")
-    s(4,"No_53a0","/On")
-    s(4,"No_5x30","/On")
+    s(5,"No_5a30","/On")
+    s(6,"No_53a0","/On")
+    s(7,"No_5s30","/On")
+    s(8,"No_5q30","/On")
     s(4,"No_630a" if q4 in ("no","n") else "Sí_930v","/On")
 
     reader = PdfReader(SANITAS_TPL)
@@ -153,7 +167,7 @@ def fill_sanitas_route():
 
 @app.route("/health")
 def health():
-    return jsonify({"status":"ok","version":"v8"})
+    return jsonify({"status":"ok","version":"v9"})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT",5000)))
