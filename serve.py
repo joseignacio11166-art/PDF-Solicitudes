@@ -1,5 +1,5 @@
 """
-AlumnusCare PDF Fill Server — v9
+AlumnusCare PDF Fill Server — v10
 """
 from flask import Flask, request, jsonify
 from pypdf import PdfReader, PdfWriter
@@ -10,46 +10,46 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SANITAS_TPL = os.path.join(BASE_DIR, "test_sanitas_ fijo.pdf")
 
 NAC_MAP = {
-    "españa":"Española","española":"Española","espanol":"Española","español":"Española",
-    "colombia":"Colombiana","colombiana":"Colombiana","colombiano":"Colombiana",
-    "venezuela":"Venezolana","venezolana":"Venezolana","venezolano":"Venezolana",
-    "mexico":"Mexicana","méxico":"Mexicana","mexicana":"Mexicana","mexicano":"Mexicana",
-    "peru":"Peruana","perú":"Peruana","peruana":"Peruana","peruano":"Peruana",
-    "argentina":"Argentina","argentino":"Argentina","chile":"Chilena","chilena":"Chilena",
-    "ecuador":"Ecuatoriana","ecuatoriana":"Ecuatoriana","bolivia":"Boliviana",
-    "brasil":"Brasileña","brazil":"Brasileña","china":"China","india":"India",
-    "eeuu":"Estadounidense","usa":"Estadounidense","marruecos":"Marroquí",
-    "italia":"Italiana","francesa":"Francesa","francia":"Francesa","alemania":"Alemana",
-    "reino unido":"Británica","uk":"Británica","cuba":"Cubana","dominicana":"Dominicana",
-    "rusia":"Rusa","ucrania":"Ucraniana","polonia":"Polaca","rumania":"Rumana",
-    "portugal":"Portuguesa","grecia":"Griega","turquia":"Turca","turquía":"Turca",
-    "nigeria":"Nigeriana","ghana":"Ghanesa","senegal":"Senegalesa",
-    "honduras":"Hondureña","guatemala":"Guatemalteca","nicaragua":"Nicaragüense",
-    "el salvador":"Salvadoreña","costa rica":"Costarricense","panama":"Panameña","panamá":"Panameña",
-    "paraguay":"Paraguaya","uruguay":"Uruguaya",
+        "espana":"Espanola","espanol":"Espanola","espanola":"Espanola",
+        "colombia":"Colombiana","colombiana":"Colombiana","colombiano":"Colombiana",
+        "venezuela":"Venezolana","venezolana":"Venezolana","venezolano":"Venezolana",
+        "mexico":"Mexicana","mexicana":"Mexicana","mexicano":"Mexicana",
+        "peru":"Peruana","peruana":"Peruana","peruano":"Peruana",
+        "argentina":"Argentina","argentino":"Argentina","chile":"Chilena","chilena":"Chilena",
+        "ecuador":"Ecuatoriana","ecuatoriana":"Ecuatoriana","bolivia":"Boliviana",
+        "brasil":"Brasilena","brazil":"Brasilena","china":"China","india":"India",
+        "eeuu":"Estadounidense","usa":"Estadounidense","marruecos":"Marroqui",
+        "italia":"Italiana","francesa":"Francesa","francia":"Francesa","alemania":"Alemana",
+        "reino unido":"Britanica","uk":"Britanica","cuba":"Cubana","dominicana":"Dominicana",
+        "rusia":"Rusa","ucrania":"Ucraniana","polonia":"Polaca","rumania":"Rumana",
+        "portugal":"Portuguesa","grecia":"Griega","turquia":"Turca",
+        "nigeria":"Nigeriana","ghana":"Ghanesa","senegal":"Senegalesa",
+        "honduras":"Hondurena","guatemala":"Guatemalteca","nicaragua":"Nicaraguense",
+        "el salvador":"Salvadorena","costa rica":"Costarricense","panama":"Panamena",
+        "paraguay":"Paraguaya","uruguay":"Uruguaya",
 }
 PROV_MAP = {
-    "madrid":"Madrid","barcelona":"Barcelona","valencia":"Valencia","sevilla":"Sevilla",
-    "zaragoza":"Zaragoza","málaga":"Málaga","malaga":"Málaga","bilbao":"Vizcaya",
-    "alicante":"Alicante","granada":"Granada","murcia":"Murcia",
-    "córdoba":"Córdoba","cordoba":"Córdoba","valladolid":"Valladolid",
-    "palma":"Islas Baleares","las palmas":"Las Palmas","tenerife":"Santa Cruz de Tenerife",
+        "madrid":"Madrid","barcelona":"Barcelona","valencia":"Valencia","sevilla":"Sevilla",
+        "zaragoza":"Zaragoza","malaga":"Malaga","bilbao":"Vizcaya",
+        "alicante":"Alicante","granada":"Granada","murcia":"Murcia",
+        "cordoba":"Cordoba","valladolid":"Valladolid",
+        "palma":"Islas Baleares","las palmas":"Las Palmas","tenerife":"Santa Cruz de Tenerife",
 }
 
 def fill_sanitas(data):
-    fn_raw = (data.get("fecha_nac","1990-01-01") or "1990-01-01")
-    fn = fn_raw.split("-")
-    if len(fn) == 3 and len(fn[0]) == 4:
-        fn_d, fn_m, fn_y = fn[2].zfill(2), fn[1].zfill(2), fn[0]
-    else:
+        fn_raw = (data.get("fecha_nac","1990-01-01") or "1990-01-01")
+        fn = fn_raw.split("-")
+        if len(fn) == 3 and len(fn[0]) == 4:
+                    fn_d, fn_m, fn_y = fn[2].zfill(2), fn[1].zfill(2), fn[0]
+else:
         fn_d, fn_m, fn_y = "01", "01", "1990"
 
     fi_raw = (data.get("fecha_inicio","01/01/2026") or "01/01/2026")
     fi = fi_raw.split("/")
     if len(fi) == 3:
-        fi_d, fi_m, fi_y = fi[0].zfill(2), fi[1].zfill(2), fi[2]
-    else:
-        fi_d, fi_m, fi_y = "01", "01", "2026"
+                fi_d, fi_m, fi_y = fi[0].zfill(2), fi[1].zfill(2), fi[2]
+else:
+            fi_d, fi_m, fi_y = "01", "01", "2026"
 
     hoy = datetime.date.today()
     hd, hm, hy = str(hoy.day).zfill(2), str(hoy.month).zfill(2), str(hoy.year)
@@ -77,10 +77,10 @@ def fill_sanitas(data):
     fv = {}
     def s(pg, fid, val): fv.setdefault(pg,{})[fid] = val
 
-    # Página 1
+    # Pagina 1
     s(1,"nombre tomador",nombre)
     s(1,"numero documento",num_doc)
-    s(1,"dia2",fn_d); s(1,"mes2",fn_m); s(1,"año2",fn_y)
+    s(1,"dia2",fn_d); s(1,"mes2",fn_m); s(1,"ano2",fn_y)
     s(1,"nacionalidad",nac)
     s(1,"movil1",tel)
     s(1,"movil2",email)
@@ -91,65 +91,69 @@ def fill_sanitas(data):
     s(1,"municipio tomador",mun)
     s(1,"cp tomador",cp)
     s(1,"provincia tomador",prov)
-    s(1,"mes1",fi_m); s(1,"año1",fi_y)
-    s(1,"dia2 firma",hd); s(1,"mes2 firma",hm); s(1,"año2 firma",hy)
-    if tipo_doc=="NIE":   s(1,"NIE","/On")
-    elif tipo_doc=="NIF": s(1,"NIF","/On")
-    else:                 s(1,"Pasaporte","/On")
-    if sexo in ("mujer","f","female","woman"): s(1,"Mujer","/On")
-    else:                                       s(1,"Hombre","/On")
+    s(1,"mes1",fi_m); s(1,"ano1",fi_y)
+    s(1,"dia2 firma",hd); s(1,"mes2 firma",hm); s(1,"ano2 firma",hy)
+    if tipo_doc=="NIE": s(1,"NIE","/On")
+elif tipo_doc=="NIF": s(1,"NIF","/On")
+else: s(1,"Pasaporte","/On")
+        if sexo in ("mujer","f","female","woman"): s(1,"Mujer","/On")
+else: s(1,"Hombre","/On")
 
-    # Página 3 RGPD
-    s(3,"día_3",hd); s(3,"mes_4",hm); s(3,"año_4",hy)
+    # Pagina 3 RGPD
+    s(3,"dia_3",hd); s(3,"mes_4",hm); s(3,"ano_4",hy)
 
-    # Página 4 cuestionario
+    # Pagina 4 cuestionario
     s(4,"nombre asegurado pag310",nombre)
     s(4,"num doc10",num_doc)
-    s(4,"día_410",fn_d); s(4,"mes_510",fn_m); s(4,"año_510",fn_y)
+    s(4,"dia_410",fn_d); s(4,"mes_510",fn_m); s(4,"ano_510",fn_y)
     s(4,"nacionalidado210",nac)
     s(4,"movil1 pag310",tel)
     s(4,"movil2 pag310",email)
-    s(4,"mes_610",fi_m); s(4,"año_610",fi_y)
+    s(4,"mes_610",fi_m); s(4,"ano_610",fi_y)
     s(4,"parentesco10","el mismo")
     s(4,"peso10",peso)
     s(4,"estatura10",altura)
-    s(4,"día_730",hd); s(4,"mes_730",hm); s(4,"año_730",hy)
-    if tipo_doc=="NIE":   s(4,"NIE_210","/On")
-    elif tipo_doc=="NIF": s(4,"NIF_210","/On")
-    else:                 s(4,"Pasaporte_211","/On")
-    if sexo in ("mujer","f","female","woman"): s(4,"Mujer_210","/On")
-    else:                                       s(4,"Hombre_210","/On")
+    s(4,"dia_730",hd); s(4,"mes_730",hm); s(4,"ano_730",hy)
+    if tipo_doc=="NIE": s(4,"NIE_210","/On")
+elif tipo_doc=="NIF": s(4,"NIF_210","/On")
+else: s(4,"Pasaporte_211","/On")
+        if sexo in ("mujer","f","female","woman"): s(4,"Mujer_210","/On")
+else: s(4,"Hombre_210","/On")
 
-    # Página 5
-    s(5,"nacionaqlidado210" if False else "nacionalidado210",nac)
-    s(5,"movil2 pxag310",email)
+    # Pagina 5
+    s(5,"nacionalidado210",nac)
+    s(5,"movil2 pag310",email)
 
-    # Página 6
-    s(6,"nacionaalidado210",nac)
-    s(6,"movil2 paag310",email)
+    # Pagina 6
+    s(6,"nacionalidado210",nac)
+    s(6,"movil2 pag310",email)
 
-    # Página 7
-    s(7,"naciosnalidado210",nac)
-    s(7,"movil2 pag3s10",email)
+    # Pagina 7
+    s(7,"nacionalidado210",nac)
+    s(7,"movil2 pag310",email)
 
-    # Página 8
-    s(8,"nacionaqlidado210",nac)
+    # Pagina 8
+    s(8,"nacionalidado210",nac)
 
-    # Preguntas salud — campo exacto por página
-    s(4,"No_310" if q1 in ("no","n") else "Sí_630","/On")
-    s(4,"No_430" if q2 in ("no","n") else "Sí_730","/On")
+    # Preguntas salud q1 y q2 (pagina 4)
+    s(4,"No_310" if q1 in ("no","n") else "Si_630","/On")
+    s(4,"No_430" if q2 in ("no","n") else "Si_730","/On")
+
+    # Pregunta 5 - casilla fija No en todas las paginas
     s(4,"No_530","/On")
     s(5,"No_5a30","/On")
     s(6,"No_53a0","/On")
     s(7,"No_5s30","/On")
     s(8,"No_5q30","/On")
-    s(4,"No_630a" if q4 in ("no","n") else "Sí_930v","/On")
+
+    # Pregunta 6 (q4)
+    s(4,"No_630a" if q4 in ("no","n") else "Si_930v","/On")
 
     reader = PdfReader(SANITAS_TPL)
     writer = PdfWriter(clone_from=reader)
     for page, vals in fv.items():
-        writer.update_page_form_field_values(writer.pages[page-1], vals, auto_regenerate=False)
-    writer.set_need_appearances_writer(True)
+                writer.update_page_form_field_values(writer.pages[page-1], vals, auto_regenerate=False)
+            writer.set_need_appearances_writer(True)
     out = io.BytesIO()
     writer.write(out)
     out.seek(0)
@@ -157,17 +161,19 @@ def fill_sanitas(data):
 
 @app.route("/fill-sanitas", methods=["POST"])
 def fill_sanitas_route():
-    try:
-        data = request.get_json(force=True)
-        if not data: return jsonify({"error":"No JSON"}), 400
-        pdf_bytes = fill_sanitas(data)
-        return jsonify({"pdf_base64": base64.b64encode(pdf_bytes).decode()})
-    except Exception:
+        try:
+                    data = request.get_json(force=True)
+                    pdf_bytes = fill_sanitas(data)
+                    pdf_b64 = base64.b64encode(pdf_bytes).decode()
+                    return jsonify({"pdf_base64": pdf_b64})
+except Exception:
         return jsonify({"error": traceback.format_exc()}), 500
 
 @app.route("/health")
 def health():
-    return jsonify({"status":"ok","version":"v9"})
+        return "ok"
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT",5000)))
+        port = int(os.environ.get("PORT", 5000))
+        app.run(host="0.0.0.0", port=port)
+    
