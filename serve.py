@@ -96,7 +96,8 @@ def fill_sanitas(data):
     else:                                       s(4,"Hombre_210","/On")
     s(4,"No_310" if q1 in ("no","n") else "Sí_630","/On")
     s(4,"No_430" if q2 in ("no","n") else "Sí_730","/On")
-    s(4,"No_530" if q3 in ("no","n") else "Sí_830","/On")
+    s(4,"No_530","/On")
+s(4,"No_5a30","/On")
     s(4,"No_630a" if q4 in ("no","n") else "Sí_930v","/On")
 
     reader = PdfReader(SANITAS_TPL)
