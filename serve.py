@@ -4,7 +4,7 @@ AlumnusCare PDF Fill Server
 from flask import Flask, request, jsonify
 from pypdf import PdfReader, PdfWriter
 from reportlab.pdfgen import canvas as rl_canvas
-import io, base64, os, traceback, datetime, urllib.request
+import io, base64, os, traceback, datetime
 
 app = Flask(__name__)
 
@@ -13,13 +13,7 @@ SANITAS_TPL = os.path.join(BASE_DIR, "SS_castellano_editable_25.pdf")
 NUEVA_MUTUA_TPL = os.path.join(BASE_DIR, "nueva_mutua.pdf")
 
 # Descargar templates frescos de GitHub al arrancar
-def download_templates():
-    base = "https://raw.githubusercontent.com/joseignacio11166-art/PDF-Solicitudes/master/"
-    for filename in ["sanitas.pdf", "nueva_mutua.pdf"]:
-        dest = os.path.join(BASE_DIR, filename)
-        urllib.request.urlretrieve(base + filename, dest)
 
-download_templates()
 
 # ─────────────────────────────────────────────
 # HELPERS
