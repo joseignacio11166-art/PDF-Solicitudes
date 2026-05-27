@@ -7,6 +7,15 @@ from reportlab.pdfgen import canvas as rl_canvas
 import io, base64, os, traceback, datetime
 
 app = Flask(__name__)
+import urllib.request
+
+def download_templates():
+    base = "https://raw.githubusercontent.com/joseignacio11166-art/PDF-Solicitudes/master/"
+    for filename in ["sanitas.pdf", "nueva_mutua.pdf"]:
+        dest = os.path.join(BASE_DIR, filename)
+        urllib.request.urlretrieve(base + filename, dest)
+
+download_templates()
 
 BASE_DIR        = os.path.dirname(os.path.abspath(__file__))
 SANITAS_TPL     = os.path.join(BASE_DIR, "sanitas.pdf")
