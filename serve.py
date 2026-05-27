@@ -5,8 +5,7 @@ Solo escribe los campos variables del asegurado.
 """
 from flask import Flask, request, jsonify
 from pypdf import PdfReader, PdfWriter
-import io, base64, os, traceback, datetime
-import pikepdf, subprocess, tempfile
+import io, base64, os, traceback, datetime, subprocess, tempfile
 
 app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -150,6 +149,9 @@ def fill_sanitas(data):
         "día_3": str(today.day).zfill(2),
         "mes_4": str(today.month).zfill(2),
         "año_4": str(today.year),
+        "día_3": str(today.day).zfill(2),
+        "mes_4": str(today.month).zfill(2),
+        "año_4": str(today.year),
     }
 
     # Tipo documento
@@ -171,9 +173,9 @@ def fill_sanitas(data):
     writer = PdfWriter()
     writer.append(reader)
 
-    for page_idx in [0, 2, 3]:
+    for page_idx in [0, 1, 2, 3]:
         writer.update_page_form_field_values(
-            writer.pages[page_idx], fv, auto_regenerate=False
+            writer.pages[page_idx], fv, auto_regenerate=True
         )
 
     # Escribir PDF temporal
@@ -283,72 +285,3 @@ def fill_nueva_mutua(data):
     out = io.BytesIO()
     writer.write(out)
     out.seek(0)
-
-    # pikepdf hace visibles los campos sin aplanar
-    try:
-        with pikepdf.Pdf.open(out) as p:
-            if "/AcroForm" in p.Root:
-                p.Root.AcroForm["/NeedAppearances"] = pikepdf.Boolean(True)
-            final = io.BytesIO()
-            p.save(final)
-        final.seek(0)
-        return final.read()
-    except Exception:
-        out.seek(0)
-        return out.read()
-
-
-# ── ENDPOINTS ─────────────────────────────────────────────────────────────────
-
-@app.route("/fill-pdf", methods=["POST"])
-def fill_pdf():
-    try:
-        data     = request.json or {}
-        producto = (data.get("producto", "") or "").upper().replace(" ", "_")
-
-        if "SANITAS" in producto:
-            if not os.path.exists(SANITAS_TPL):
-                return jsonify({"error": f"Template no encontrado: {SANITAS_TPL}"}), 500
-            pdf_bytes = fill_sanitas(data)
-            filename  = f"solicitud_sanitas_{_safe_name(data)}.pdf"
-
-        elif "NUEVA_MUTUA" in producto or "NUEVAMUTUA" in producto:
-            if not os.path.exists(NUEVA_MUTUA_TPL):
-                return jsonify({"error": f"Template no encontrado: {NUEVA_MUTUA_TPL}"}), 500
-            pdf_bytes = fill_nueva_mutua(data)
-            filename  = f"solicitud_nuevamutua_{_safe_name(data)}.pdf"
-
-        else:
-            return jsonify({"error": f"Producto desconocido: '{data.get('producto')}'. Usa SANITAS o NUEVA_MUTUA"}), 400
-
-        return jsonify({
-            "success":    True,
-            "pdf_base64": base64.b64encode(pdf_bytes).decode(),
-            "filename":   filename,
-            "producto":   producto,
-        })
-
-    except Exception as e:
-        return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
-
-
-@app.route("/health", methods=["GET"])
-def health():
-    return jsonify({
-        "status": "ok",
-        "version": "v4",
-        "templates": {
-            "sanitas":     os.path.exists(SANITAS_TPL),
-            "nueva_mutua": os.path.exists(NUEVA_MUTUA_TPL),
-        }
-    })
-
-
-def _safe_name(data):
-    return (data.get("nombre", "cliente") or "cliente").replace(" ", "_")[:30]
-
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
-    print(f"AlumnusCare PDF Server v4 en http://0.0.0.0:{port}")
-    app.run(host="0.0.0.0", port=port, debug=False)
