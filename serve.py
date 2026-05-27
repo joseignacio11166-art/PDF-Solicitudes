@@ -158,20 +158,6 @@ def fill_sanitas(data):
     else:
         s(4, "Hombre_210", "/On")
 
-    # Paginas 5-8: nacionalidad, movil y email con nombres exactos
-    s(5, "nacionalxidado210", nac)
-    s(5, "movil2 pxag310", tel)
-    s(5, "Teléfonxo 2_210", email)
-    s(6, "nacionaalidado210", nac)
-    s(6, "movil2 paag310", tel)
-    s(6, "Teléfonao 2_210", email)
-    s(7, "naciosnalidado210", nac)
-    s(7, "movil2 pag3s10", tel)
-    s(7, "Teléfosno 2_210", email)
-    s(8, "nacionaqlidado210", nac)
-    s(8, "mqovil2 pag310", tel)
-    s(8, "Teléfoqno 2_210", email)
-
    
 
     reader = PdfReader(SANITAS_TPL)
