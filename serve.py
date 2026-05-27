@@ -9,9 +9,8 @@ import io, base64, os, traceback, datetime
 app = Flask(__name__)
 
 BASE_DIR        = os.path.dirname(os.path.abspath(__file__))
-SANITAS_TPL     = os.path.join(BASE_DIR, "SS_castellano_editable_25.pdf")
-NUEVA_MUTUA_TPL = os.path.join(BASE_DIR, "SOLICITUDESTUDIANTES-TOMADOR_2025_v2.pdf")
-
+SANITAS_TPL     = os.path.join(BASE_DIR, "sanitas.pdf")
+NUEVA_MUTUA_TPL = os.path.join(BASE_DIR, "nueva_mutua.pdf")
 # ─────────────────────────────────────────────
 # HELPERS
 # ─────────────────────────────────────────────
