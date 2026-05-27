@@ -172,28 +172,7 @@ def fill_sanitas(data):
     s(8, "mqovil2 pag310", tel)
     s(8, "Teléfoqno 2_210", email)
 
-    # Preguntas salud q1 y q2
-    if q1 in ("no", "n"):
-        s(4, "No_310", "/On")
-    else:
-        s(4, "Sí_610", "/On")
-    if q2 in ("no", "n"):
-        s(4, "No_430", "/On")
-    else:
-        s(4, "Sí_730", "/On")
-
-    # Pregunta 5 - No en todas las paginas
-    s(4, "No_530", "/Yes")
-    s(5, "No_5a30", "/Yes")
-    s(6, "No_53a0", "/Yes")
-    s(7, "No_5s30", "/Yes")
-    s(8, "No_5q30", "/Yes")
-
-    # Pregunta 6 (q4)
-    if q4 in ("no", "n"):
-        s(4, "No_630a", "/On")
-    else:
-        s(4, "Sí_930v", "/On")
+   
 
     reader = PdfReader(SANITAS_TPL)
     writer = PdfWriter(clone_from=reader)
