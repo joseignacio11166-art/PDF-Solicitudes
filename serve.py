@@ -183,11 +183,11 @@ def fill_sanitas(data):
         s(4, "Sí_730", "/On")
 
     # Pregunta 5 - No en todas las paginas
-    s(4, "No_530", "/On")
-    s(5, "No_5a30", "/On")
-    s(6, "No_53a0", "/On")
-    s(7, "No_5s30", "/On")
-    s(8, "No_5q30", "/On")
+    s(4, "No_530", "/Yes")
+    s(5, "No_5a30", "/Yes")
+    s(6, "No_53a0", "/Yes")
+    s(7, "No_5s30", "/Yes")
+    s(8, "No_5q30", "/Yes")
 
     # Pregunta 6 (q4)
     if q4 in ("no", "n"):
