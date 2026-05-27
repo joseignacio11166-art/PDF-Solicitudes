@@ -5,7 +5,7 @@ Solo escribe los campos variables del asegurado.
 """
 from flask import Flask, request, jsonify
 from pypdf import PdfReader, PdfWriter
-import io, base64, os, traceback, datetime
+import io, base64, os, traceback, datetime, subprocess, tempfile
 
 app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -172,10 +172,29 @@ def fill_sanitas(data):
             writer.pages[page_idx], fv, auto_regenerate=False
         )
 
-    out = io.BytesIO()
-    writer.write(out)
-    out.seek(0)
-    return out.read()
+    # Escribir PDF temporal
+    tmp_in  = tempfile.NamedTemporaryFile(suffix='.pdf', delete=False)
+    tmp_out = tempfile.NamedTemporaryFile(suffix='.pdf', delete=False)
+    try:
+        writer.write(tmp_in)
+        tmp_in.close()
+        tmp_out.close()
+        # qpdf --generate-appearances hace visibles los campos sin aplanar
+        subprocess.run(
+            ['qpdf', '--generate-appearances', tmp_in.name, tmp_out.name],
+            check=True, capture_output=True
+        )
+        with open(tmp_out.name, 'rb') as f:
+            return f.read()
+    except Exception:
+        # Si qpdf falla, devolver el PDF sin procesar
+        tmp_in_path = tmp_in.name
+        with open(tmp_in_path, 'rb') as f:
+            return f.read()
+    finally:
+        for p in [tmp_in.name, tmp_out.name]:
+            try: os.unlink(p)
+            except: pass
 
 
 # ── NUEVA MUTUA ───────────────────────────────────────────────────────────────
