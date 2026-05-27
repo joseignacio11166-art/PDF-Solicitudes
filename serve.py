@@ -1,5 +1,5 @@
 """
-AlumnusCare PDF Fill Server — v7
+AlumnusCare PDF Fill Server — v8
 pypdf + set_need_appearances_writer(True)
 """
 from flask import Flask, request, jsonify
@@ -27,7 +27,7 @@ NAC_MAP = {
     "nigeria":"Nigeriana","ghana":"Ghanesa","senegal":"Senegalesa",
     "honduras":"Hondureña","guatemala":"Guatemalteca","nicaragua":"Nicaragüense",
     "el salvador":"Salvadoreña","costa rica":"Costarricense","panama":"Panameña","panamá":"Panameña",
-    "paraguay":"Paraguaya","uruguay":"Uruguaya","bolivia":"Boliviana",
+    "paraguay":"Paraguaya","uruguay":"Uruguaya",
 }
 PROV_MAP = {
     "madrid":"Madrid","barcelona":"Barcelona","valencia":"Valencia","sevilla":"Sevilla",
@@ -38,7 +38,6 @@ PROV_MAP = {
 }
 
 def fill_sanitas(data):
-    # Fechas nacimiento
     fn_raw = (data.get("fecha_nac","1990-01-01") or "1990-01-01")
     fn = fn_raw.split("-")
     if len(fn) == 3 and len(fn[0]) == 4:
@@ -46,7 +45,6 @@ def fill_sanitas(data):
     else:
         fn_d, fn_m, fn_y = "01", "01", "1990"
 
-    # Fecha inicio póliza — usar el día del formulario, no forzar día 1
     fi_raw = (data.get("fecha_inicio","01/01/2026") or "01/01/2026")
     fi = fi_raw.split("/")
     if len(fi) == 3:
@@ -80,7 +78,7 @@ def fill_sanitas(data):
     fv = {}
     def s(pg, fid, val): fv.setdefault(pg,{})[fid] = val
 
-    # ── Página 1 ─────────────────────────────────────────────────────────
+    # Página 1
     s(1,"nombre tomador",nombre)
     s(1,"numero documento",num_doc)
     s(1,"dia2",fn_d); s(1,"mes2",fn_m); s(1,"año2",fn_y)
@@ -95,41 +93,42 @@ def fill_sanitas(data):
     s(1,"provincia tomador",prov)
     s(1,"mes1",fi_m); s(1,"año1",fi_y)
     s(1,"dia2 firma",hd); s(1,"mes2 firma",hm); s(1,"año2 firma",hy)
-
     if tipo_doc=="NIE":   s(1,"NIE","/On")
     elif tipo_doc=="NIF": s(1,"NIF","/On")
     else:                 s(1,"Pasaporte","/On")
-
     if sexo in ("mujer","f","female","woman"): s(1,"Mujer","/On")
     else:                                       s(1,"Hombre","/On")
 
-    # ── Página 3 RGPD ────────────────────────────────────────────────────
+    # Página 3 RGPD
     s(3,"día_3",hd); s(3,"mes_4",hm); s(3,"año_4",hy)
 
-    # ── Página 4 cuestionario ────────────────────────────────────────────
+    # Página 4 cuestionario
     s(4,"nombre asegurado pag310",nombre)
     s(4,"num doc10",num_doc)
     s(4,"día_410",fn_d); s(4,"mes_510",fn_m); s(4,"año_510",fn_y)
     s(4,"nacionalidado210",nac)
     s(4,"movil1 pag310",tel)
-    s(4,"Teléfono 2_210",email)   # campo email pág 4
+    s(4,"Teléfono 2_210",email)
     s(4,"mes_610",fi_m); s(4,"año_610",fi_y)
     s(4,"parentesco10","el mismo")
     s(4,"peso10",peso)
     s(4,"estatura10",altura)
     s(4,"día_730",hd); s(4,"mes_730",hm); s(4,"año_730",hy)
-
     if tipo_doc=="NIE":   s(4,"NIE_210","/On")
     elif tipo_doc=="NIF": s(4,"NIF_210","/On")
     else:                 s(4,"Pasaporte_211","/On")
-
     if sexo in ("mujer","f","female","woman"): s(4,"Mujer_210","/On")
     else:                                       s(4,"Hombre_210","/On")
 
-    # Preguntas salud — marcar todos los campos duplicados
+    # Preguntas salud
     s(4,"No_310" if q1 in ("no","n") else "Sí_630","/On")
     s(4,"No_430" if q2 in ("no","n") else "Sí_730","/On")
-    s(4,"No_530","/On"); s(4,"No_5a30","/On"); s(4,"No_5s30","/On")
+    s(4,"No_530","/On")
+    s(4,"No_5a30","/On")
+    s(4,"No_5s30","/On")
+    s(4,"No_530a","/On")
+    s(4,"No_53a0","/On")
+    s(4,"No_5x30","/On")
     s(4,"No_630a" if q4 in ("no","n") else "Sí_930v","/On")
 
     reader = PdfReader(SANITAS_TPL)
@@ -154,7 +153,7 @@ def fill_sanitas_route():
 
 @app.route("/health")
 def health():
-    return jsonify({"status":"ok","version":"v7"})
+    return jsonify({"status":"ok","version":"v8"})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT",5000)))
