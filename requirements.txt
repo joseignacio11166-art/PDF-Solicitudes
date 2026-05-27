@@ -2,4 +2,3 @@ flask
 pypdf
 reportlab
 gunicorn
-pikepdf
