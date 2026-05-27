@@ -1,5 +1,5 @@
 flask
 pypdf
 reportlab
-pymupdf
+PyMuPDF
 gunicorn
