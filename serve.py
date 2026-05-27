@@ -9,7 +9,7 @@ import io, base64, os, traceback, datetime, urllib.request
 app = Flask(__name__)
 
 BASE_DIR        = os.path.dirname(os.path.abspath(__file__))
-SANITAS_TPL     = os.path.join(BASE_DIR, "sanitas.pdf")
+SANITAS_TPL = os.path.join(BASE_DIR, "SS_castellano_editable_25.pdf")
 NUEVA_MUTUA_TPL = os.path.join(BASE_DIR, "nueva_mutua.pdf")
 
 # Descargar templates frescos de GitHub al arrancar
