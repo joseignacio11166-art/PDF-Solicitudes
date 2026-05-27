@@ -1,5 +1,5 @@
 """
-AlumnusCare PDF Fill Server - v11
+AlumnusCare PDF Fill Server - v12
 """
 from flask import Flask, request, jsonify
 from pypdf import PdfReader, PdfWriter
@@ -97,10 +97,10 @@ def fill_sanitas(data):
     s(1, "numero documento", num_doc)
     s(1, "dia2", fn_d)
     s(1, "mes2", fn_m)
-    s(1, "ano2", fn_y)
+    s(1, "año2", fn_y)
     s(1, "nacionalidad", nac)
     s(1, "movil1", tel)
-    s(1, "movil2", email)
+    s(1, "movil2", tel)
     s(1, "email", email)
     s(1, "empresa", "")
     s(1, "domicilio tomador", dir_)
@@ -109,10 +109,10 @@ def fill_sanitas(data):
     s(1, "cp tomador", cp)
     s(1, "provincia tomador", prov)
     s(1, "mes1", fi_m)
-    s(1, "ano1", fi_y)
+    s(1, "año1", fi_y)
     s(1, "dia2 firma", hd)
     s(1, "mes2 firma", hm)
-    s(1, "ano2 firma", hy)
+    s(1, "año2 firma", hy)
     if tipo_doc == "NIE":
         s(1, "NIE", "/On")
     elif tipo_doc == "NIF":
@@ -125,27 +125,28 @@ def fill_sanitas(data):
         s(1, "Hombre", "/On")
 
     # Pagina 3 RGPD
-    s(3, "dia_3", hd)
+    s(3, "día_3", hd)
     s(3, "mes_4", hm)
-    s(3, "ano_4", hy)
+    s(3, "año_4", hy)
 
-    # Pagina 4 cuestionario
+    # Pagina 4
     s(4, "nombre asegurado pag310", nombre)
     s(4, "num doc10", num_doc)
-    s(4, "dia_410", fn_d)
+    s(4, "día_410", fn_d)
     s(4, "mes_510", fn_m)
-    s(4, "ano_510", fn_y)
+    s(4, "año_510", fn_y)
     s(4, "nacionalidado210", nac)
     s(4, "movil1 pag310", tel)
-    s(4, "movil2 pag310", email)
+    s(4, "movil2 pag310", tel)
+    s(4, "Teléfono 2_210", email)
     s(4, "mes_610", fi_m)
-    s(4, "ano_610", fi_y)
+    s(4, "año_610", fi_y)
     s(4, "parentesco10", "el mismo")
     s(4, "peso10", peso)
     s(4, "estatura10", altura)
-    s(4, "dia_730", hd)
+    s(4, "día_730", hd)
     s(4, "mes_730", hm)
-    s(4, "ano_730", hy)
+    s(4, "año_730", hy)
     if tipo_doc == "NIE":
         s(4, "NIE_210", "/On")
     elif tipo_doc == "NIF":
@@ -157,26 +158,31 @@ def fill_sanitas(data):
     else:
         s(4, "Hombre_210", "/On")
 
-    # Paginas 5-7: nacionalidad y email
-    s(5, "nacionalidado210", nac)
-    s(5, "movil2 pag310", email)
-    s(6, "nacionalidado210", nac)
-    s(6, "movil2 pag310", email)
-    s(7, "nacionalidado210", nac)
-    s(7, "movil2 pag310", email)
-    s(8, "nacionalidado210", nac)
+    # Paginas 5-8: nacionalidad, movil y email con nombres exactos
+    s(5, "nacionalxidado210", nac)
+    s(5, "movil2 pxag310", tel)
+    s(5, "Teléfonxo 2_210", email)
+    s(6, "nacionaalidado210", nac)
+    s(6, "movil2 paag310", tel)
+    s(6, "Teléfonao 2_210", email)
+    s(7, "naciosnalidado210", nac)
+    s(7, "movil2 pag3s10", tel)
+    s(7, "Teléfosno 2_210", email)
+    s(8, "nacionaqlidado210", nac)
+    s(8, "mqovil2 pag310", tel)
+    s(8, "Teléfoqno 2_210", email)
 
-    # Preguntas salud q1 y q2 (pagina 4)
+    # Preguntas salud q1 y q2
     if q1 in ("no", "n"):
         s(4, "No_310", "/On")
     else:
-        s(4, "Si_630", "/On")
+        s(4, "Sí_610", "/On")
     if q2 in ("no", "n"):
         s(4, "No_430", "/On")
     else:
-        s(4, "Si_730", "/On")
+        s(4, "Sí_730", "/On")
 
-    # Pregunta 5 - casilla fija No en todas las paginas
+    # Pregunta 5 - No en todas las paginas
     s(4, "No_530", "/On")
     s(5, "No_5a30", "/On")
     s(6, "No_53a0", "/On")
@@ -187,7 +193,7 @@ def fill_sanitas(data):
     if q4 in ("no", "n"):
         s(4, "No_630a", "/On")
     else:
-        s(4, "Si_930v", "/On")
+        s(4, "Sí_930v", "/On")
 
     reader = PdfReader(SANITAS_TPL)
     writer = PdfWriter(clone_from=reader)
