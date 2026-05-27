@@ -14,7 +14,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ── Nombres de los templates (deben estar en el mismo directorio) ──────────────
 # Sube estos dos archivos a tu repo de GitHub con estos nombres exactos:
-SANITAS_TPL    = os.path.join(BASE_DIR, "sanitas.pdf")
+SANITAS_TPL = os.path.join(BASE_DIR, "SS_castellano_editable_25.pdf")
 NUEVA_MUTUA_TPL = os.path.join(BASE_DIR, "nueva_mutua.pdf")
 
 
