@@ -1,0 +1,21 @@
+# Entorno
+.venv/
+__pycache__/
+*.pyc
+
+# Config local de herramientas
+.claude/
+
+# Secretos — NUNCA subir la API key
+.env
+
+# DATOS PERSONALES Y DE SALUD (RGPD) — nunca subir al repositorio
+# Cotizaciones de entrada, ejemplos con datos reales y salidas generadas.
+ejemplos/
+entradas/
+salidas/
+*_cotizacion_*.pdf
+formulario_cotizacion_*.pdf
+
+# Las plantillas EN BLANCO sí pueden versionarse (no llevan datos personales):
+!plantillas/

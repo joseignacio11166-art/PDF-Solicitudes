@@ -1,0 +1,13 @@
+# No meter en la imagen lo innecesario o sensible.
+.venv/
+__pycache__/
+*.pyc
+.git/
+.env
+salidas/
+entradas/
+ejemplos/
+*.bat
+# Datos personales / de salud (por si acaso)
+*_cotizacion_*.pdf
+formulario_cotizacion_*.pdf

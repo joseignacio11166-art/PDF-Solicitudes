@@ -1,0 +1,3870 @@
+{
+  "año1": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "2026",
+    "estados_posibles": null
+  },
+  "mes1": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "01",
+    "estados_posibles": null
+  },
+  "asegurados": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "1",
+    "estados_posibles": null
+  },
+  "pto": {
+    "tipo": null,
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "pto. anterior": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "Sanitas International Students",
+    "estados_posibles": null
+  },
+  "Nueva póliza": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/On",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Inclusión complemento para todos los asegurados en póliza ya existente": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Cambio de póliza": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "pza anterior": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "nº solicitud": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "cod plan": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "poliza2": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "barra": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "dpto": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "oficina": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo gestor": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo empleado": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "mediador": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "Rose & Pagés",
+    "estados_posibles": null
+  },
+  "Agente": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "codigo agencia": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "dgs1": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Corredor": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/On",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "codigo mediador": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "30149",
+    "estados_posibles": null
+  },
+  "dgs2": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "nombre tomador": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "Isabella Ponce Hidalgo",
+    "estados_posibles": null
+  },
+  "Hombre": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Mujer": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/On",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "dia2": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "01",
+    "estados_posibles": null
+  },
+  "mes2": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "01",
+    "estados_posibles": null
+  },
+  "año2": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "1990",
+    "estados_posibles": null
+  },
+  "nacionalidad": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "España",
+    "estados_posibles": null
+  },
+  "numero documento": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "A4139316",
+    "estados_posibles": null
+  },
+  "NIF": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Pasaporte": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/On",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "NIE": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Documento Nacional de Identidad ciudadanos de la UE": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "movil1": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "5930997278416",
+    "estados_posibles": null
+  },
+  "movil2": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "5930997278416",
+    "estados_posibles": null
+  },
+  "empresa": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "email": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "imponceh07@gmail.com",
+    "estados_posibles": null
+  },
+  "iban": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "cc1": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "cc2": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "cc3": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "cc4": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "bic": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Anual": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/On",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Semestral": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Trimestral": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Mensual": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "domicilio tomador": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "Calle Hermosilla 80",
+    "estados_posibles": null
+  },
+  "domicilio tomador n": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "PISO 2 A",
+    "estados_posibles": null
+  },
+  "bloque": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "domicilio tomador es": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "domicilio tomador piso": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "domicilio tomador pta": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "municipio tomador": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "Madrid",
+    "estados_posibles": null
+  },
+  "cp tomador": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "28001",
+    "estados_posibles": null
+  },
+  "provincia tomador": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "Madrid",
+    "estados_posibles": null
+  },
+  "domicilio asegurado": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "domicilio asegurado n": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "bloque2": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "domicilio asegurado es": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "domicilio asegurado piso": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "domicilio asegurado pta": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "municipio asegurado": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "cp asegurado": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "provincia asegurado": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "El Mediador": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/On",
+    "estados_posibles": [
+      "/Off",
+      "/On"
+    ]
+  },
+  "domicilio mediador": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "domicilio mediador num": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "domicilio mediador n": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "domicilio mediador es": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "domicilio mediador piso": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "domicilio mediador pta": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "municipio mediador": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "cp mediador": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "provincia mediador": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "dia2 firma": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "12",
+    "estados_posibles": null
+  },
+  "mes2 firma": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "06",
+    "estados_posibles": null
+  },
+  "año2 firma": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "2026",
+    "estados_posibles": null
+  },
+  "Digital": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "dia2 digital": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo digital": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Dental": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "modelo dental": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "dia2 modalidad": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año2 modalidad": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo dental": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Clínica Universidad de Navarra": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "dia2 cun": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año2 cun": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo cun": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Farmacia": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "dia2 farmacia": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año2 farmacia": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo farmacia": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "toggle_21": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "dia2 accidentes": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año2 accidentes": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo accidentes": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Otros": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "otros": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "dia2 otros": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año2 otros": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo otros": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año2 digital": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No Consiento": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/On",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Sí_2": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No Consiento_2": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/On",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Sí_3": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "toggle_6": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/On",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "día_3": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "12",
+    "estados_posibles": null
+  },
+  "mes_4": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "06",
+    "estados_posibles": null
+  },
+  "año_4": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "2026",
+    "estados_posibles": null
+  },
+  "Inclusión de asegurado en póliza10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Inclusión de complemento en asegurado ya existente10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "solicitud pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "poliza pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "tomador pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "responder asegurado10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "nombre asegurado pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "Isabella Ponce Hidalgo",
+    "estados_posibles": null
+  },
+  "Hombre_210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Mujer_210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/On",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "día_410": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "01",
+    "estados_posibles": null
+  },
+  "mes_510": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "01",
+    "estados_posibles": null
+  },
+  "año_510": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "1990",
+    "estados_posibles": null
+  },
+  "parentesco10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "el mismo",
+    "estados_posibles": null
+  },
+  "movil1 pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "5930997278416",
+    "estados_posibles": null
+  },
+  "movil2 pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "5930997278416",
+    "estados_posibles": null
+  },
+  "mes_610": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "01",
+    "estados_posibles": null
+  },
+  "año_610": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "2026",
+    "estados_posibles": null
+  },
+  "Teléfono 2_210": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "imponceh07@gmail.com",
+    "estados_posibles": null
+  },
+  "nacionalidado210": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "España",
+    "estados_posibles": null
+  },
+  "num doc10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "A4139316",
+    "estados_posibles": null
+  },
+  "NIF_210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Pasaporte_211": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/On",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "NIE_210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Documento Nacional de Identidad ciudadanos de la UE_210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "N de póliza anterior15": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/0",
+    "estados_posibles": [
+      "/No",
+      "/0",
+      "/2",
+      "/3",
+      "/4",
+      "/5",
+      "/6",
+      "/7",
+      "/8",
+      "/9",
+      "/10",
+      "/11"
+    ]
+  },
+  "pza anterior pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sío_510": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/No",
+      "/Off"
+    ]
+  },
+  "Sí_510": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/On",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Cuál10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "peso10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "60.68",
+    "estados_posibles": null
+  },
+  "estatura10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "167",
+    "estados_posibles": null
+  },
+  "Sí_610": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/On",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_310": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_3pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_330": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_730": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/On",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_430": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_4pag330": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_430": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_830": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_530": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_5pag330": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_530": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_930": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_630": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_6pag3130": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_6130": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Óptica30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "optica mes30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "optica año30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo optica30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Reembolso de gastos30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "capital reembolso30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "capital mes30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "capital año30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo capital30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "día_730": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "12",
+    "estados_posibles": null
+  },
+  "mes_730": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "06",
+    "estados_posibles": null
+  },
+  "año_730": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "2026",
+    "estados_posibles": null
+  },
+  "Renta subsidio hospitalización30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "renta mes30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año renta 230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo renta30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Accidentes30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Indicar profesión del asegurado30a": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "accidentes mes30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año accidentes 230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo accidentes230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Otros_230": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "mes otros 230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año otros 230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo otros230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "pagina numero30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "pagina asegurado30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "nueva poliza30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/On",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "cambio de poliza": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Sí_930v": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_630a": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/On",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_6pag330": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_630": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Indicar profesión del asegurado30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_9301": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_6301": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/On",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Sí_93011": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_61301": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/On",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_63011": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_630111": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/On",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_6301111": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Inclusión de asegurado en póliza1x0": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Inclusión de complemento en asegurado ya existenxte10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "poliza pag31x0": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "tomador pag3x10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "responder asegurxado10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "nombre aseguradxo pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Hombre_21x0": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Mujer_2x10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "día_41x0": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "mes_51x0": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año_51x0": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "parentexsco10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "movil1 pxag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "movil2 pxag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "mes_x610": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año_x610": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Teléfonxo 2_210": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "num doxc10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "NIF_x210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "NIE_2x10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Documxento Nacional de Identidad ciudadanos de la UE_210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "pzax anterior pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Síox_510": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/No",
+      "/Off"
+    ]
+  },
+  "Sí_x510": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/No",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Cxuál10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "estaturxa10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_6x10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_3a10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_3a30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_7a30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Noa430": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_4apag330": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_a430": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_a830": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_5a30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_5pag3a30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_53a0": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_9a30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_a630": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_6paga3130": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_613a0": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Óptiaca30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "optiaca mes30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "opticaa año30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigao optica30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Reemabolso de gastos30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "capital raeembolso30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "capitala mes30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "capital aaño30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo acapital30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "día_7a30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "mes_a730": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año_73a0": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Renta subsidio ahospitalización30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "renta mes3a0": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año renta 2a30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo arenta30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Accidenates30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Indicar aprofesión del asegurado30a": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "accideantes mes30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año aaccidentes 230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo aaccidentes230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Otros_a230": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "mes otraos 230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año otroas 230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo aotros230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "pagina numearo30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "pagina aasegurado30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "nuevaa poliza30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "camabio de poliza": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Sí_93a0v": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_63a0a": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_6paag330": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_6a30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Indicar parofesión del asegurado30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_93a01": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_6a301": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Sí_93a011": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_61a301": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_63a011": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_63a0111": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_63a01111": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Inclusión dea asegurado en póliza10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Inclusión de acomplemento en asegurado ya existente10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "solicitud paag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "poliza paag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "tomadoar pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "respondaer asegurado10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "nombrae asegurado pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Hombrea_210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Mujaer_210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "díaa_410": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "meas_510": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "añoa_510": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "parentaesco10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "movil1 paag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "movil2 paag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "mes_a610": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año_6a10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Teléfonao 2_210": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "nacionaalidado210": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "num adoc10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "NIF_a210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Pasapaorte_211": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "NIE_a210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Documento Nacional de Identidad ciudadaanos de la UE_210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "pza antearior pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sío_5a10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/No",
+      "/Off"
+    ]
+  },
+  "Sí_5a10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/No",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Cuáal10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "pesao10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "estaatura10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_a610": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_31a0": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_3apag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_a330": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_73a0": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_4a30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_4aapag330": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_4a30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_a83a0": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_53a0": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_a5pag330": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_a530": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_a930": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Noa_630": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_a6pag3130": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_a6130": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Óaptica30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "opatica mes30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "optiaca año30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "coadigo optica30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Reeambolso de gastos30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "capitaal reembolso30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "capitaal mes30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "capitaal año30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codaigo capital30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "día_s730": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año_s730": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Renta subsidio hsospitalización30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "renta smes30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año resnta 230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigos renta30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Accidenstes30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Indicar psrofesión del asegurado30a": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "accidenstes mes30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año accidsentes 230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo asccidentes230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Otros_2s30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "mes otsros 230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año otross 230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo otrsos230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "pagina snumero30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "pagina sasegurado30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "nuesva poliza30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "camsbio de poliza": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Sí_s930v": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_s630a": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_s6pag330": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_63s0": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Indicar profesión del asegusrado30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_s9301": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_s6301": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Sí_9s3011": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_61s301": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_63s011": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_6s30111": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Nos_6301111": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Inclusión de assegurado en póliza10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Inclusión de csomplemento en asegurado ya existente10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "solicitud pags310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "polizs pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "tomadosr pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "resposnder asegurado10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "nombsre asegurado pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Homsbre_210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Mujers_210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "día_4s10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "mes_51s0": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "años_510": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "parentsesco10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "movil1 pag3s10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "movil2 pag3s10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "mses_610": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "años610": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Teléfosno 2_210": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "naciosnalidado210": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "num docs10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "NIF_s210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Pasaportse_211": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "NIE_s210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Documento Nacional de Identidad ciudadanos sde la UE_210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "pza asnterior pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Síos_510": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/No",
+      "/Off"
+    ]
+  },
+  "Sís_510": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/No",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Cuásl10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "peso1s0": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "estatsura10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_s610": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Nos_310": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_3spag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_330s": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_s730": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Nos_430": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_s4pag330": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_43s0": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_s830": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_5s30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_5pasg330": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fills_530": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sís_930": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_6s30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_6psag3130": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_61s30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Ópticsa30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "optica mses30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "optica añso30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo soptica30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Reembsolso de gastos30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "caspital reembolso30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "capistal mes30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "capitals año30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigos capital30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "día_73s0": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "mess_730": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "años_730": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Rentad subsidio hospitalización30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "rentda mes30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año drenta 230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codidgo renta30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Accidentdes30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Indicar profesiódn del asegurado30a": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "accidentes dmes30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año accidentes d230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo accidentdes230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Otros_230d": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "mes otrods 230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año otdros 230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigdo otros230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "paginad numero30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "paginda asegurado30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "nueva dpoliza30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "cambio dde poliza": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Sí_93d0v": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_d630a": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_6pagd330": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_6d30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Indicar dprofesión del asegurado30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_93d01": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_6d301": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Sí_93d011": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_6d1301": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_63d011": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_63d0111": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_d6301111": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Inclusión de asegurado en póaliza10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Inclusión de complemento en asegaurado ya existente10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "soqlicitud paag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "poliqza paag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "tomaqdor pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "responder aseguqrado10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "nombre asegurqado pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Hombre_q210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Mujer_q210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "díaq410": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "meqs_510": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "añqo_510": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "parqentesco10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "movil1 qpag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "mqovil2 pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "qmes_610": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "añoq_610": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Teléfoqno 2_210": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "nacionaqlidado210": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "numq doc10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "NIqF_210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Pasqaporte_211": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "NIqE_210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Docuqmento Nacional de Identidad ciudadanos de la UE_210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "pza anterqior pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sío_5q10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/No",
+      "/Off"
+    ]
+  },
+  "Sí_51q0": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/No",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Cuálq10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "pesoq10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "estatqura10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_610q": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_3q10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_3pagq310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_33q0": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_q730": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_q430": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_4pagq330": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_4q30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_8q30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_5q30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_5pag3q30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_5q30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_q930": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Noq_630": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_6pqag3130": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fillq_6130": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Ópqtica30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "opqtica mes30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "optica añqo30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo opqtica30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Reemboqlso de gastos30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "capital revembolso30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "capital mves30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "capital añov30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo capvital30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "día_7v30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "mes_v730": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año_73v0": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Renta subsivdio hospitalización30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "renta mevs30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año rventa 230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo vrenta30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Accidventes30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Indicarv profesión del asegurado30a": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "accidentves mes30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año accvidentes 230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigov accidentes230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Otros_v230": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "mes otvros 230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año otros v230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo votros230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "paginaz numero30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "paginaz asegurado30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "nueva zpoliza30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "cambioz de poliza": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Sí_93z0v": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_6z30a": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_6pzag330": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_z630": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Indicazr profesión del asegurado30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_z9301": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Noz_6301": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Sí_z93011": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_z61301": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_z63011": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_6z30111": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_z6301111": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Inclusión de asegurado xen póliza10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Inclusión de complemexnto en asegurado ya existente10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "solicitud pagx310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "poliza pxag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "tomador xpag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "responder asegxurado10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "nombre aseguxrado pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Hombre_2x10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Mujexr_2x10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "día_x410": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "mxes_510": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "axño_510": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "paxrentesco10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "moxvil1 pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "moxvil2 pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "mexs_610": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "añox_610": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Teléfoxno 2_210": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "nacionalxidado210": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "num dxoc10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "NIFx_x210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Pasaxporte_211": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "NxIE_210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Documento Nacional de xIdentidad ciudadanos de la UE_210": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "pza anterixor pag310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sío_x510": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/No",
+      "/Off"
+    ]
+  },
+  "Sí_5x10": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "/No",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Cuxál10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "pexso10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "estaxtura10": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Síx_610": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_x310": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_3paxg310": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_3x30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_7x30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_x430": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_4xpag330": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_4x30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_8x30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_x530": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_5pxag330": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_x530": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_9x30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_x630": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_6xpag3130": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_61x30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Óptixca30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "opticax mes30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "optica xaño30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigoxoptica30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Reemxbolso de gastos30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "capital xreembolso30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "capital xmes30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "capitalx año30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigoxcapital30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "día_73x0": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "mes_x730": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "axño_730": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Rentxa subsidio hospitalización30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "renta mexs30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año rentxa 230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo rexnta30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Accidentesx30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Indicar profesiónx del asegurado30a": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "accidentes mexs30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año accidentexs 230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo accidenxtes230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Otros_23x0": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "mes otrosx 230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "año otroxs 230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "codigo otrxos230": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "pagina nuxmero30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "pagina asegurxado30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "nueva polizxa30": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "cambio de xpoliza": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Sí_93x0v": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_x630a": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "fill_6xpag330": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "fill_6x30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Indicxar profesión del asegurado30": {
+    "tipo": "/Tx",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": null
+  },
+  "Sí_93x01": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_6x301": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "Sí_93x011": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_6x1301": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_63x011": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_63x0111": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  },
+  "No_6x301111": {
+    "tipo": "/Btn",
+    "valor_en_ejemplo_Isabella": "",
+    "estados_posibles": [
+      "/On",
+      "/Off"
+    ]
+  }
+}

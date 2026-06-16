@@ -1,0 +1,10 @@
+# Generador de Solicitudes — dependencias
+# Lectura/escritura de PDF
+pypdf>=5.0
+pdfplumber>=0.11
+reportlab>=4.2
+# Cerebro (Claude API)
+anthropic>=0.40
+python-dotenv>=1.0
+# Interfaz local
+streamlit>=1.40
