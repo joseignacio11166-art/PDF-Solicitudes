@@ -62,6 +62,12 @@ def construir_textos_nuevamutua(datos: dict, hoy: date | None = None) -> dict:
     nombre = datos.get("nombre_completo", "")
     doc = datos.get("numero_documento", "")
 
+    # Dirección (se usa igual para el tomador y para la prestación del servicio).
+    _dir_linea = _direccion_linea(datos)
+    _mun = _dato_direccion(datos, "municipio")
+    _prov = _dato_direccion(datos, "provincia")
+    _cp = _dato_direccion(datos, "codigo_postal")
+
     # Fecha alta deseada = fecha de inicio de la póliza (dd/mm/aaaa)
     dia = mes = anio2 = ""
     try:
@@ -86,15 +92,18 @@ def construir_textos_nuevamutua(datos: dict, hoy: date | None = None) -> dict:
         # Tomador
         (nombre, 120, _y(179)),
         (doc, 76, _y(193)),
-        (_direccion_linea(datos), 43, _y(221)),                     # dirección en línea de abajo
-        (_dato_direccion(datos, "municipio"), 85, _y(235)),
-        (_dato_direccion(datos, "provincia"), 321, _y(235)),
-        (_dato_direccion(datos, "codigo_postal"), 100, _y(249)),
+        (_dir_linea, 43, _y(221)),                     # dirección del tomador (línea de abajo)
+        (_mun, 85, _y(235)),
+        (_prov, 321, _y(235)),
+        (_cp, 100, _y(249)),
         (datos.get("correo", ""), 360, _y(249)),
         (datos.get("telefono_fijo", ""), 96, _y(264)),
         (datos.get("telefono_movil", ""), 343, _y(264)),
-        # Prestación del servicio → "el mismo" (literal, confirmado)
-        ("el mismo", 43, _y(351)),
+        # Prestación del servicio en España → MISMA dirección que arriba (no "el mismo").
+        (_dir_linea, 43, _y(351)),
+        (_mun, 85, _y(375)),
+        (_prov, 321, _y(375)),
+        (_cp, 100, _y(390)),
         # Estudiante
         (nombre, 122, _y(451)),
         (doc, 121, _y(472)),
