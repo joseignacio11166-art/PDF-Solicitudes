@@ -129,19 +129,22 @@ def _validacion_fecha_efecto(datos: dict) -> None:
         pass
 
 
-def _guardar_historial(nombre, aseguradora, tipo, filename, bytes_=None, texto=None) -> None:
-    """Guarda la solicitud en el Historial (Firestore). Falla en silencio si no hay."""
+def _guardar_historial(nombre, aseguradora, tipo, filename, datos=None, texto=None, hoy=None) -> None:
+    """Guarda la solicitud en el Historial (Firestore). Avisa si no se pudo."""
     try:
         from core.historial import guardar_solicitud
-        if guardar_solicitud(nombre, aseguradora, tipo, filename, bytes_, texto):
+        if guardar_solicitud(nombre, aseguradora, tipo, filename, datos=datos, contenido_texto=texto, hoy=hoy):
             st.caption("🗂️ Guardado en el Historial.")
+        else:
+            st.caption("⚠️ No se pudo guardar en el Historial (revisa los permisos de Firestore).")
     except Exception:
         pass
 
 
 def _descarga_sanitas(datos: dict) -> None:
     from core.rellenar_sanitas import rellenar_sanitas
-    res = rellenar_sanitas(datos)
+    hoy = date.today()
+    res = rellenar_sanitas(datos, hoy=hoy)
     with open(res["ruta"], "rb") as fh:
         pdf_bytes = fh.read()
     if res["parar"]:
@@ -152,12 +155,13 @@ def _descarga_sanitas(datos: dict) -> None:
                        file_name=res["ruta"].name, mime="application/pdf")
     for a in res["avisos"]:
         st.caption(f"• {a}")
-    _guardar_historial(datos.get("nombre_completo", ""), "Sanitas", "pdf", res["ruta"].name, bytes_=pdf_bytes)
+    _guardar_historial(datos.get("nombre_completo", ""), "Sanitas", "pdf", res["ruta"].name, datos=datos, hoy=hoy)
 
 
 def _descarga_nuevamutua(datos: dict) -> None:
     from core.rellenar_nuevamutua import rellenar_nuevamutua
-    res = rellenar_nuevamutua(datos)
+    hoy = date.today()
+    res = rellenar_nuevamutua(datos, hoy=hoy)
     with open(res["ruta"], "rb") as fh:
         pdf_bytes = fh.read()
     if res["parar"]:
@@ -168,7 +172,7 @@ def _descarga_nuevamutua(datos: dict) -> None:
                        file_name=res["ruta"].name, mime="application/pdf")
     for a in res["avisos"]:
         st.caption(f"• {a}")
-    _guardar_historial(datos.get("nombre_completo", ""), "Nueva Mutua", "pdf", res["ruta"].name, bytes_=pdf_bytes)
+    _guardar_historial(datos.get("nombre_completo", ""), "Nueva Mutua", "pdf", res["ruta"].name, datos=datos, hoy=hoy)
 
 
 def _descarga_generali(datos: dict, direccion_completa: str) -> None:
@@ -431,9 +435,20 @@ def render_historial() -> None:
         c1.markdown(f"**{r.get('nombre', '(sin nombre)')}**  \n"
                     f"<span style='color:#5A6B82'>{r.get('aseguradora', '')}</span>", unsafe_allow_html=True)
         c2.markdown(f"<span style='color:#5A6B82'>{fstr}</span>", unsafe_allow_html=True)
-        mime = "application/pdf" if r.get("tipo") == "pdf" else "text/plain"
-        c3.download_button("⬇️ Descargar", data=historial.contenido_descargable(r),
-                           file_name=r.get("filename", "solicitud"), mime=mime, key=r["_id"])
+        key = r["_id"]
+        if r.get("tipo") == "correo":
+            c3.download_button("⬇️ Descargar", data=r.get("contenido_texto", ""),
+                               file_name=r.get("filename", "correo.txt"), mime="text/plain", key="dl" + key)
+        else:
+            if c3.button("⬇️ Preparar PDF", key="prep" + key):
+                st.session_state["regen_" + key] = True
+            if st.session_state.get("regen_" + key):
+                try:
+                    pdf = historial.regenerar_pdf(r)
+                    c3.download_button("Descargar PDF", data=pdf, file_name=r.get("filename", "solicitud.pdf"),
+                                       mime="application/pdf", key="dl" + key)
+                except Exception as e:  # noqa: BLE001
+                    c3.caption(f"Error al regenerar: {e}")
         st.divider()
 
 

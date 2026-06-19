@@ -1,23 +1,22 @@
 """
 core/historial.py — Guarda y lista las solicitudes generadas (Firestore).
 
-Cada solicitud (PDF o correo) se guarda en la colección "solicitudes" de Firestore:
-datos básicos + el propio archivo (en base64 para los PDF, texto para los correos).
-Así el historial sobrevive a los reinicios del servidor (Cloud Run borra su disco).
+Para no chocar con el límite de 1 MB por documento de Firestore (el PDF de Sanitas
+pesa más), NO guardamos el PDF: guardamos los DATOS de la solicitud (ocupan muy
+poco) y el PDF se REGENERA al descargarlo desde el historial. Para los correos
+(Generali) sí guardamos el texto, que es pequeño.
 
 Si Firestore no está disponible (p.ej. en local sin credenciales), las funciones
 fallan de forma controlada y la app sigue funcionando sin historial.
 """
 from __future__ import annotations
 
-import base64
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
 _db = None
 
 
 def _cliente():
-    """Cliente de Firestore (usa las credenciales del servidor automáticamente)."""
     global _db
     if _db is None:
         from google.cloud import firestore
@@ -26,7 +25,6 @@ def _cliente():
 
 
 def disponible() -> bool:
-    """True si se puede conectar a Firestore."""
     try:
         _cliente()
         return True
@@ -37,13 +35,12 @@ def disponible() -> bool:
 def guardar_solicitud(
     nombre: str,
     aseguradora: str,
-    tipo: str,                         # "pdf" o "correo"
+    tipo: str,                          # "pdf" o "correo"
     filename: str,
-    contenido_bytes: bytes | None = None,
-    contenido_texto: str | None = None,
-    extra: dict | None = None,
+    datos: dict | None = None,          # para PDF: datos para regenerar
+    contenido_texto: str | None = None, # para correo: el texto
+    hoy: date | None = None,            # fecha usada (para regenerar igual la firma)
 ) -> bool:
-    """Guarda una solicitud en el historial. Devuelve True si se guardó."""
     try:
         db = _cliente()
         doc = {
@@ -52,10 +49,11 @@ def guardar_solicitud(
             "tipo": tipo,
             "filename": filename,
             "fecha": datetime.now(timezone.utc),
-            "extra": extra or {},
+            "hoy_iso": (hoy or date.today()).isoformat(),
         }
-        if contenido_bytes is not None:
-            doc["contenido_b64"] = base64.b64encode(contenido_bytes).decode("ascii")
+        if datos is not None:
+            # Solo datos serializables (sin claves internas con guion bajo).
+            doc["datos"] = {k: v for k, v in datos.items() if not k.startswith("_")}
         if contenido_texto is not None:
             doc["contenido_texto"] = contenido_texto
         db.collection("solicitudes").add(doc)
@@ -65,7 +63,6 @@ def guardar_solicitud(
 
 
 def listar_solicitudes(limite: int = 200) -> list[dict]:
-    """Lista las solicitudes guardadas, de más reciente a más antigua."""
     from google.cloud import firestore
     db = _cliente()
     q = (db.collection("solicitudes")
@@ -79,8 +76,25 @@ def listar_solicitudes(limite: int = 200) -> list[dict]:
     return salida
 
 
-def contenido_descargable(registro: dict) -> bytes:
-    """Devuelve los bytes del archivo guardado (PDF) o el texto del correo."""
-    if registro.get("contenido_b64"):
-        return base64.b64decode(registro["contenido_b64"])
-    return (registro.get("contenido_texto") or "").encode("utf-8")
+def regenerar_pdf(registro: dict) -> bytes:
+    """Regenera el PDF de una solicitud guardada, a partir de sus datos."""
+    aseguradora = registro.get("aseguradora", "")
+    datos = registro.get("datos", {}) or {}
+    hoy = None
+    try:
+        if registro.get("hoy_iso"):
+            hoy = date.fromisoformat(registro["hoy_iso"])
+    except Exception:
+        hoy = None
+
+    if aseguradora == "Sanitas":
+        from core.rellenar_sanitas import rellenar_sanitas
+        res = rellenar_sanitas(datos, hoy=hoy)
+    elif aseguradora == "Nueva Mutua":
+        from core.rellenar_nuevamutua import rellenar_nuevamutua
+        res = rellenar_nuevamutua(datos, hoy=hoy)
+    else:
+        raise ValueError(f"No sé regenerar PDF para {aseguradora!r}")
+
+    with open(res["ruta"], "rb") as fh:
+        return fh.read()
