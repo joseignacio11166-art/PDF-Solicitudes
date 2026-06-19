@@ -8,3 +8,5 @@ anthropic>=0.40
 python-dotenv>=1.0
 # Interfaz local
 streamlit>=1.40
+# Historial (Firestore)
+google-cloud-firestore>=2.16

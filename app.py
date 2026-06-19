@@ -103,7 +103,7 @@ with st.sidebar:
     st.divider()
     seccion = st.radio(
         "Navegación",
-        ["📄 Solicitudes", "📊 Leads", "💬 WhatsApp"],
+        ["📄 Solicitudes", "🗂️ Historial", "📊 Leads", "💬 WhatsApp"],
         label_visibility="collapsed",
     )
     st.divider()
@@ -129,6 +129,16 @@ def _validacion_fecha_efecto(datos: dict) -> None:
         pass
 
 
+def _guardar_historial(nombre, aseguradora, tipo, filename, bytes_=None, texto=None) -> None:
+    """Guarda la solicitud en el Historial (Firestore). Falla en silencio si no hay."""
+    try:
+        from core.historial import guardar_solicitud
+        if guardar_solicitud(nombre, aseguradora, tipo, filename, bytes_, texto):
+            st.caption("🗂️ Guardado en el Historial.")
+    except Exception:
+        pass
+
+
 def _descarga_sanitas(datos: dict) -> None:
     from core.rellenar_sanitas import rellenar_sanitas
     res = rellenar_sanitas(datos)
@@ -142,6 +152,7 @@ def _descarga_sanitas(datos: dict) -> None:
                        file_name=res["ruta"].name, mime="application/pdf")
     for a in res["avisos"]:
         st.caption(f"• {a}")
+    _guardar_historial(datos.get("nombre_completo", ""), "Sanitas", "pdf", res["ruta"].name, bytes_=pdf_bytes)
 
 
 def _descarga_nuevamutua(datos: dict) -> None:
@@ -157,6 +168,7 @@ def _descarga_nuevamutua(datos: dict) -> None:
                        file_name=res["ruta"].name, mime="application/pdf")
     for a in res["avisos"]:
         st.caption(f"• {a}")
+    _guardar_historial(datos.get("nombre_completo", ""), "Nueva Mutua", "pdf", res["ruta"].name, bytes_=pdf_bytes)
 
 
 def _descarga_generali(datos: dict, direccion_completa: str) -> None:
@@ -168,14 +180,14 @@ def _descarga_generali(datos: dict, direccion_completa: str) -> None:
         "direccion": direccion_completa,
     }
     correo = generar_generali(crudos_para_correo)
+    texto = f"ASUNTO:\n{correo['asunto']}\n\nCUERPO:\n{correo['cuerpo']}"
+    fname = f"generali_{datos.get('apellidos','').strip() or 'correo'}.txt"
     st.text_input("ASUNTO", correo["asunto"])
     st.text_area("CUERPO", correo["cuerpo"], height=380)
-    st.download_button(
-        "⬇️ Descargar correo (.txt)",
-        data=f"ASUNTO:\n{correo['asunto']}\n\nCUERPO:\n{correo['cuerpo']}",
-        file_name=f"generali_{datos.get('apellidos','').strip() or 'correo'}.txt",
-    )
+    st.download_button("⬇️ Descargar correo (.txt)", data=texto, file_name=fname)
     st.caption("Recuerda adjuntar: documento de identidad y carta de aceptación de la universidad.")
+    _guardar_historial(datos.get("nombre_completo") or f"{datos.get('nombre','')} {datos.get('apellidos','')}".strip(),
+                       "Generali", "correo", fname, texto=texto)
 
 
 def render_adjuntar() -> None:
@@ -387,6 +399,42 @@ def render_solicitudes() -> None:
 
 
 # ========================================================================
+# SECCIÓN: HISTORIAL
+# ========================================================================
+def render_historial() -> None:
+    st.title("🗂️ Historial de solicitudes")
+    from core import historial
+    if not historial.disponible():
+        st.warning("El historial aún no está disponible: hay que activar **Firestore** en el "
+                   "proyecto de Google. (En local no aparece; funciona en el servidor.)")
+        return
+    try:
+        registros = historial.listar_solicitudes()
+    except Exception as e:  # noqa: BLE001
+        st.error(f"No pude leer el historial: {e}")
+        return
+    if not registros:
+        st.info("Todavía no hay solicitudes guardadas. Genera una en 📄 Solicitudes y aparecerá aquí.")
+        return
+
+    st.caption(f"{len(registros)} solicitud(es) guardada(s).")
+    buscar = st.text_input("Buscar por nombre", "")
+    for r in registros:
+        if buscar and buscar.lower() not in r.get("nombre", "").lower():
+            continue
+        fecha = r.get("fecha")
+        fstr = fecha.strftime("%d/%m/%Y %H:%M") if hasattr(fecha, "strftime") else str(fecha)
+        c1, c2, c3 = st.columns([3, 2, 2])
+        c1.markdown(f"**{r.get('nombre', '(sin nombre)')}**  \n"
+                    f"<span style='color:#5A6B82'>{r.get('aseguradora', '')}</span>", unsafe_allow_html=True)
+        c2.markdown(f"<span style='color:#5A6B82'>{fstr}</span>", unsafe_allow_html=True)
+        mime = "application/pdf" if r.get("tipo") == "pdf" else "text/plain"
+        c3.download_button("⬇️ Descargar", data=historial.contenido_descargable(r),
+                           file_name=r.get("filename", "solicitud"), mime=mime, key=r["_id"])
+        st.divider()
+
+
+# ========================================================================
 # SECCIÓN: LEADS (datos de ejemplo)
 # ========================================================================
 def render_leads() -> None:
@@ -479,6 +527,8 @@ def render_whatsapp() -> None:
 # ========================================================================
 if seccion.startswith("📄"):
     render_solicitudes()
+elif seccion.startswith("🗂"):
+    render_historial()
 elif seccion.startswith("📊"):
     render_leads()
 else:
