@@ -99,11 +99,13 @@ def construir_textos_nuevamutua(datos: dict, hoy: date | None = None) -> dict:
         (datos.get("correo", ""), 360, _y(249)),
         (datos.get("telefono_fijo", ""), 96, _y(264)),
         (datos.get("telefono_movil", ""), 343, _y(264)),
-        # Prestación del servicio en España → MISMA dirección que arriba (no "el mismo").
+        # Prestación del servicio en España → MISMOS datos que arriba (no "el mismo").
         (_dir_linea, 43, _y(351)),
         (_mun, 85, _y(375)),
         (_prov, 321, _y(375)),
         (_cp, 100, _y(390)),
+        (datos.get("correo", ""), 360, _y(390)),        # correo (duplicado abajo)
+        (datos.get("telefono_movil", ""), 96, _y(414)),  # teléfono (duplicado abajo)
         # Estudiante
         (nombre, 122, _y(451)),
         (doc, 121, _y(472)),
