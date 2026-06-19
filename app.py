@@ -103,7 +103,7 @@ with st.sidebar:
     st.divider()
     seccion = st.radio(
         "Navegación",
-        ["📄 Solicitudes", "🗂️ Historial", "📊 Leads", "💬 WhatsApp"],
+        ["📄 Solicitudes", "📊 Leads", "💬 WhatsApp"],
         label_visibility="collapsed",
     )
     st.divider()
@@ -390,12 +390,15 @@ def render_manual() -> None:
 
 def render_solicitudes() -> None:
     st.title("📄 Solicitudes")
-    modo = st.radio("Modo", ["📎 Adjuntar formulario", "✍️ Rellenar a mano"], horizontal=True)
+    modo = st.radio("Modo", ["📎 Adjuntar formulario", "✍️ Rellenar a mano", "🗂️ Historial"],
+                    horizontal=True)
     st.divider()
     if modo.startswith("📎"):
         render_adjuntar()
-    else:
+    elif modo.startswith("✍"):
         render_manual()
+    else:
+        render_historial()
 
 
 # ========================================================================
@@ -527,8 +530,6 @@ def render_whatsapp() -> None:
 # ========================================================================
 if seccion.startswith("📄"):
     render_solicitudes()
-elif seccion.startswith("🗂"):
-    render_historial()
 elif seccion.startswith("📊"):
     render_leads()
 else:
