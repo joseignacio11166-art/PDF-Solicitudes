@@ -424,14 +424,29 @@ def render_historial() -> None:
         st.info("Todavía no hay solicitudes guardadas. Genera una en 📄 Solicitudes y aparecerá aquí.")
         return
 
-    st.caption(f"{len(registros)} solicitud(es) guardada(s).")
+    ca, cb = st.columns([3, 1])
+    ca.caption(f"{len(registros)} solicitud(es) guardada(s).")
+    if cb.button("🗑️ Borrar todo"):
+        st.session_state["confirmar_borrar_todo"] = True
+    if st.session_state.get("confirmar_borrar_todo"):
+        st.warning("¿Seguro que quieres borrar **TODAS** las solicitudes del historial?")
+        cc1, cc2 = st.columns(2)
+        if cc1.button("Sí, borrar todo"):
+            n = historial.borrar_todas()
+            st.session_state.pop("confirmar_borrar_todo", None)
+            st.success(f"Borradas {n} solicitudes.")
+            st.rerun()
+        if cc2.button("Cancelar"):
+            st.session_state.pop("confirmar_borrar_todo", None)
+            st.rerun()
+
     buscar = st.text_input("Buscar por nombre", "")
     for r in registros:
         if buscar and buscar.lower() not in r.get("nombre", "").lower():
             continue
         fecha = r.get("fecha")
         fstr = fecha.strftime("%d/%m/%Y %H:%M") if hasattr(fecha, "strftime") else str(fecha)
-        c1, c2, c3 = st.columns([3, 2, 2])
+        c1, c2, c3, c4 = st.columns([3, 2, 2, 1])
         c1.markdown(f"**{r.get('nombre', '(sin nombre)')}**  \n"
                     f"<span style='color:#5A6B82'>{r.get('aseguradora', '')}</span>", unsafe_allow_html=True)
         c2.markdown(f"<span style='color:#5A6B82'>{fstr}</span>", unsafe_allow_html=True)
@@ -449,6 +464,9 @@ def render_historial() -> None:
                                        mime="application/pdf", key="dl" + key)
                 except Exception as e:  # noqa: BLE001
                     c3.caption(f"Error al regenerar: {e}")
+        if c4.button("🗑️", key="del" + key, help="Borrar esta solicitud"):
+            historial.borrar_solicitud(key)
+            st.rerun()
         st.divider()
 
 

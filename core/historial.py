@@ -76,6 +76,25 @@ def listar_solicitudes(limite: int = 200) -> list[dict]:
     return salida
 
 
+def borrar_solicitud(doc_id: str) -> bool:
+    """Borra una solicitud del historial."""
+    try:
+        _cliente().collection("solicitudes").document(doc_id).delete()
+        return True
+    except Exception:
+        return False
+
+
+def borrar_todas() -> int:
+    """Borra TODAS las solicitudes del historial. Devuelve cuántas borró."""
+    db = _cliente()
+    n = 0
+    for d in db.collection("solicitudes").stream():
+        d.reference.delete()
+        n += 1
+    return n
+
+
 def regenerar_pdf(registro: dict) -> bytes:
     """Regenera el PDF de una solicitud guardada, a partir de sus datos."""
     aseguradora = registro.get("aseguradora", "")
