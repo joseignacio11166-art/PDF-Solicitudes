@@ -413,15 +413,59 @@ def render_manual() -> None:
             st.info("ASISA todavía no disponible.")
 
 
+def render_corregir() -> None:
+    """Sube un PDF ya hecho y cambia un dato sin rehacerlo todo."""
+    st.header("Corregir un PDF")
+    st.caption("Sube una solicitud de Sanitas o Nueva Mutua ya generada, cambia lo que necesites "
+               "y descárgala corregida. Se conserva el resto (incluida la firma si la hay).")
+    archivo = st.file_uploader("Sube el PDF a corregir", type=["pdf"], key="corr_up")
+    if not archivo:
+        return
+
+    from core import corregir as _corr
+    if st.session_state.get("corr_file") != archivo.name:
+        ruta = _guardar_temporal(archivo)
+        st.session_state["corr_file"] = archivo.name
+        st.session_state["corr_ruta"] = str(ruta)
+        st.session_state["corr_tipo"] = _corr.detectar(str(ruta))
+        st.session_state["corr_actuales"] = (
+            _corr.leer(str(ruta), st.session_state["corr_tipo"]) if st.session_state["corr_tipo"] else {}
+        )
+
+    tipo = st.session_state.get("corr_tipo")
+    if not tipo:
+        st.error("No reconozco el PDF. Debe ser una solicitud de **Sanitas** o **Nueva Mutua**.")
+        return
+    actuales = st.session_state["corr_actuales"]
+    st.success(f"Detectado: **{tipo.title()}**. Cambia lo que necesites y genera el corregido.")
+
+    nuevos = {}
+    cols = st.columns(2)
+    for i, (log, val) in enumerate(actuales.items()):
+        nuevos[log] = cols[i % 2].text_input(log, val, key="corr_" + log)
+
+    if st.button("Generar PDF corregido", type="primary"):
+        cambios = {log: v for log, v in nuevos.items() if v != actuales.get(log, "")}
+        if not cambios:
+            st.info("No cambiaste ningún dato.")
+            return
+        pdf = _corr.corregir(st.session_state["corr_ruta"], tipo, cambios)
+        st.success("✅ PDF corregido. Cambiado: " + ", ".join(cambios.keys()))
+        st.download_button("⬇️ Descargar PDF corregido", data=pdf,
+                           file_name="corregido_" + archivo.name, mime="application/pdf")
+
+
 def render_solicitudes() -> None:
     st.title("📄 Solicitudes")
-    modo = st.radio("Modo", ["📎 Adjuntar formulario", "✍️ Rellenar a mano", "🗂️ Historial"],
-                    horizontal=True)
+    modo = st.radio("Modo", ["📎 Adjuntar formulario", "✍️ Rellenar a mano",
+                             "✏️ Corregir un PDF", "🗂️ Historial"], horizontal=True)
     st.divider()
     if modo.startswith("📎"):
         render_adjuntar()
     elif modo.startswith("✍"):
         render_manual()
+    elif modo.startswith("✏"):
+        render_corregir()
     else:
         render_historial()
 
