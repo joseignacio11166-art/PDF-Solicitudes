@@ -156,12 +156,17 @@ def extraer_firma(ruta: str) -> bytes | None:
         with pdfplumber.open(ruta) as pdf:
             last = pdf.pages[-1]
             W, Hh = last.width, last.height
-            # La línea de firma es la ÚLTIMA "firma" (más abajo); las otras son texto legal.
-            firmas = [w for w in last.extract_words() if "firma" in w["text"].lower()]
-            firma = max(firmas, key=lambda w: w["top"]) if firmas else None
+            words = last.extract_words()
+        # La línea de firma es la ÚLTIMA "firma" (más abajo); las otras son texto legal.
+        firmas = [w for w in words if "firma" in w["text"].lower()]
+        firma = max(firmas, key=lambda w: w["top"]) if firmas else None
         if firma:
-            # recortar DESPUÉS de la etiqueta "(Firma Tomador):", sobre la línea
-            x0, t, x1, b = firma["x1"] + 70, firma["top"] - 22, W - 25, firma["top"] + 12
+            # En esa línea, la etiqueta termina en ":". Recortar justo después (vale para
+            # "(Firma):" y "(Firma Tomador):").
+            linea = [w for w in words if abs(w["top"] - firma["top"]) <= 4]
+            etiquetas = [w for w in linea if ":" in w["text"]]
+            x_label = max(etiquetas, key=lambda w: w["x1"])["x1"] if etiquetas else firma["x1"]
+            x0, t, x1, b = x_label + 4, firma["top"] - 28, W - 25, firma["top"] + 14
         else:
             x0, t, x1, b = 200, Hh - 95, W - 25, Hh - 55
 
