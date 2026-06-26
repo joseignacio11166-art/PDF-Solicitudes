@@ -162,22 +162,27 @@ def extraer_firma(ruta: str) -> bytes | None:
         firma = max(firmas, key=lambda w: w["top"]) if firmas else None
         if firma:
             # En esa línea, la etiqueta termina en ":". Recortar justo después (vale para
-            # "(Firma):" y "(Firma Tomador):").
+            # "(Firma):" y "(Firma Tomador):"). Banda generosa por arriba (firmas altas).
             linea = [w for w in words if abs(w["top"] - firma["top"]) <= 4]
             etiquetas = [w for w in linea if ":" in w["text"]]
             x_label = max(etiquetas, key=lambda w: w["x1"])["x1"] if etiquetas else firma["x1"]
-            x0, t, x1, b = x_label + 4, firma["top"] - 28, W - 25, firma["top"] + 14
+            x0, t, x1, b = x_label + 4, firma["top"] - 34, W - 25, firma["top"] + 8
         else:
-            x0, t, x1, b = 200, Hh - 95, W - 25, Hh - 55
+            x0, t, x1, b = 200, Hh - 95, W - 25, Hh - 60
 
         doc = pypdfium2.PdfDocument(ruta)
         scale = 3.0
         img = doc[len(doc) - 1].render(scale=scale).to_pil().convert("RGBA")
         crop = img.crop((int(x0 * scale), int(t * scale), int(x1 * scale), int(b * scale)))
-        # blanco -> transparente, para que solo se vea el trazo de la firma
-        px = [(r, g, b2, 0) if (r > 225 and g > 225 and b2 > 225) else (r, g, b2, a)
+        # Blanco y gris claro (subrayado) -> transparente; solo queda el trazo de la firma.
+        px = [(r, g, b2, 0) if min(r, g, b2) > 195 else (r, g, b2, a)
               for (r, g, b2, a) in crop.getdata()]
         crop.putdata(px)
+        # Recortar AJUSTADO a la firma (su caja), para que no salga diminuta.
+        bbox = crop.getbbox()
+        if not bbox:
+            return None
+        crop = crop.crop(bbox)
         out = io.BytesIO()
         crop.save(out, "PNG")
         return out.getvalue()
