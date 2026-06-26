@@ -348,6 +348,16 @@ def render_manual() -> None:
     provincia = e3.text_input("Provincia", value=OFICINA["provincia"])
     cp = e4.text_input("Código postal", value=OFICINA["codigo_postal"])
 
+    repat_direccion = repat_poblacion = repat_provincia = repat_cp = ""
+    if aseg == NUEVA_MUTUA:
+        st.markdown("**Dirección en el extranjero (para repatriación)** — opcional")
+        r1, r2 = st.columns([2, 1])
+        repat_direccion = r1.text_input("Dirección completa (país de origen)")
+        repat_cp = r2.text_input("Código postal (extranjero)")
+        r3, r4 = st.columns(2)
+        repat_poblacion = r3.text_input("Población (extranjero)")
+        repat_provincia = r4.text_input("Provincia / estado (extranjero)")
+
     st.markdown("**Cuestionario de salud**")
     hay_si = st.checkbox("El estudiante declara algún 'Sí' (enfermedad, hospitalización, tratamiento…)")
     detalle = st.text_area("Detalle (si hay algún 'Sí')", "") if hay_si else ""
@@ -371,6 +381,8 @@ def render_manual() -> None:
             "direccion_via": via, "direccion_numero": numero,
             "direccion_piso": piso, "direccion_puerta": puerta,
             "municipio": municipio, "provincia": provincia, "codigo_postal": cp,
+            "repat_direccion": repat_direccion, "repat_poblacion": repat_poblacion,
+            "repat_provincia": repat_provincia, "repat_cp": repat_cp,
             "cuestionario_salud": {
                 "tiene_algun_si": hay_si,
                 "resumen_para_formulario": detalle if hay_si else "",

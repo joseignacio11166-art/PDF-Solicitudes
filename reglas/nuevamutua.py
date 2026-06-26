@@ -1,13 +1,17 @@
 """
-reglas/nuevamutua.py — Reglas y posiciones del overlay de Nueva Mutua.
+reglas/nuevamutua.py — Reglas y posiciones del overlay de Nueva Mutua (v2 2026).
 
 El PDF de Nueva Mutua NO tiene campos: se escribe el texto ENCIMA por coordenadas
-(calibradas sobre el PDF en blanco). Devuelve, por página, una lista de
-(texto, x, y) en coordenadas de reportlab (origen abajo-izquierda).
+(calibradas sobre plantillas/nuevamutua_blanco.pdf = SOLICITUD v2 mayo 2026).
 
-Coordenadas calibradas con pdfplumber sobre plantillas/nuevamutua_blanco.pdf.
-La casilla "x" de PAGO POR TARJETA y el "SÍ" de ¿aporta cuestionario? ya vienen
-PREIMPRESOS en el blanco, así que no se añaden.
+Cambios de la v2 respecto a la anterior:
+- Es para UNA sola persona (el tomador ES el estudiante): un único bloque de datos.
+- El MEDIADOR ya NO viene preimpreso → se escribe "ROSE & PAGES".
+- En vez de "prestación del servicio en España" hay "Dirección en el extranjero
+  para el caso de repatriación" (datos del país de origen; se rellenan a mano).
+- DOS preguntas de salud (Sí/No): se marca "NO" en ambas si no se declara nada.
+- El método de pago ya no lleva "X" (es anual fijo, preimpreso) → no se añade.
+- "¿Aporta cuestionario de salud? SÍ" viene preimpreso → no se añade.
 """
 from __future__ import annotations
 
@@ -15,8 +19,8 @@ from datetime import date
 
 from config import FIJOS_NUEVA_MUTUA, OFICINA
 
-H = 842  # alto de página
-DY = 9    # ajuste vertical: baseline = H - top - DY
+H = 842
+DY = 9
 
 MESES = [
     "enero", "febrero", "marzo", "abril", "mayo", "junio",
@@ -28,8 +32,16 @@ def _y(top: float) -> float:
     return H - top - DY
 
 
+def _partes(fecha: str) -> tuple[str, str, str]:
+    try:
+        d, m, a = fecha.strip().split("/")
+        return d.zfill(2), m.zfill(2), a
+    except Exception:
+        return "", "", ""
+
+
 def _direccion_linea(datos: dict) -> str:
-    """Dirección en una sola línea (Nueva Mutua). Oficina por defecto si no es de España."""
+    """Dirección en España en una sola línea. Oficina por defecto si no es de España."""
     if datos.get("direccion_en_espana") and datos.get("direccion_via"):
         via = datos.get("direccion_via", "")
         numero = datos.get("direccion_numero", "")
@@ -46,8 +58,7 @@ def _direccion_linea(datos: dict) -> str:
     return linea
 
 
-def _dato_direccion(datos: dict, campo: str) -> str:
-    """Municipio/provincia/cp: del formulario o, si no es de España, de oficina."""
+def _dato_dir(datos: dict, campo: str) -> str:
     if datos.get("direccion_en_espana") and datos.get("direccion_via"):
         return datos.get(campo, "")
     return {"municipio": OFICINA["municipio"], "provincia": OFICINA["provincia"],
@@ -61,14 +72,14 @@ def construir_textos_nuevamutua(datos: dict, hoy: date | None = None) -> dict:
 
     nombre = datos.get("nombre_completo", "")
     doc = datos.get("numero_documento", "")
+    correo = datos.get("correo", "")
 
-    # Dirección (se usa igual para el tomador y para la prestación del servicio).
-    _dir_linea = _direccion_linea(datos)
-    _mun = _dato_direccion(datos, "municipio")
-    _prov = _dato_direccion(datos, "provincia")
-    _cp = _dato_direccion(datos, "codigo_postal")
+    dir_linea = _direccion_linea(datos)
+    mun = _dato_dir(datos, "municipio")
+    prov = _dato_dir(datos, "provincia")
+    cp = _dato_dir(datos, "codigo_postal")
 
-    # Fecha alta deseada = fecha de inicio de la póliza (dd/mm/aaaa)
+    # Fecha de alta deseada (dd/mm/aaaa)
     dia = mes = anio2 = ""
     try:
         d, m, a = datos.get("fecha_efecto", "").split("/")
@@ -76,47 +87,53 @@ def construir_textos_nuevamutua(datos: dict, hoy: date | None = None) -> dict:
     except Exception:
         avisos.append("No pude leer la fecha de alta deseada (fecha de inicio de la póliza).")
 
-    # Sexo: X sobre la rayita antes de HOMBRE (x≈68) o MUJER (x≈123)
+    # Nacimiento
+    dn, mn, an = _partes(datos.get("fecha_nacimiento", ""))
+
+    # Sexo (casillas: Hombre x≈268, Mujer x≈314)
     sexo_x = []
     if datos.get("sexo") == "Mujer":
-        sexo_x = [("X", 123, _y(502))]
+        sexo_x = [("X", 314, _y(315))]
     elif datos.get("sexo") == "Hombre":
-        sexo_x = [("X", 68, _y(502))]
+        sexo_x = [("X", 268, _y(315))]
+
+    # Dirección en el extranjero (repatriación) — se rellena a mano si la hay
+    rep_dir = datos.get("repat_direccion", "")
+    rep_pob = datos.get("repat_poblacion", "")
+    rep_prov = datos.get("repat_provincia", "")
+    rep_cp = datos.get("repat_cp", "")
 
     pagina1 = [
         # Cabecera
-        (dia, 124, _y(139)),
-        (mes, 142, _y(139)),
-        (anio2, 172, _y(139)),
-        # MEDIADOR "ROSE & PAGES" ya viene PREIMPRESO en la plantilla (no añadir).
-        # Tomador
+        (dia, 125, _y(138)),
+        (mes, 143, _y(138)),
+        (anio2, 172, _y(138)),
+        (FIJOS_NUEVA_MUTUA["mediador"], 240, _y(138)),   # MEDIADOR (ya no preimpreso)
+        # Datos del tomador (= estudiante)
         (nombre, 120, _y(179)),
-        (doc, 76, _y(193)),
-        (_dir_linea, 43, _y(221)),                     # dirección del tomador (línea de abajo)
-        (_mun, 85, _y(235)),
-        (_prov, 321, _y(235)),
-        (_cp, 100, _y(249)),
-        (datos.get("correo", ""), 360, _y(249)),
+        (doc, 120, _y(193)),
+        (dir_linea, 43, _y(221)),                        # dirección en España (línea de abajo)
+        (mun, 85, _y(235)),
+        (prov, 321, _y(235)),
+        (cp, 100, _y(249)),
+        (correo, 360, _y(249)),
         (datos.get("telefono_fijo", ""), 96, _y(264)),
         (datos.get("telefono_movil", ""), 343, _y(264)),
-        # Prestación del servicio en España → MISMOS datos que arriba (no "el mismo").
-        (_dir_linea, 43, _y(351)),
-        (_mun, 85, _y(375)),
-        (_prov, 321, _y(375)),
-        (_cp, 100, _y(390)),
-        (datos.get("correo", ""), 360, _y(390)),        # correo (duplicado abajo)
-        (datos.get("telefono_movil", ""), 96, _y(414)),  # teléfono (duplicado abajo)
-        # Estudiante
-        (nombre, 122, _y(451)),
-        (doc, 121, _y(472)),
-        (datos.get("fecha_nacimiento", ""), 391, _y(472)),
-        (FIJOS_NUEVA_MUTUA["parentesco"], 421, _y(511)),           # "el mismo"
-        # Cuestionario de salud: peso y estatura
-        (datos.get("peso_kg", ""), 290, _y(571)),
-        (datos.get("altura_cm", ""), 470, _y(571)),
+        # Fecha de nacimiento (+ sexo abajo)
+        (dn, 166, _y(317)),
+        (mn, 194, _y(317)),
+        (an, 213, _y(317)),
+        # Dirección en el extranjero (repatriación)
+        (rep_dir, 43, _y(407)),
+        (rep_pob, 85, _y(421)),
+        (rep_prov, 321, _y(421)),
+        (rep_cp, 100, _y(434)),
+        # Peso / estatura
+        (datos.get("peso_kg", ""), 290, _y(481)),
+        (datos.get("altura_cm", ""), 470, _y(481)),
     ] + sexo_x
 
-    # Cuestionario salud SI/NO (REGLA CRÍTICA)
+    # Cuestionario de salud: DOS preguntas Sí/No (marcar NO en ambas si no hay "Sí")
     salud = datos.get("cuestionario_salud", {})
     parar = bool(salud.get("tiene_algun_si"))
     if parar:
@@ -125,18 +142,17 @@ def construir_textos_nuevamutua(datos: dict, hoy: date | None = None) -> dict:
             "automáticamente: este caso requiere gestión manual."
         )
     else:
-        pagina1.append(("X", 90, _y(737)))  # X sobre NO
+        pagina1.append(("X", 90, _y(688)))   # pregunta 1 -> No
+        pagina1.append(("X", 90, _y(749)))   # pregunta 2 -> No
 
-    # Página 2: fecha de la solicitud = HOY (En Madrid, a __ de __ de __). Firma vacía.
+    # Página 2: fecha de la solicitud = HOY. Firma vacía.
     pagina2 = [
-        ("Madrid", 60, _y(677)),
-        (str(hoy.day), 156, _y(677)),
-        (MESES[hoy.month - 1], 195, _y(677)),
-        (str(hoy.year), 292, _y(677)),
+        ("Madrid", 60, _y(712)),
+        (str(hoy.day), 156, _y(712)),
+        (MESES[hoy.month - 1], 195, _y(712)),
+        (str(hoy.year), 340, _y(712)),
     ]
 
-    # Quitar entradas con texto vacío
     pagina1 = [(t, x, y) for (t, x, y) in pagina1 if str(t).strip()]
     pagina2 = [(t, x, y) for (t, x, y) in pagina2 if str(t).strip()]
-
     return {"pagina1": pagina1, "pagina2": pagina2, "avisos": avisos, "parar": parar}
