@@ -359,10 +359,23 @@ def render_manual() -> None:
         repat_provincia = r4.text_input("Provincia / estado (extranjero)")
 
     st.markdown("**Cuestionario de salud**")
-    hay_si = st.checkbox("El estudiante declara algún 'Sí' (enfermedad, hospitalización, tratamiento…)")
-    detalle = st.text_area("Detalle (si hay algún 'Sí')", "") if hay_si else ""
-    if hay_si:
-        st.warning("Con algún 'Sí', el PDF se genera pero las casillas de salud quedan SIN marcar (gestión manual).")
+    if aseg == NUEVA_MUTUA:
+        sp1, sp2 = st.columns(2)
+        p1 = sp1.radio("1. ¿Padece/ha padecido alguna enfermedad de la lista?", ["No", "Sí"], horizontal=True)
+        p2 = sp2.radio("2. ¿Pendiente de diagnóstico/seguimiento/tratamiento?", ["No", "Sí"], horizontal=True)
+        algun_si = (p1 == "Sí") or (p2 == "Sí")
+        detalle = st.text_area("Detalle (si marcaste algún 'Sí')", "") if algun_si else ""
+        salud_dict = {"p1": p1, "p2": p2, "tiene_algun_si": algun_si,
+                      "resumen_para_formulario": detalle, "detalle_original": detalle}
+        if algun_si:
+            st.info("Pondré la **X en el 'Sí'** que elegiste. Recuerda escribir el detalle a mano en el PDF.")
+    else:
+        hay_si = st.checkbox("El estudiante declara algún 'Sí' (enfermedad, hospitalización, tratamiento…)")
+        detalle = st.text_area("Detalle (si hay algún 'Sí')", "") if hay_si else ""
+        salud_dict = {"tiene_algun_si": hay_si,
+                      "resumen_para_formulario": detalle if hay_si else "", "detalle_original": detalle}
+        if hay_si:
+            st.warning("Con algún 'Sí', el PDF se genera pero las casillas de salud quedan SIN marcar (gestión manual).")
 
     if st.button("Generar documento", type="primary"):
         if not nombre or not apellidos:
@@ -383,11 +396,7 @@ def render_manual() -> None:
             "municipio": municipio, "provincia": provincia, "codigo_postal": cp,
             "repat_direccion": repat_direccion, "repat_poblacion": repat_poblacion,
             "repat_provincia": repat_provincia, "repat_cp": repat_cp,
-            "cuestionario_salud": {
-                "tiene_algun_si": hay_si,
-                "resumen_para_formulario": detalle if hay_si else "",
-                "detalle_original": detalle,
-            },
+            "cuestionario_salud": salud_dict,
         }
         _validacion_fecha_efecto(datos)
         if aseg == SANITAS:

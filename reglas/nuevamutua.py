@@ -133,17 +133,31 @@ def construir_textos_nuevamutua(datos: dict, hoy: date | None = None) -> dict:
         (datos.get("altura_cm", ""), 470, _y(481)),
     ] + sexo_x
 
-    # Cuestionario de salud: DOS preguntas Sí/No (marcar NO en ambas si no hay "Sí")
+    # Cuestionario de salud: DOS preguntas Sí/No.
+    # Posición de la X: en "Sí" (x≈52) o en "No" (x≈90), para cada pregunta.
     salud = datos.get("cuestionario_salud", {})
-    parar = bool(salud.get("tiene_algun_si"))
-    if parar:
-        avisos.append(
-            "🛑 El cuestionario de salud tiene algún 'Sí'. NO se marca el 'NO' "
-            "automáticamente: este caso requiere gestión manual."
-        )
+    p1, p2 = salud.get("p1"), salud.get("p2")
+    parar = False
+    SI_X, NO_X = 52, 90
+    if p1 is not None or p2 is not None:
+        # Respuestas explícitas elegidas a mano: la X va donde se elija.
+        for ans, top in [(p1, 688), (p2, 749)]:
+            if ans == "Sí":
+                pagina1.append(("X", SI_X, _y(top)))
+            elif ans == "No":
+                pagina1.append(("X", NO_X, _y(top)))
+        if p1 == "Sí" or p2 == "Sí":
+            avisos.append("Marcaste 'Sí' en alguna pregunta de salud: recuerda escribir el "
+                          "detalle a mano en el PDF.")
     else:
-        pagina1.append(("X", 90, _y(688)))   # pregunta 1 -> No
-        pagina1.append(("X", 90, _y(749)))   # pregunta 2 -> No
+        # Flujo cotización: si hay algún 'Sí' no se marca (gestión manual); si no, NO en ambas.
+        parar = bool(salud.get("tiene_algun_si"))
+        if parar:
+            avisos.append("🛑 El cuestionario de salud tiene algún 'Sí'. NO se marca el 'NO' "
+                          "automáticamente: este caso requiere gestión manual.")
+        else:
+            pagina1.append(("X", NO_X, _y(688)))
+            pagina1.append(("X", NO_X, _y(749)))
 
     # Página 2: fecha de la solicitud = HOY. Firma vacía.
     pagina2 = [
