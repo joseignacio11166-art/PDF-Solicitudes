@@ -97,6 +97,9 @@ def construir_textos_nuevamutua(datos: dict, hoy: date | None = None) -> dict:
     elif datos.get("sexo") == "Hombre":
         sexo_x = [("X", 268, _y(315))]
 
+    # Estado civil fijo según el sexo (FIJO)
+    estado_civil = "Soltera" if datos.get("sexo") == "Mujer" else "Soltero"
+
     # Dirección en el extranjero (repatriación) — se rellena a mano si la hay
     rep_dir = datos.get("repat_direccion", "")
     rep_pob = datos.get("repat_poblacion", "")
@@ -119,10 +122,12 @@ def construir_textos_nuevamutua(datos: dict, hoy: date | None = None) -> dict:
         (correo, 360, _y(249)),
         (datos.get("telefono_fijo", ""), 96, _y(264)),
         (datos.get("telefono_movil", ""), 343, _y(264)),
-        # Fecha de nacimiento (+ sexo abajo)
+        ("Estudiante", 135, _y(278)),                    # PROFESIÓN DEL TOMADOR (fijo)
+        # Fecha de nacimiento (+ sexo + estado civil)
         (dn, 166, _y(317)),
         (mn, 194, _y(317)),
         (an, 213, _y(317)),
+        (estado_civil, 418, _y(317)),                    # ESTADO CIVIL (fijo según sexo)
         # Dirección en el extranjero (repatriación)
         (rep_dir, 43, _y(407)),
         (rep_pob, 85, _y(421)),
