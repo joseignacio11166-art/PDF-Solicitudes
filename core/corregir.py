@@ -161,12 +161,15 @@ def extraer_firma(ruta: str) -> bytes | None:
         firmas = [w for w in words if "firma" in w["text"].lower()]
         firma = max(firmas, key=lambda w: w["top"]) if firmas else None
         if firma:
-            # En esa línea, la etiqueta termina en ":". Recortar justo después (vale para
-            # "(Firma):" y "(Firma Tomador):"). Banda generosa por arriba (firmas altas).
+            # x: la etiqueta termina en ":". Recortar justo después (vale para "(Firma):" y
+            # "(Firma Tomador):"). y: empezar JUSTO debajo de la línea de texto de arriba (la
+            # fecha), para no cogerla.
             linea = [w for w in words if abs(w["top"] - firma["top"]) <= 4]
             etiquetas = [w for w in linea if ":" in w["text"]]
             x_label = max(etiquetas, key=lambda w: w["x1"])["x1"] if etiquetas else firma["x1"]
-            x0, t, x1, b = x_label + 4, firma["top"] - 34, W - 25, firma["top"] + 8
+            arriba = [w["bottom"] for w in words if w["top"] < firma["top"] - 3]
+            t = (max(arriba) + 2) if arriba else (firma["top"] - 22)
+            x0, x1, b = x_label + 4, W - 25, firma["top"] + 9
         else:
             x0, t, x1, b = 200, Hh - 95, W - 25, Hh - 60
 
