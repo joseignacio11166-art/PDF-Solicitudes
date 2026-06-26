@@ -178,10 +178,10 @@ def _descarga_sanitas(datos: dict) -> None:
     _guardar_historial(datos.get("nombre_completo", ""), "Sanitas", "pdf", res["ruta"].name, datos=datos, hoy=hoy)
 
 
-def _descarga_nuevamutua(datos: dict) -> None:
+def _descarga_nuevamutua(datos: dict, firma_png: bytes | None = None) -> None:
     from core.rellenar_nuevamutua import rellenar_nuevamutua
     hoy = date.today()
-    res = rellenar_nuevamutua(datos, hoy=hoy)
+    res = rellenar_nuevamutua(datos, hoy=hoy, firma_png=firma_png)
     with open(res["ruta"], "rb") as fh:
         pdf_bytes = fh.read()
     if res["parar"]:
@@ -487,6 +487,7 @@ def render_convertir() -> None:
     if st.session_state.get("conv_file") != archivo.name:
         ruta = _guardar_temporal(archivo)
         st.session_state["conv_file"] = archivo.name
+        st.session_state["conv_ruta"] = str(ruta)
         st.session_state["conv_texto"] = _texto_pdf(ruta)
         st.session_state.pop("conv_datos", None)
 
@@ -549,8 +550,22 @@ def render_convertir() -> None:
     p2 = s2.radio("2. ¿Pendiente de diagnóstico/tratamiento?", ["No", "Sí"], horizontal=True, key="conv_p2")
     datos["cuestionario_salud"] = {"p1": p1, "p2": p2, "tiene_algun_si": (p1 == "Sí" or p2 == "Sí")}
 
+    st.markdown("**Firma**")
+    con_firma = st.radio(
+        "¿Qué hacemos con la firma?",
+        ["Sin firma (para firmar de nuevo)", "Con la firma de la solicitud antigua"],
+        label_visibility="collapsed",
+    ).startswith("Con")
+
     if st.button("📄 Generar Nueva Mutua (formato nuevo)", type="primary"):
-        _descarga_nuevamutua(datos)
+        firma_png = None
+        if con_firma:
+            from core.corregir import extraer_firma
+            firma_png = extraer_firma(st.session_state.get("conv_ruta", ""))
+            if not firma_png:
+                st.warning("No pude recortar la firma del PDF antiguo (puede ser una imagen difícil). "
+                           "Se genera sin firma.")
+        _descarga_nuevamutua(datos, firma_png=firma_png)
 
 
 def render_solicitudes() -> None:

@@ -148,6 +148,35 @@ def corregir_nm(ruta: str, cambios: dict) -> bytes:
     return out.getvalue()
 
 
+def extraer_firma(ruta: str) -> bytes | None:
+    """Recorta la firma de la última página del PDF antiguo (PNG con fondo transparente)."""
+    try:
+        import pdfplumber
+        import pypdfium2
+        with pdfplumber.open(ruta) as pdf:
+            last = pdf.pages[-1]
+            W, Hh = last.width, last.height
+            firma = next((w for w in last.extract_words() if "firma" in w["text"].lower()), None)
+        if firma:
+            x0, t, x1, b = firma["x1"] + 5, firma["top"] - 8, W - 25, firma["top"] + 30
+        else:
+            x0, t, x1, b = 120, Hh - 95, W - 25, Hh - 45
+
+        doc = pypdfium2.PdfDocument(ruta)
+        scale = 3.0
+        img = doc[len(doc) - 1].render(scale=scale).to_pil().convert("RGBA")
+        crop = img.crop((int(x0 * scale), int(t * scale), int(x1 * scale), int(b * scale)))
+        # blanco -> transparente, para que solo se vea el trazo de la firma
+        px = [(r, g, b2, 0) if (r > 225 and g > 225 and b2 > 225) else (r, g, b2, a)
+              for (r, g, b2, a) in crop.getdata()]
+        crop.putdata(px)
+        out = io.BytesIO()
+        crop.save(out, "PNG")
+        return out.getvalue()
+    except Exception:
+        return None
+
+
 def leer(ruta: str, tipo: str) -> dict:
     return leer_sanitas(ruta) if tipo == "sanitas" else leer_nm(ruta)
 

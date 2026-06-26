@@ -21,14 +21,20 @@ FUENTE = "Helvetica"
 TAM = 9
 
 
-def _overlay(textos_por_pagina: list[list[tuple]]) -> PdfReader:
-    """Crea un PDF en memoria con el texto colocado, una página por cada lista."""
+def _overlay(textos_por_pagina: list[list[tuple]], imgs_por_pagina=None) -> PdfReader:
+    """Crea un PDF en memoria con el texto colocado (y opcionalmente una imagen por página)."""
+    imgs_por_pagina = imgs_por_pagina or [None] * len(textos_por_pagina)
     buf = io.BytesIO()
     c = canvas.Canvas(buf, pagesize=(ANCHO, ALTO))
     c.setFont(FUENTE, TAM)
-    for textos in textos_por_pagina:
+    for textos, img in zip(textos_por_pagina, imgs_por_pagina):
         for texto, x, y in textos:
             c.drawString(x, y, str(texto))
+        if img:
+            from reportlab.lib.utils import ImageReader
+            png, ix, iy, iw, ih = img
+            c.drawImage(ImageReader(io.BytesIO(png)), ix, iy, width=iw, height=ih,
+                        mask="auto", preserveAspectRatio=True, anchor="sw")
         c.showPage()
         c.setFont(FUENTE, TAM)
     c.save()
@@ -36,11 +42,14 @@ def _overlay(textos_por_pagina: list[list[tuple]]) -> PdfReader:
     return PdfReader(buf)
 
 
-def rellenar_nuevamutua(datos: dict, ruta_salida: str | Path | None = None, hoy: date | None = None) -> dict:
+def rellenar_nuevamutua(datos: dict, ruta_salida: str | Path | None = None,
+                        hoy: date | None = None, firma_png: bytes | None = None) -> dict:
     construido = construir_textos_nuevamutua(datos, hoy=hoy)
 
     base = PdfReader(str(PLANTILLA_NUEVAMUTUA))
-    overlay = _overlay([construido["pagina1"], construido["pagina2"]])
+    # Firma opcional, estampada en la página 2 sobre la línea "D./Dña. (Firma Tomador):" (y≈86).
+    imgs = [None, (firma_png, 200, 78, 170, 32)] if firma_png else None
+    overlay = _overlay([construido["pagina1"], construido["pagina2"]], imgs)
 
     writer = PdfWriter()
     for i, page in enumerate(base.pages):
