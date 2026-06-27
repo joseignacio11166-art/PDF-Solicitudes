@@ -123,7 +123,7 @@ with st.sidebar:
     st.divider()
     seccion = st.radio(
         "Navegación",
-        ["📄 Solicitudes", "📊 Leads", "💬 WhatsApp"],
+        ["📄 Solicitudes", "📧 Correo", "📊 Leads", "💬 WhatsApp"],
         label_visibility="collapsed",
     )
     st.divider()
@@ -651,6 +651,61 @@ def render_historial() -> None:
 
 
 # ========================================================================
+# SECCIÓN: CORREO (lee Firestore "correos", que vuelca n8n)
+# ========================================================================
+def render_correo() -> None:
+    st.title("📧 Correo")
+    st.caption("Solicitudes que llegan al buzón **atencionestudiantes@**. Las vuelca n8n y se ven aquí.")
+    from core import correos
+    if not correos.disponible():
+        st.warning("Aún sin conexión a Firestore.")
+        return
+    try:
+        items = correos.listar_correos()
+    except Exception as e:  # noqa: BLE001
+        st.error(f"No pude leer los correos: {e}")
+        return
+    if not items:
+        st.info("Todavía no hay correos. Cuando n8n empiece a volcar el buzón, aparecerán aquí. "
+                "(La sección está lista y esperando la conexión de n8n.)")
+        return
+
+    sol = [i for i in items if i.get("es_solicitud")]
+    m1, m2, m3 = st.columns(3)
+    m1.metric("Correos", len(items))
+    m2.metric("📋 Solicitudes", len(sol))
+    m3.metric("✅ Gestionadas", sum(1 for i in items if i.get("estado") == "Gestionado"))
+    st.divider()
+
+    filtro = st.radio("Ver", ["Solo solicitudes", "Todos"], horizontal=True)
+    for i in items:
+        if filtro == "Solo solicitudes" and not i.get("es_solicitud"):
+            continue
+        estado = i.get("estado", "Nuevo")
+        badge = _badge("📋 Solicitud", "b-azul") if i.get("es_solicitud") else _badge("Otro", "b-gris")
+        est_badge = _badge("✅ Gestionado", "b-verde") if estado == "Gestionado" else _badge("🟠 Nuevo", "b-naranja")
+        resumen = (f"<div class='wa-resumen' style='margin-top:4px'>🧠 {i.get('resumen')}</div>"
+                   if i.get("resumen") else "")
+        col = st.columns([6, 1])
+        col[0].markdown(
+            f"""<div class='wa-card'>
+              <div style='display:flex;justify-content:space-between;align-items:center'>
+                <b>{i.get('asunto', '(sin asunto)')}</b> {badge} {est_badge}
+              </div>
+              <div style='color:#5A6B82;margin-top:4px'>{i.get('remitente', '')} · {i.get('fecha', '')}</div>
+              {resumen}
+            </div>""",
+            unsafe_allow_html=True,
+        )
+        nuevo = "Nuevo" if estado == "Gestionado" else "Gestionado"
+        etq = "↩️ Reabrir" if estado == "Gestionado" else "✅ Gestionado"
+        if col[1].button(etq, key="cor_" + i["_id"]):
+            correos.marcar_estado(i["_id"], nuevo)
+            st.rerun()
+    st.caption("La detección de solicitudes (por remitente/asunto) la hace n8n; aquí las gestionas.")
+
+
+# ========================================================================
 # SECCIÓN: LEADS (datos de ejemplo)
 # ========================================================================
 def render_leads() -> None:
@@ -831,6 +886,8 @@ def render_whatsapp() -> None:
 # ========================================================================
 if seccion.startswith("📄"):
     render_solicitudes()
+elif seccion.startswith("📧"):
+    render_correo()
 elif seccion.startswith("📊"):
     render_leads()
 else:
