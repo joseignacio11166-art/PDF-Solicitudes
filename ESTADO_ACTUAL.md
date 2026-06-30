@@ -34,12 +34,12 @@ Menú lateral: **📄 Solicitudes**, **📧 Correo**, **📊 Leads**, **💬 Wha
 - Python 3.14 + venv en `.venv/`. En Bash usar barras normales: `.venv/Scripts/python.exe`.
 
 ## Secciones y modos de la app
-- **📄 Solicitudes** (5 modos):
+- **📄 Solicitudes** (4 modos):
   - **📎 Adjuntar formulario** — sube cotización → el cerebro (Claude) extrae datos → revisas → genera.
   - **✍️ Rellenar a mano** — formulario manual (sin IA). En Nueva Mutua: campos de **repatriación** + salud **Sí/No por pregunta**.
-  - **✏️ Corregir un PDF** — sube una solicitud ya hecha (Sanitas/Nueva Mutua), cambia un dato y descarga corregido EN SITIO (conserva firma). `core/corregir.py`.
-  - **🔁 Antigua → nueva** — sube una solicitud antigua de Nueva Mutua → la IA lee los datos → añades repatriación → genera v2. Opción **con/sin firma** (recorta la firma del PDF viejo y la estampa).
+  - **✏️ Corregir un PDF** — sube una solicitud (Sanitas/Nueva Mutua), muestra **TODOS los campos** (rellenos los que tengan dato), cambias/rellenas lo que sea y descarga corregido EN SITIO. Opción **incluir firma o sin firma** (radio). `core/corregir.py`. NM corrige por coordenadas v2 (mediador, tel fijo, profesión, estado civil, fechas, sexo, repatriación, peso/altura); Sanitas por AcroForm. OJO: si el PDF tiene los datos como IMAGEN (escaneado/aplanado), la lectura sale vacía (no hay texto) → se rellenan a mano; la pintura del corregido sí cae bien.
   - **🗂️ Historial** — solicitudes generadas, guardadas en Firestore; re-descarga (regenera el PDF); borrar.
+  - *(El modo "🔁 Antigua → nueva" se ELIMINÓ jun 2026 — ya no se usa.)*
 - **📧 Correo** — lee Firestore colección `correos` (que volcará **n8n** desde el buzón `atencionestudiantes@`). **EN CURSO** (ver abajo).
 - **📊 Leads** — tabla de EJEMPLO (falta endpoint "listar leads" del cotizador).
 - **💬 WhatsApp** — bandeja de EJEMPLO + **chat interactivo simulado** (demo). Falta conexión real.
@@ -61,29 +61,55 @@ Menú lateral: **📄 Solicitudes**, **📧 Correo**, **📊 Leads**, **💬 Wha
 - **Firestore** (Modo nativo, Europa, base `(default)`) → colecciones `solicitudes` (historial) y `correos` (correos de n8n).
 - **IAM:** el service account de Cloud Run `321150927024-compute@developer.gserviceaccount.com` tiene rol **Usuario de Cloud Datastore**.
 
-## 🔧 TAREA EN CURSO: sección Correo vía n8n
-La app ya lee Firestore `correos` (colección). Falta el **lado n8n** (puente).
-Arquitectura: `atencionestudiantes@ (Outlook) → n8n → Firestore "correos" → app`.
-Las solicitudes llegan como correo reenviado de **solicitudestudiantes@hi-broker.com**, asunto
-"Fwd: Solicitud - Seguro de Salud", con un **adjunto .eml** (elemento de Outlook). Los de
-**estudiante-asegurado@hi-broker.com** "Comparativa de precios" son **cotizaciones** (no solicitudes).
-Buzón = Microsoft 365; Excel de seguimiento = SharePoint (`ALUMNUSCARE_2026_v3.xlsx`). NO hay admin de
-Microsoft accesible → por eso se usa **n8n** (no Graph directo).
+## ✅ Sección Correo vía n8n — NIVEL 1 FUNCIONA (jun 2026, PUENTE GMAIL)
+La app ya lee Firestore `correos` (colección). Falta terminar el **lado n8n**.
+Las solicitudes reales llegan al buzón compartido **atencionestudiantes@pagesseguros.com** (Microsoft 365),
+reenviadas de **solicitudestudiantes@hi-broker.com**, asunto "Fwd: Solicitud - Seguro de Salud". El adjunto
+es UN **elemento de Outlook (.eml)** que DENTRO trae los **3 archivos**: documento de identidad + carta de
+aceptación universidad + formulario/cotización (todos los datos). Los de **estudiante-asegurado@hi-broker.com**
+"Comparativa de precios" son cotizaciones sueltas (no solicitudes). OJO: llegan VARIOS correos con la palabra
+"solicitud" que NO lo son → filtrar **por remitente** (`solicitudestudiantes@hi-broker.com`), no por asunto.
 
-**Contrato de Firestore** (lo que n8n debe escribir en `correos`):
+**MURO Microsoft:** NO hay admin de M365 accesible. El Outlook Trigger de n8n pide "aprobación del
+administrador" (consentimiento de organización) y NO se puede saltar. Tampoco se puede probar fácil enviando
+correos a ese buzón. → **Se abandona leer Outlook directamente.**
+
+**SOLUCIÓN ADOPTADA — puente Gmail:**
+`atencionestudiantes@ → (regla Outlook: De = solicitudestudiantes@hi-broker.com → Reenviar a Gmail) → Gmail → n8n (Gmail Trigger) → Firestore "correos" → app`
+- Gmail puente dedicado creado: **alumnuscareestudiantes@gmail.com** (solo para esto; todo lo que entre ahí = solicitud).
+- n8n se conecta a Gmail con "Sign in with Google" (NO necesita admin, es Gmail propio).
+- La regla de reenvío en Outlook se da por buena (confiar); de momento se PRACTICA mandando solicitudes de
+  ejemplo directamente al Gmail. La regla hay que ponerla dentro del buzón compartido vía "Abrir otro buzón".
+
+**Contrato de Firestore** (lo que n8n escribe en `correos`):
 ```
 { remitente, asunto, fecha (ISO), es_solicitud (bool), estudiante, resumen, estado:"Nuevo", adjuntos:[...] }
 ```
 
-**Dónde se quedó la usuaria (Paso A):** creando una **cuenta de servicio** de Google para que n8n escriba
-en Firestore: Consola Google Cloud → IAM → Cuentas de servicio → Crear `n8n-firestore` → rol **"Usuario de
-Cloud Datastore"** → Claves → Crear clave **JSON** → descargar. (Estaba eligiendo el rol.)
-Enlace: https://console.cloud.google.com/iam-admin/serviceaccounts
+**Flujo n8n MONTADO Y FUNCIONANDO:** `n8n/correos_nivel1.json` — 2 nodos: **Gmail Trigger** → **HTTP Request**
+(POST a Firestore REST `…/projects/project-d06489fe-0e21-4087-b1a/databases/(default)/documents/correos`).
+Probado: correo de prueba reenviado al Gmail → aparece en la sección 📧 Correo de la app. ✅
 
-**Paso B (siguiente):** flujo NUEVO en n8n (no el del chatbot): **Outlook Trigger** (buzón
-atencionestudiantes@) → **IF** (remitente/asunto = solicitud) → **Edit Fields** → **Google Cloud Firestore**
-(Create Document, colección `correos`, con el .json de la cuenta de servicio). Se puede entregar como JSON
-para importar. Pendiente decidir: ¿n8n abre el .eml y saca datos de dentro, o solo registra que llegó?
+**Detalles técnicos / GOTCHAS resueltos (importantes si se retoma):**
+- **Cuenta de servicio para la clave:** la org `jochiignaciocruz-org` tiene la política
+  `iam.disableServiceAccountKeyCreation` ACTIVA → en "My First Project" NO deja descargar claves .json. Se
+  resolvió creando la SA en el **otro proyecto SIN organización** (`n8n-firestore-500717`): SA
+  **`n8n-bridge@n8n-firestore-500717.iam.gserviceaccount.com`**, clave JSON descargada ahí, y luego se le dio
+  el rol **Usuario de Cloud Datastore** en "My First Project" (IAM → Conceder acceso). NO borrar el proyecto
+  `n8n-firestore-500717` (aloja la SA/clave). `project_id` de Firestore = **project-d06489fe-0e21-4087-b1a**.
+- **Credencial n8n** = tipo "Google Service Account API" (googleApi), con "Set up for use in HTTP Request node"
+  ON y Scope `https://www.googleapis.com/auth/datastore`. El nodo HTTP usa Authentication=Predefined → Google
+  Service Account API.
+- **GOTCHA de la clave privada:** el campo Private Key de n8n es de UNA línea → al pegar la PEM multilínea solo
+  cogía el primer renglón → error `secretOrPrivateKey must be an asymmetric key (RS256)`. SOLUCIÓN: pegar la
+  clave en **formato de una sola línea con `\n`** (tal cual viene en el .json). "Connection tested successfully" = OK.
+- Campos del Gmail Trigger: `From`, `Subject`, `snippet`, `internalDate` (NO hay `date` → el campo `fecha` queda
+  vacío de momento; mejora opcional: usar `internalDate`). Al reenviar desde Outlook el remitente es atencionestudiantes@.
+
+**PENDIENTE:** (1) **ACTIVAR el workflow** en n8n (Inactive→Active) para que procese solo. (2) **Rotar la clave**
+de servicio (se expuso en el chat al leer el .json): crear clave nueva, actualizar credencial n8n, borrar la
+vieja; borrar también los .txt temporales de la clave. (3) **Nivel 2:** que n8n abra el .eml, saque los 3
+adjuntos (identidad+carta+cotización) enlazados al correo y añadir botón "Generar solicitud" en 📧 Correo.
 
 ## Pendiente / próximos pasos
 1. **Correo** (en curso, arriba): terminar cuenta de servicio + flujo n8n.

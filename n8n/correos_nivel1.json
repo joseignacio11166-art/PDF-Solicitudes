@@ -1,0 +1,62 @@
+{
+  "name": "AlumnusCare - Correos (Nivel 1, Gmail)",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": true,
+        "filters": {}
+      },
+      "id": "11111111-1111-1111-1111-111111111111",
+      "name": "Gmail - Correo recibido",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1,
+      "position": [
+        300,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://firestore.googleapis.com/v1/projects/project-d06489fe-0e21-4087-b1a/databases/(default)/documents/correos",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ fields: { remitente: { stringValue: ($json.from || $json.From || '') }, asunto: { stringValue: ($json.subject || $json.Subject || '') }, fecha: { stringValue: ($json.date || $json.Date || '') }, es_solicitud: { booleanValue: true }, estudiante: { stringValue: '' }, resumen: { stringValue: ($json.snippet || '') }, estado: { stringValue: 'Nuevo' } } }) }}",
+        "options": {}
+      },
+      "id": "33333333-3333-3333-3333-333333333333",
+      "name": "Guardar en Firestore (correos)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        600,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Gmail - Correo recibido": {
+      "main": [
+        [
+          {
+            "node": "Guardar en Firestore (correos)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "pinData": {}
+}

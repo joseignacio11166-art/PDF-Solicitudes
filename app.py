@@ -436,8 +436,9 @@ def render_manual() -> None:
 def render_corregir() -> None:
     """Sube un PDF ya hecho y cambia un dato sin rehacerlo todo."""
     st.header("Corregir un PDF")
-    st.caption("Sube una solicitud de Sanitas o Nueva Mutua ya generada, cambia lo que necesites "
-               "y descárgala corregida. Se conserva el resto (incluida la firma si la hay).")
+    st.caption("Sube una solicitud de Sanitas o Nueva Mutua, revisa/cambia los campos y descárgala "
+               "corregida. Los campos vacíos puedes rellenarlos; solo se tocan los que cambies. "
+               "Puedes elegir incluir la firma o dejarla en blanco.")
     archivo = st.file_uploader("Sube el PDF a corregir", type=["pdf"], key="corr_up")
     if not archivo:
         return
@@ -464,114 +465,32 @@ def render_corregir() -> None:
     for i, (log, val) in enumerate(actuales.items()):
         nuevos[log] = cols[i % 2].text_input(log, val, key="corr_" + log)
 
+    incluir_firma = st.radio(
+        "Firma",
+        ["Incluir la firma del original", "Sin firma (en blanco)"],
+        horizontal=True,
+    ).startswith("Incluir")
+
     if st.button("Generar PDF corregido", type="primary"):
         cambios = {log: v for log, v in nuevos.items() if v != actuales.get(log, "")}
-        if not cambios:
+        if not cambios and incluir_firma:
             st.info("No cambiaste ningún dato.")
             return
-        pdf = _corr.corregir(st.session_state["corr_ruta"], tipo, cambios)
-        st.success("✅ PDF corregido. Cambiado: " + ", ".join(cambios.keys()))
+        pdf = _corr.corregir(st.session_state["corr_ruta"], tipo, cambios, incluir_firma=incluir_firma)
+        msg = "✅ PDF corregido."
+        if cambios:
+            msg += " Cambiado: " + ", ".join(cambios.keys())
+        if not incluir_firma:
+            msg += " · sin firma"
+        st.success(msg)
         st.download_button("⬇️ Descargar PDF corregido", data=pdf,
                            file_name="corregido_" + archivo.name, mime="application/pdf")
-
-
-def render_convertir() -> None:
-    """Pasa una solicitud antigua de Nueva Mutua al formato nuevo (v2)."""
-    st.header("Pasar solicitud antigua → nueva (Nueva Mutua)")
-    st.caption("Sube una solicitud **antigua** de Nueva Mutua. La IA extrae los datos, los revisas, "
-               "añades lo nuevo (dirección en el extranjero) y genero la solicitud en el **formato actual**.")
-    archivo = st.file_uploader("Sube la solicitud antigua (PDF)", type=["pdf"], key="conv_up")
-    if not archivo:
-        return
-
-    if st.session_state.get("conv_file") != archivo.name:
-        ruta = _guardar_temporal(archivo)
-        st.session_state["conv_file"] = archivo.name
-        st.session_state["conv_ruta"] = str(ruta)
-        st.session_state["conv_texto"] = _texto_pdf(ruta)
-        st.session_state.pop("conv_datos", None)
-
-    if st.button("🧠 Extraer datos con la IA"):
-        with st.spinner("Leyendo la solicitud antigua…"):
-            from cerebro.prompt_extraccion import extraer_datos
-            try:
-                st.session_state["conv_datos"] = extraer_datos({"_texto_completo": st.session_state["conv_texto"]})
-            except Exception as e:  # noqa: BLE001
-                st.error(f"Error al extraer: {e}")
-
-    datos = st.session_state.get("conv_datos")
-    if not datos:
-        st.info("Pulsa **Extraer datos con la IA** para leer la solicitud antigua.")
-        return
-
-    if datos.get("avisos"):
-        with st.expander(f"⚠️ {len(datos['avisos'])} aviso(s)"):
-            for a in datos["avisos"]:
-                st.markdown(f"- {a}")
-
-    st.subheader("Datos (revisa y corrige)")
-    c1, c2, c3 = st.columns(3)
-    datos["nombre_completo"] = c1.text_input("Nombre completo",
-                                             datos.get("nombre_completo") or f"{datos.get('nombre','')} {datos.get('apellidos','')}".strip())
-    datos["numero_documento"] = c2.text_input("Nº documento", datos.get("numero_documento", ""))
-    datos["sexo"] = c3.selectbox("Sexo", ["Mujer", "Hombre"],
-                                 index=0 if datos.get("sexo") != "Hombre" else 1)
-    datos["fecha_nacimiento"] = c1.text_input("Fecha nacimiento", datos.get("fecha_nacimiento", ""))
-    datos["fecha_efecto"] = c2.text_input("Fecha alta deseada", datos.get("fecha_efecto", ""))
-    datos["correo"] = c3.text_input("Correo", datos.get("correo", ""))
-    datos["telefono_movil"] = c1.text_input("Teléfono móvil", datos.get("telefono_movil", ""))
-    datos["telefono_fijo"] = c2.text_input("Teléfono fijo", datos.get("telefono_fijo", ""))
-    datos["peso_kg"] = c3.text_input("Peso (kg)", datos.get("peso_kg", ""))
-    datos["altura_cm"] = c1.text_input("Altura (cm)", datos.get("altura_cm", ""))
-
-    st.markdown("**Dirección en España**")
-    datos["direccion_en_espana"] = True
-    d1, d2, d3, d4 = st.columns(4)
-    datos["direccion_via"] = d1.text_input("Vía", datos.get("direccion_via", ""))
-    datos["direccion_numero"] = d2.text_input("Número", datos.get("direccion_numero", ""))
-    datos["direccion_piso"] = d3.text_input("Piso", datos.get("direccion_piso", ""))
-    datos["direccion_puerta"] = d4.text_input("Puerta", datos.get("direccion_puerta", ""))
-    e1, e2, e3 = st.columns(3)
-    datos["municipio"] = e1.text_input("Municipio", datos.get("municipio", ""))
-    datos["provincia"] = e2.text_input("Provincia", datos.get("provincia", ""))
-    datos["codigo_postal"] = e3.text_input("Código postal", datos.get("codigo_postal", ""))
-
-    st.markdown("**Dirección en el extranjero (nueva — para repatriación)**")
-    r1, r2 = st.columns([2, 1])
-    datos["repat_direccion"] = r1.text_input("Dirección completa (país de origen)", datos.get("repat_direccion", ""))
-    datos["repat_cp"] = r2.text_input("Código postal (extranjero)", datos.get("repat_cp", ""))
-    r3, r4 = st.columns(2)
-    datos["repat_poblacion"] = r3.text_input("Población (extranjero)", datos.get("repat_poblacion", ""))
-    datos["repat_provincia"] = r4.text_input("Provincia / estado (extranjero)", datos.get("repat_provincia", ""))
-
-    st.markdown("**Cuestionario de salud**")
-    s1, s2 = st.columns(2)
-    p1 = s1.radio("1. ¿Enfermedad de la lista?", ["No", "Sí"], horizontal=True, key="conv_p1")
-    p2 = s2.radio("2. ¿Pendiente de diagnóstico/tratamiento?", ["No", "Sí"], horizontal=True, key="conv_p2")
-    datos["cuestionario_salud"] = {"p1": p1, "p2": p2, "tiene_algun_si": (p1 == "Sí" or p2 == "Sí")}
-
-    st.markdown("**Firma**")
-    con_firma = st.radio(
-        "¿Qué hacemos con la firma?",
-        ["Sin firma (para firmar de nuevo)", "Con la firma de la solicitud antigua"],
-        label_visibility="collapsed",
-    ).startswith("Con")
-
-    if st.button("📄 Generar Nueva Mutua (formato nuevo)", type="primary"):
-        firma_png = None
-        if con_firma:
-            from core.corregir import extraer_firma
-            firma_png = extraer_firma(st.session_state.get("conv_ruta", ""))
-            if not firma_png:
-                st.warning("No pude recortar la firma del PDF antiguo (puede ser una imagen difícil). "
-                           "Se genera sin firma.")
-        _descarga_nuevamutua(datos, firma_png=firma_png)
 
 
 def render_solicitudes() -> None:
     st.title("📄 Solicitudes")
     modo = st.radio("Modo", ["📎 Adjuntar formulario", "✍️ Rellenar a mano", "✏️ Corregir un PDF",
-                             "🔁 Antigua → nueva", "🗂️ Historial"], horizontal=True)
+                             "🗂️ Historial"], horizontal=True)
     st.divider()
     if modo.startswith("📎"):
         render_adjuntar()
@@ -579,8 +498,6 @@ def render_solicitudes() -> None:
         render_manual()
     elif modo.startswith("✏"):
         render_corregir()
-    elif modo.startswith("🔁"):
-        render_convertir()
     else:
         render_historial()
 
