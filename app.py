@@ -578,6 +578,16 @@ def _cargar_polizas():
     return _hoja.leer_polizas()
 
 
+@st.cache_data(ttl=600, show_spinner=False)
+def _columnas_formula() -> list[str]:
+    """Columnas de la hoja que llevan fórmula (no se deben sobrescribir)."""
+    from core import hoja as _hoja
+    try:
+        return list(_hoja.plantillas_formula())
+    except Exception:
+        return []
+
+
 def render_seguimiento() -> None:
     """Lista de seguimiento leída EN VIVO de Google Sheets + documentos por persona."""
     from core import hoja as _hoja
@@ -642,70 +652,91 @@ def render_seguimiento() -> None:
     ]
     c_top1.caption(f"{len(filtradas)} de {total} solicitudes")
 
-    import pandas as pd
-    st.dataframe(pd.DataFrame([{
-        "Nombre": r.get("NOMBRE", ""),
-        "Aseguradora": r.get("ASEGURADORA", ""),
-        "Estatus": r.get("ESTATUS", ""),
-        "Gestor": r.get("Gestionado x", ""),
-        "Universidad": r.get("UNIVERSIDAD", ""),
-        "Efecto": r.get("EFECTO", ""),
-        "Certificado": "✅" if _tiene(r.get("NOMBRE", ""), "certificado") else "—",
-        "Condiciones": "✅" if _tiene(r.get("NOMBRE", ""), "condiciones") else "—",
-    } for r in filtradas]), use_container_width=True, hide_index=True)
-
     if not filtradas:
+        st.info("Ningún resultado con esos filtros.")
         return
 
-    st.divider()
-    st.subheader("✏️ Ficha de una persona")
-    idx = st.selectbox("Persona", range(len(filtradas)),
-                       format_func=lambda i: filtradas[i].get("NOMBRE", ""), key="seg_persona_idx")
-    fila = filtradas[idx]
-    persona = fila.get("NOMBRE", "")
+    # --- Tabla editable (escribe de vuelta en la hoja) ---
+    import pandas as pd
+    protegidas = set(_columnas_formula())
+    columnas = [c for c in _cab if c]  # la hoja tiene una última columna sin cabecera: se ignora
 
-    st.caption(f"Universidad: {fila.get('UNIVERSIDAD') or '—'} · Referidor: {fila.get('REFERIDOR') or '—'} "
-               f"· Solicitud: {fila.get('SOLICITUD') or '—'} · Efecto: {fila.get('EFECTO') or '—'}")
-    if fila.get("Observaciones"):
-        st.info(f"**Observaciones:** {fila['Observaciones']}")
+    df = pd.DataFrame([{
+        "_fila": r["_fila"],
+        **{c: r.get(c, "") for c in columnas},
+        "Cert.": "✅" if _tiene(r.get("NOMBRE", ""), "certificado") else "—",
+        "Cond.": "✅" if _tiene(r.get("NOMBRE", ""), "condiciones") else "—",
+    } for r in filtradas]).astype(str)
 
-    # --- Editar y escribir de vuelta en la hoja ---
-    st.markdown("**Cambiar en la hoja**")
-    e1, e2, e3 = st.columns([1, 1, 1])
-    op_est = estatuses or ["Emitida"]
-    est_actual = fila.get("ESTATUS", "")
-    nuevo_est = e1.selectbox("Estatus", op_est,
-                             index=op_est.index(est_actual) if est_actual in op_est else 0,
-                             key="seg_est")
-    op_ges = gestores or ["JIC"]
-    ges_actual = fila.get("Gestionado x", "")
-    nuevo_ges = e2.selectbox("Gestor", op_ges,
-                             index=op_ges.index(ges_actual) if ges_actual in op_ges else 0,
-                             key="seg_ges")
-    if e3.button("💾 Guardar en la hoja", type="primary"):
-        cambios = []
-        try:
-            if nuevo_est != est_actual:
-                _hoja.actualizar_poliza(fila["_fila"], "ESTATUS", nuevo_est)
-                cambios.append(f"Estatus → {nuevo_est}")
-            if nuevo_ges != ges_actual:
-                _hoja.actualizar_poliza(fila["_fila"], "Gestionado x", nuevo_ges)
-                cambios.append(f"Gestor → {nuevo_ges}")
-        except Exception as e:  # noqa: BLE001
-            st.error(f"No pude escribir en la hoja: {e}")
+    st.caption("Edita cualquier celda, añade filas al final o bórralas con la papelera. "
+               f"Las columnas {sorted(protegidas) or '—'}, *Cert.* y *Cond.* son de solo lectura.")
+    editado = st.data_editor(
+        df, num_rows="dynamic", use_container_width=True, hide_index=True,
+        disabled=["_fila", "Cert.", "Cond.", *protegidas], key="seg_editor",
+    )
+
+    originales = {int(r["_fila"]): r for r in filtradas}
+    editables = [c for c in columnas if c not in protegidas]
+    ediciones, altas, vistos = [], [], set()
+    for _, row in editado.iterrows():
+        marca = str(row.get("_fila", "")).strip()
+        if not marca or marca.lower() in ("nan", "none"):
+            nueva = {c: ("" if str(row.get(c, "")).lower() in ("nan", "none") else str(row.get(c, "")))
+                     for c in columnas}
+            if nueva.get("NOMBRE", "").strip():
+                altas.append(nueva)
+            continue
+        fila_n = int(float(marca))
+        vistos.add(fila_n)
+        viejo = originales.get(fila_n)
+        if not viejo:
+            continue
+        for c in editables:
+            nuevo_v = str(row.get(c, ""))
+            if nuevo_v.lower() in ("nan", "none"):
+                nuevo_v = ""
+            if nuevo_v != str(viejo.get(c, "")):
+                ediciones.append((fila_n, c, nuevo_v))
+    bajas = [f for f in originales if f not in vistos]
+
+    resumen = []
+    if ediciones:
+        resumen.append(f"**{len(ediciones)}** celda(s) modificada(s)")
+    if altas:
+        resumen.append(f"**{len(altas)}** fila(s) nueva(s)")
+    if bajas:
+        resumen.append(f"**{len(bajas)}** fila(s) a BORRAR")
+
+    if resumen:
+        st.warning("Cambios sin guardar: " + " · ".join(resumen))
+    confirmar = True
+    if bajas:
+        nombres_baja = ", ".join(originales[f].get("NOMBRE", "?") for f in bajas)
+        confirmar = st.checkbox(f"⚠️ Confirmo borrar de la hoja: {nombres_baja}", key="seg_conf_baja")
+
+    if st.button("💾 Guardar cambios en la hoja", type="primary", disabled=not resumen):
+        if bajas and not confirmar:
+            st.error("Marca la casilla de confirmación para borrar.")
         else:
-            if cambios:
-                _cargar_polizas.clear()
-                st.success("✅ Guardado en la hoja: " + " · ".join(cambios))
-                st.rerun()
+            try:
+                res = _hoja.aplicar_cambios(ediciones, altas, bajas)
+            except Exception as e:  # noqa: BLE001
+                st.error(f"No pude escribir en la hoja: {e}")
             else:
-                st.info("No cambiaste nada.")
+                _cargar_polizas.clear()
+                st.success(f"✅ Hoja actualizada: {res['editadas']} celdas · "
+                           f"{res['añadidas']} altas · {res['borradas']} bajas.")
+                st.rerun()
 
     if not hay_bd:
         return
 
-    # --- Documentos ---
-    st.markdown("**📎 Documentos**")
+    st.divider()
+    st.subheader("📎 Documentos de una persona")
+    persona = st.selectbox("Persona", [r.get("NOMBRE", "") for r in filtradas], key="seg_persona")
+    if not persona:
+        return
+
     for tipo, etiqueta, col in zip(("certificado", "condiciones"),
                                    ("Certificado", "Condiciones particulares"),
                                    st.columns(2)):
