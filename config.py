@@ -5,7 +5,13 @@ Aquí vive todo lo DETERMINISTA: lo que el código pone siempre igual y la IA
 nunca decide. Si una regla fija cambia (un código, un correo, una dirección
 por defecto), se cambia AQUÍ y en un solo sitio.
 """
+import os
 from pathlib import Path
+
+# --- Hoja de seguimiento (Google Sheets) ---------------------------------
+# Hoja "ALUMNUSCARE_2026__v3" (pestañas: Dashboard, Hoja1 = pólizas, Pegar leads (web)).
+# Debe estar compartida como Editor con el service account que use la app.
+SHEET_ID = os.getenv("SHEET_ID", "10xYtWPICZ_i648KpZt4QkZjY72qCGy962Z11eiMjioM")
 
 # --- Rutas ---------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent

@@ -490,7 +490,7 @@ def render_corregir() -> None:
 def render_solicitudes() -> None:
     st.title("📄 Solicitudes")
     modo = st.radio("Modo", ["📎 Adjuntar formulario", "✍️ Rellenar a mano", "✏️ Corregir un PDF",
-                             "🗂️ Historial"], horizontal=True)
+                             "📁 Seguimiento", "🗂️ Historial"], horizontal=True)
     st.divider()
     if modo.startswith("📎"):
         render_adjuntar()
@@ -498,6 +498,8 @@ def render_solicitudes() -> None:
         render_manual()
     elif modo.startswith("✏"):
         render_corregir()
+    elif modo.startswith("📁"):
+        render_seguimiento()
     else:
         render_historial()
 
@@ -570,6 +572,166 @@ def render_historial() -> None:
 # ========================================================================
 # SECCIÓN: CORREO (lee Firestore "correos", que vuelca n8n)
 # ========================================================================
+@st.cache_data(ttl=60, show_spinner=False)
+def _cargar_polizas():
+    from core import hoja as _hoja
+    return _hoja.leer_polizas()
+
+
+def render_seguimiento() -> None:
+    """Lista de seguimiento leída EN VIVO de Google Sheets + documentos por persona."""
+    from core import hoja as _hoja
+    from core import seguimiento as _seg
+
+    st.header("📁 Seguimiento")
+    st.caption("Los datos salen **en vivo** de la hoja de Google (pestaña *Pólizas*). Si cambias el "
+               "estatus aquí, se cambia en la hoja. En cada persona puedes guardar el **certificado** "
+               "y las **condiciones particulares**, para no buscarlos en el correo.")
+
+    if not _hoja.disponible():
+        st.error("No puedo conectar con la hoja de Google. Comprueba que está compartida como Editor "
+                 "con el service account de la app y que la API de Sheets está habilitada.")
+        return
+
+    c_top1, c_top2 = st.columns([3, 1])
+    if c_top2.button("🔄 Recargar de la hoja"):
+        _cargar_polizas.clear()
+        st.rerun()
+
+    try:
+        filas, _cab = _cargar_polizas()
+    except Exception as e:  # noqa: BLE001
+        st.error(f"Error leyendo la hoja: {e}")
+        return
+
+    # KPIs
+    total = len(filas)
+    por_estatus = {}
+    for r in filas:
+        por_estatus[r.get("ESTATUS", "—")] = por_estatus.get(r.get("ESTATUS", "—"), 0) + 1
+    k1, k2, k3, k4 = st.columns(4)
+    k1.metric("Total pólizas", total)
+    k2.metric("Emitidas", por_estatus.get("Emitida", 0))
+    k3.metric("Pte de pago", por_estatus.get("Pte de pago", 0))
+    k4.metric("Anuladas", por_estatus.get("Anulada", 0))
+
+    hay_bd = _seg.disponible()
+    indice = _seg.indice_docs() if hay_bd else set()
+    if not hay_bd:
+        st.warning("Sin base de datos: no se pueden guardar adjuntos (en local es normal).")
+
+    def _tiene(nombre: str, tipo: str) -> bool:
+        return f"{_seg.norm(nombre)}__{tipo}" in indice
+
+    # Filtros
+    f1, f2, f3, f4 = st.columns([2, 1, 1, 1])
+    q = f1.text_input("Buscar por nombre", "")
+    estatuses = sorted({r.get("ESTATUS", "") for r in filas if r.get("ESTATUS", "")})
+    aseguradoras = sorted({r.get("ASEGURADORA", "") for r in filas if r.get("ASEGURADORA", "")})
+    gestores = sorted({r.get("Gestionado x", "") for r in filas if r.get("Gestionado x", "")})
+    fe = f2.selectbox("Estatus", ["(todos)"] + estatuses)
+    fa = f3.selectbox("Aseguradora", ["(todas)"] + aseguradoras)
+    fg = f4.selectbox("Gestor", ["(todos)"] + gestores)
+
+    filtradas = [
+        r for r in filas
+        if (not q or q.lower() in r.get("NOMBRE", "").lower())
+        and (fe == "(todos)" or r.get("ESTATUS", "") == fe)
+        and (fa == "(todas)" or r.get("ASEGURADORA", "") == fa)
+        and (fg == "(todos)" or r.get("Gestionado x", "") == fg)
+    ]
+    c_top1.caption(f"{len(filtradas)} de {total} solicitudes")
+
+    import pandas as pd
+    st.dataframe(pd.DataFrame([{
+        "Nombre": r.get("NOMBRE", ""),
+        "Aseguradora": r.get("ASEGURADORA", ""),
+        "Estatus": r.get("ESTATUS", ""),
+        "Gestor": r.get("Gestionado x", ""),
+        "Universidad": r.get("UNIVERSIDAD", ""),
+        "Efecto": r.get("EFECTO", ""),
+        "Certificado": "✅" if _tiene(r.get("NOMBRE", ""), "certificado") else "—",
+        "Condiciones": "✅" if _tiene(r.get("NOMBRE", ""), "condiciones") else "—",
+    } for r in filtradas]), use_container_width=True, hide_index=True)
+
+    if not filtradas:
+        return
+
+    st.divider()
+    st.subheader("✏️ Ficha de una persona")
+    idx = st.selectbox("Persona", range(len(filtradas)),
+                       format_func=lambda i: filtradas[i].get("NOMBRE", ""), key="seg_persona_idx")
+    fila = filtradas[idx]
+    persona = fila.get("NOMBRE", "")
+
+    st.caption(f"Universidad: {fila.get('UNIVERSIDAD') or '—'} · Referidor: {fila.get('REFERIDOR') or '—'} "
+               f"· Solicitud: {fila.get('SOLICITUD') or '—'} · Efecto: {fila.get('EFECTO') or '—'}")
+    if fila.get("Observaciones"):
+        st.info(f"**Observaciones:** {fila['Observaciones']}")
+
+    # --- Editar y escribir de vuelta en la hoja ---
+    st.markdown("**Cambiar en la hoja**")
+    e1, e2, e3 = st.columns([1, 1, 1])
+    op_est = estatuses or ["Emitida"]
+    est_actual = fila.get("ESTATUS", "")
+    nuevo_est = e1.selectbox("Estatus", op_est,
+                             index=op_est.index(est_actual) if est_actual in op_est else 0,
+                             key="seg_est")
+    op_ges = gestores or ["JIC"]
+    ges_actual = fila.get("Gestionado x", "")
+    nuevo_ges = e2.selectbox("Gestor", op_ges,
+                             index=op_ges.index(ges_actual) if ges_actual in op_ges else 0,
+                             key="seg_ges")
+    if e3.button("💾 Guardar en la hoja", type="primary"):
+        cambios = []
+        try:
+            if nuevo_est != est_actual:
+                _hoja.actualizar_poliza(fila["_fila"], "ESTATUS", nuevo_est)
+                cambios.append(f"Estatus → {nuevo_est}")
+            if nuevo_ges != ges_actual:
+                _hoja.actualizar_poliza(fila["_fila"], "Gestionado x", nuevo_ges)
+                cambios.append(f"Gestor → {nuevo_ges}")
+        except Exception as e:  # noqa: BLE001
+            st.error(f"No pude escribir en la hoja: {e}")
+        else:
+            if cambios:
+                _cargar_polizas.clear()
+                st.success("✅ Guardado en la hoja: " + " · ".join(cambios))
+                st.rerun()
+            else:
+                st.info("No cambiaste nada.")
+
+    if not hay_bd:
+        return
+
+    # --- Documentos ---
+    st.markdown("**📎 Documentos**")
+    for tipo, etiqueta, col in zip(("certificado", "condiciones"),
+                                   ("Certificado", "Condiciones particulares"),
+                                   st.columns(2)):
+        with col:
+            st.markdown(f"*{etiqueta}*")
+            actual = _seg.obtener_archivo(persona, tipo)
+            if actual:
+                st.download_button("⬇️ Descargar", data=actual["bytes"],
+                                   file_name=actual["archivo"] or f"{tipo}.pdf",
+                                   mime="application/pdf", key=f"seg_dl_{tipo}")
+                if st.button("🗑️ Quitar", key=f"seg_del_{tipo}"):
+                    _seg.borrar_archivo(persona, tipo)
+                    st.rerun()
+            else:
+                st.caption("Sin archivo.")
+            up = st.file_uploader(f"Subir {etiqueta.lower()} (PDF)", type=["pdf"],
+                                  key=f"seg_up_{tipo}_{_seg.norm(persona)}")
+            if up is not None and st.button(f"💾 Guardar {etiqueta.lower()}", key=f"seg_save_{tipo}"):
+                try:
+                    _seg.guardar_archivo(persona, tipo, up.getvalue(), up.name)
+                    st.success("Guardado.")
+                    st.rerun()
+                except Exception as e:  # noqa: BLE001
+                    st.error(f"No se pudo guardar: {e}")
+
+
 def render_correo() -> None:
     st.title("📧 Correo")
     st.caption("Solicitudes que llegan al buzón **atencionestudiantes@**. Las vuelca n8n y se ven aquí.")

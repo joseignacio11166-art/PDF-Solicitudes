@@ -8,5 +8,11 @@ anthropic>=0.40
 python-dotenv>=1.0
 # Interfaz local
 streamlit>=1.40
-# Historial (Firestore)
+# Historial / Seguimiento (Firestore)
 google-cloud-firestore>=2.16
+# Seguimiento (leer Excel/CSV)
+pandas>=2.0
+openpyxl>=3.1
+# Hoja de seguimiento (Google Sheets)
+gspread>=6.0
+google-auth>=2.30

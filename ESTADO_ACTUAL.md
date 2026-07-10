@@ -38,6 +38,7 @@ Menú lateral: **📄 Solicitudes**, **📧 Correo**, **📊 Leads**, **💬 Wha
   - **📎 Adjuntar formulario** — sube cotización → el cerebro (Claude) extrae datos → revisas → genera.
   - **✍️ Rellenar a mano** — formulario manual (sin IA). En Nueva Mutua: campos de **repatriación** + salud **Sí/No por pregunta**.
   - **✏️ Corregir un PDF** — sube una solicitud (Sanitas/Nueva Mutua), muestra **TODOS los campos** (rellenos los que tengan dato), cambias/rellenas lo que sea y descarga corregido EN SITIO. Opción **incluir firma o sin firma** (radio). `core/corregir.py`. NM corrige por coordenadas v2 (mediador, tel fijo, profesión, estado civil, fechas, sexo, repatriación, peso/altura); Sanitas por AcroForm. OJO: si el PDF tiene los datos como IMAGEN (escaneado/aplanado), la lectura sale vacía (no hay texto) → se rellenan a mano; la pintura del corregido sí cae bien.
+  - **📁 Seguimiento** — lee **EN VIVO** la hoja de Google (pestaña *Pólizas*): KPIs, filtros (estatus/aseguradora/gestor), buscador. **Escribe de vuelta** el ESTATUS y el gestor (el Dashboard de la hoja se recalcula solo). Adjunta y guarda por persona el **certificado** y las **condiciones particulares** (Firestore, colección `seguimiento_docs`). `core/hoja.py` + `core/seguimiento.py`.
   - **🗂️ Historial** — solicitudes generadas, guardadas en Firestore; re-descarga (regenera el PDF); borrar.
   - *(El modo "🔁 Antigua → nueva" se ELIMINÓ jun 2026 — ya no se usa.)*
 - **📧 Correo** — lee Firestore colección `correos` (que volcará **n8n** desde el buzón `atencionestudiantes@`). **EN CURSO** (ver abajo).
@@ -55,6 +56,23 @@ Menú lateral: **📄 Solicitudes**, **📧 Correo**, **📊 Leads**, **💬 Wha
 - `core/historial.py`, `core/correos.py`, `core/corregir.py` — Firestore + corrección.
 - `plantillas/` — PDFs en blanco (Nueva Mutua = v2). `assets/` — logo + icono.
 - `.env` — `ANTHROPIC_API_KEY`, `APP_PASSWORD` (local; **gitignored**).
+
+## 📊 Hoja de seguimiento (Google Sheets) — fuente de verdad de las pólizas
+El Excel `ALUMNUSCARE_2026_v3.xlsx` (SharePoint, de Sergio) **no se puede leer** sin admin de Microsoft.
+Solución adoptada (jul 2026): se convirtió a **Google Sheets nativo**, propiedad de `alumnuscareestudiantes@gmail.com`.
+- **SHEET_ID** = `10xYtWPICZ_i648KpZt4QkZjY72qCGy962Z11eiMjioM` (en `config.py`, override por env `SHEET_ID`).
+- Pestañas: **Dashboard** (KPIs con fórmulas, se recalcula solo) · **Pólizas** (130 filas, la lista) · **Leads** (28 leads) · *Pegar leads (web)*.
+- Columnas de *Pólizas*: NOMBRE, ASEGURADORA, ESTATUS, REFERIDOR, UNIVERSIDAD, SOLICITUD, EFECTO, `Gestionado x`, Observaciones, `DÍAS PTE.`
+- Estatus: Emitida · Anulada · Pte de pago · Pendiente de solicitud · Solicitada · Contactada. Gestores: JIC, Sergio, Jochi.
+- **Compartida como Editor** con: `321150927024-compute@developer.gserviceaccount.com` (la app en Cloud Run),
+  `n8n-bridge@n8n-firestore-500717.iam.gserviceaccount.com` (para probar en local con su .json), y mafevalarino.ai@gmail.com.
+  Acceso general **Restringido** (nunca público: hay datos personales de estudiantes).
+- **API de Sheets habilitada** en `project-d06489fe-0e21-4087-b1a` Y en `n8n-firestore-500717` (la API se comprueba en el
+  proyecto de la cuenta que llama, no en el de la hoja — gotcha que costó un rato).
+- ⚠️ **OJO con las cuentas de Google:** hay 3 (`alumnuscareestudiantes@gmail.com` dueña de la hoja,
+  `joseignacio11166@gmail.com` la de n8n, y la de la org `jochiignaciocruz-org` dueña de los proyectos Cloud).
+  Cada una tiene su propio "My First Project" → mirar SIEMPRE el `project=` de la URL.
+- Probar en local: `set GOOGLE_APPLICATION_CREDENTIALS` al .json de n8n-bridge.
 
 ## Google Cloud
 - **Cloud Run** `pdf-solicitudes`: vars `ANTHROPIC_API_KEY`, `APP_PASSWORD`. Despliegue continuo desde GitHub (master, Dockerfile). Memoria 1 GiB, puerto 8080, acceso público.
