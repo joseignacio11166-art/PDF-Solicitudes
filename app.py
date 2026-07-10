@@ -140,20 +140,32 @@ def _texto_pdf(ruta) -> str:
 
 
 # --- Acceso por contraseña ----------------------------------------------
+# La contraseña se pide UNA vez. Al acertarla se deja una marca en el enlace (?t=...),
+# para que la sesión sobreviva a reinicios del contenedor y no la vuelva a pedir.
 _PASSWORD = os.getenv("APP_PASSWORD", "")
-if _PASSWORD and not st.session_state.get("_auth_ok"):
-    _c = st.columns([1, 2, 1])
-    with _c[1]:
-        st.image(LOGO, use_container_width=True)
-        _pwd = st.text_input("🔒 Contraseña de acceso", type="password",
-                             placeholder="Introduce la contraseña para entrar")
-        if _pwd:
-            if _pwd == _PASSWORD:
-                st.session_state["_auth_ok"] = True
-                st.rerun()
-            else:
-                st.error("Contraseña incorrecta.")
-    st.stop()
+if _PASSWORD:
+    import hashlib
+    _TOKEN = hashlib.sha256(f"alumnuscare::{_PASSWORD}".encode()).hexdigest()[:24]
+
+    if st.query_params.get("t") == _TOKEN:
+        st.session_state["_auth_ok"] = True
+
+    if not st.session_state.get("_auth_ok"):
+        _c = st.columns([1, 2, 1])
+        with _c[1]:
+            st.image(LOGO, use_container_width=True)
+            _pwd = st.text_input("🔒 Contraseña de acceso", type="password",
+                                 placeholder="Introduce la contraseña para entrar")
+            if _pwd:
+                if _pwd == _PASSWORD:
+                    st.session_state["_auth_ok"] = True
+                    st.query_params["t"] = _TOKEN
+                    st.rerun()
+                else:
+                    st.error("Contraseña incorrecta.")
+            st.caption("Al entrar, el enlace de tu navegador queda recordado: guárdalo en favoritos "
+                       "y no tendrás que volver a escribirla.")
+        st.stop()
 
 # --- Menú lateral (todo aquí: secciones y modos) -------------------------
 MODOS_SOLICITUDES = ["📎 Adjuntar formulario", "✍️ Rellenar a mano", "✏️ Corregir un PDF",
@@ -175,6 +187,10 @@ with st.sidebar:
         modo_solicitudes = st.radio("Modo", MODOS_SOLICITUDES, label_visibility="collapsed")
     st.divider()
     st.caption("Rose & Pagés · AlumnusCare")
+    if _PASSWORD and st.button("Cerrar sesión", key="salir"):
+        st.session_state.pop("_auth_ok", None)
+        st.query_params.clear()
+        st.rerun()
 
 
 # ========================================================================
