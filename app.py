@@ -37,35 +37,75 @@ NOMBRE_ASEGURADORA = {
     ASISA: "ASISA (próximamente)",
 }
 
-# --- Estilo (azul AlumnusCare) ------------------------------------------
+# --- Estilo (azul AlumnusCare · barra lateral navy + tarjetas) -----------
 st.markdown(
     """
     <style>
-      h1, h2, h3 { color: #1F3148; }
+      h1, h2, h3 { color: #16202E; letter-spacing: -0.01em; }
       div[data-testid="stHeadingWithActionElements"] h2 {
           border-left: 5px solid #1CA0D4; padding-left: 12px;
       }
       .stButton > button, .stDownloadButton > button {
-          background: #1CA0D4; color: white; border: none;
+          background: #0E86B8; color: white; border: none;
           border-radius: 8px; font-weight: 600; padding: 0.5rem 1rem;
       }
       .stButton > button:hover, .stDownloadButton > button:hover {
-          background: #1689B8; color: white;
+          background: #0B6D96; color: white;
       }
-      div[data-testid="stExpander"] { border: 1px solid #CFE7F3; border-radius: 10px; }
-      section[data-testid="stSidebar"] { background: #F4FAFD; }
+      div[data-testid="stExpander"] { border: 1px solid #DBE2EA; border-radius: 10px; }
+      [data-testid="stMetricValue"] { font-variant-numeric: tabular-nums; }
+
+      /* Barra lateral azul oscuro */
+      section[data-testid="stSidebar"] { background: #16283C; }
+      section[data-testid="stSidebar"] * { color: #C7D6E4; }
+      section[data-testid="stSidebar"] img {
+          background: #fff; border-radius: 10px; padding: 10px;
+      }
+      section[data-testid="stSidebar"] hr { border-color: rgba(255,255,255,.12); }
+      section[data-testid="stSidebar"] [role="radiogroup"] label {
+          padding: 4px 6px; border-radius: 8px;
+      }
+      section[data-testid="stSidebar"] [role="radiogroup"] label:hover {
+          background: rgba(255,255,255,.06);
+      }
+
+      /* Accesos rápidos del Panel */
+      .accesos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 6px; }
+      .acceso {
+        display: flex; flex-direction: column; gap: 8px; padding: 16px;
+        background: #fff; border: 1px solid #DBE2EA; border-radius: 10px;
+        box-shadow: 0 1px 2px rgba(22,32,46,.05), 0 6px 18px -8px rgba(22,32,46,.16);
+        text-decoration: none; color: inherit; transition: border-color .15s, transform .15s;
+      }
+      .acceso:hover { border-color: #0E86B8; transform: translateY(-1px); }
+      .acceso .marca { font-weight: 650; font-size: 15px; color: #16202E; }
+      .acceso .marca i { font-style: normal; color: #0E86B8; }
+      .acceso .desc { font-size: 13px; color: #4A5A6E; }
+      .acceso .ir { margin-top: auto; font-size: 12.5px; font-weight: 500; color: #0E86B8; }
+      @media (max-width: 820px) { .accesos { grid-template-columns: 1fr; } }
+
       .badge { padding: 2px 10px; border-radius: 12px; font-size: 0.78rem; font-weight: 600; }
-      .b-rojo { background:#FDE7E7; color:#C0392B; }
-      .b-azul { background:#E4F1FB; color:#2470A8; }
-      .b-verde { background:#E3F6E8; color:#268C4B; }
-      .b-naranja { background:#FDEFD9; color:#B9770E; }
+      .b-rojo { background:#F8E9E8; color:#A4302B; }
+      .b-azul { background:#E1F0F7; color:#0E86B8; }
+      .b-verde { background:#E7F3EC; color:#1F7A4C; }
+      .b-naranja { background:#FBF1DF; color:#A66A00; }
       .b-gris { background:#ECEFF3; color:#5A6B82; }
-      .wa-card { border:1px solid #E2E8F0; border-radius:10px; padding:12px 16px; margin-bottom:10px; background:white; }
-      .wa-resumen { color:#1F3148; }
+      .wa-card { border:1px solid #DBE2EA; border-radius:10px; padding:12px 16px; margin-bottom:10px; background:white; }
+      .wa-resumen { color:#16202E; }
     </style>
     """,
     unsafe_allow_html=True,
 )
+
+# Accesos rápidos del Panel (pantalla de inicio)
+ENLACES = [
+    ("Alumnus<i>Care</i>", "https://alumnuscare.com/",
+     "La web pública: coberturas, precios y contacto.", "Abrir la web →"),
+    ("Hi<i>Broker</i> · Cotizador", "https://tuseguro.alumnuscare.com/wizard/index.html",
+     "Calcular una cotización nueva para un estudiante.", "Abrir el cotizador →"),
+    ("Hi<i>Broker</i> · Admin", "https://tuseguro.alumnuscare.com/admin/auth-logout.html",
+     "Panel de administración: leads y pólizas del cotizador.", "Entrar al admin →"),
+]
 
 
 def _badge(texto: str, clase: str) -> str:
@@ -115,17 +155,24 @@ if _PASSWORD and not st.session_state.get("_auth_ok"):
                 st.error("Contraseña incorrecta.")
     st.stop()
 
-# --- Menú lateral --------------------------------------------------------
+# --- Menú lateral (todo aquí: secciones y modos) -------------------------
+MODOS_SOLICITUDES = ["📎 Adjuntar formulario", "✍️ Rellenar a mano", "✏️ Corregir un PDF",
+                     "🗂️ Historial"]
+
 with st.sidebar:
     st.image(LOGO, use_container_width=True)
-    st.markdown("<p style='text-align:center;color:#5A6B82;margin-top:-6px'>Centro de Operaciones</p>",
+    st.markdown("<p style='text-align:center;color:#8FA6BC;margin-top:-6px;"
+                "font-size:11px;letter-spacing:.12em;text-transform:uppercase'>Centro de Operaciones</p>",
                 unsafe_allow_html=True)
     st.divider()
     seccion = st.radio(
         "Navegación",
-        ["📄 Solicitudes", "📧 Correo", "📊 Leads", "💬 WhatsApp"],
+        ["🏠 Panel", "📄 Solicitudes", "📁 Seguimiento", "📧 Correo", "📊 Leads", "💬 WhatsApp"],
         label_visibility="collapsed",
     )
+    modo_solicitudes = MODOS_SOLICITUDES[0]
+    if seccion.startswith("📄"):
+        modo_solicitudes = st.radio("Modo", MODOS_SOLICITUDES, label_visibility="collapsed")
     st.divider()
     st.caption("Rose & Pagés · AlumnusCare")
 
@@ -487,19 +534,14 @@ def render_corregir() -> None:
                            file_name="corregido_" + archivo.name, mime="application/pdf")
 
 
-def render_solicitudes() -> None:
+def render_solicitudes(modo: str) -> None:
     st.title("📄 Solicitudes")
-    modo = st.radio("Modo", ["📎 Adjuntar formulario", "✍️ Rellenar a mano", "✏️ Corregir un PDF",
-                             "📁 Seguimiento", "🗂️ Historial"], horizontal=True)
-    st.divider()
     if modo.startswith("📎"):
         render_adjuntar()
     elif modo.startswith("✍"):
         render_manual()
     elif modo.startswith("✏"):
         render_corregir()
-    elif modo.startswith("📁"):
-        render_seguimiento()
     else:
         render_historial()
 
@@ -588,6 +630,115 @@ def _columnas_formula() -> list[str]:
         return []
 
 
+@st.cache_data(ttl=60, show_spinner=False)
+def _cargar_leads_hoja():
+    from core import hoja as _hoja
+    return _hoja.leer_leads()
+
+
+def _barras(titulo: str, datos: list[tuple[str, int]]) -> None:
+    with st.container(border=True):
+        st.markdown(f"**{titulo}**")
+        techo = max((n for _, n in datos), default=1) or 1
+        for etiqueta, n in datos:
+            c1, c2, c3 = st.columns([2, 5, 1])
+            c1.caption(etiqueta)
+            c2.progress(n / techo)
+            c3.markdown(f"<div style='text-align:right;font-variant-numeric:tabular-nums'>{n}</div>",
+                        unsafe_allow_html=True)
+
+
+def render_panel() -> None:
+    """Pantalla de inicio: accesos rápidos + la foto de la operación."""
+    st.title("🏠 Panel")
+
+    st.markdown(
+        "<div class='accesos'>" + "".join(
+            f"<a class='acceso' href='{url}' target='_blank' rel='noopener'>"
+            f"<div class='marca'>{marca}</div><div class='desc'>{desc}</div>"
+            f"<div class='ir'>{ir}</div></a>"
+            for marca, url, desc, ir in ENLACES
+        ) + "</div>",
+        unsafe_allow_html=True,
+    )
+
+    from core import hoja as _hoja
+    if not _hoja.disponible():
+        st.info("Conecta la hoja de Google para ver aquí los números de la operación.")
+        return
+
+    try:
+        filas, _cab = _cargar_polizas()
+    except Exception as e:  # noqa: BLE001
+        st.warning(f"No pude leer la hoja: {e}")
+        return
+
+    cuenta = {}
+    for r in filas:
+        cuenta[r.get("ESTATUS", "—")] = cuenta.get(r.get("ESTATUS", "—"), 0) + 1
+    total = len(filas)
+    anuladas = cuenta.get("Anulada", 0)
+
+    st.subheader("Estado de la cartera")
+    k = st.columns(4)
+    k[0].metric("Pólizas", total, f"{total - anuladas} activas", delta_color="off")
+    k[1].metric("Emitidas", cuenta.get("Emitida", 0))
+    k[2].metric("Pte. de pago", cuenta.get("Pte de pago", 0))
+    k[3].metric("Anuladas", anuladas)
+
+    def _top(campo: str) -> list[tuple[str, int]]:
+        c = {}
+        for r in filas:
+            v = r.get(campo, "").strip()
+            if v:
+                c[v] = c.get(v, 0) + 1
+        return sorted(c.items(), key=lambda x: -x[1])[:5]
+
+    st.subheader("Reparto")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        _barras("Por gestor", _top("Gestionado x"))
+    with col2:
+        _barras("Por aseguradora", _top("ASEGURADORA"))
+    with col3:
+        with st.container(border=True):
+            st.markdown("**Necesita tu atención**")
+            pendientes = [
+                ("Pendientes de pago", cuenta.get("Pte de pago", 0), "b-naranja"),
+                ("Pendientes de solicitud", cuenta.get("Pendiente de solicitud", 0), "b-rojo"),
+                ("Solicitadas sin emitir", cuenta.get("Solicitada", 0), "b-naranja"),
+            ]
+            try:
+                from core import correos as _cor
+                nuevos = sum(1 for c in _cor.listar_correos() if c.get("estado") != "Gestionado")
+                pendientes.append(("Correos nuevos", nuevos, "b-azul"))
+            except Exception:
+                pass
+            for texto, n, clase in pendientes:
+                a, b = st.columns([3, 1])
+                a.write(texto)
+                b.markdown(f"<div style='text-align:right'>{_badge(str(n), clase)}</div>",
+                           unsafe_allow_html=True)
+
+    try:
+        leads, _lc = _cargar_leads_hoja()
+    except Exception:
+        leads = []
+    if leads:
+        estados = {}
+        for l in leads:
+            estados[l.get("ESTADO", "—")] = estados.get(l.get("ESTADO", "—"), 0) + 1
+        convertidos = estados.get("Convertido", 0)
+        st.subheader("Leads del cotizador")
+        j = st.columns(4)
+        j[0].metric("Leads", len(leads))
+        j[1].metric("Convertidos", convertidos,
+                    f"{convertidos / len(leads) * 100:.1f} %" if leads else None, delta_color="off")
+        j[2].metric("En gestión", sum(v for k2, v in estados.items()
+                                      if k2 not in ("Convertido", "Sin contactar", "—")))
+        j[3].metric("Sin contactar", estados.get("Sin contactar", 0))
+
+
 def render_seguimiento() -> None:
     """Lista de seguimiento leída EN VIVO de Google Sheets + documentos por persona."""
     from core import hoja as _hoja
@@ -658,8 +809,9 @@ def render_seguimiento() -> None:
 
     # --- Tabla editable (escribe de vuelta en la hoja) ---
     import pandas as pd
+    # Las columnas con fórmula (p. ej. "DÍAS PTE.") ni se muestran ni se tocan: viven en la hoja.
     protegidas = set(_columnas_formula())
-    columnas = [c for c in _cab if c]  # la hoja tiene una última columna sin cabecera: se ignora
+    columnas = [c for c in _cab if c and c not in protegidas]
 
     df = pd.DataFrame([{
         "_fila": r["_fila"],
@@ -668,15 +820,15 @@ def render_seguimiento() -> None:
         "Cond.": "✅" if _tiene(r.get("NOMBRE", ""), "condiciones") else "—",
     } for r in filtradas]).astype(str)
 
-    st.caption("Edita cualquier celda, añade filas al final o bórralas con la papelera. "
-               f"Las columnas {sorted(protegidas) or '—'}, *Cert.* y *Cond.* son de solo lectura.")
+    st.caption("Edita cualquier celda, añade filas al final o bórralas con la papelera; luego pulsa "
+               "**Guardar cambios en la hoja**. Las columnas *Cert.* y *Cond.* son de solo lectura.")
     editado = st.data_editor(
         df, num_rows="dynamic", use_container_width=True, hide_index=True,
-        disabled=["_fila", "Cert.", "Cond.", *protegidas], key="seg_editor",
+        disabled=["_fila", "Cert.", "Cond."], key="seg_editor",
     )
 
     originales = {int(r["_fila"]): r for r in filtradas}
-    editables = [c for c in columnas if c not in protegidas]
+    editables = columnas
     ediciones, altas, vistos = [], [], set()
     for _, row in editado.iterrows():
         marca = str(row.get("_fila", "")).strip()
@@ -994,8 +1146,12 @@ def render_whatsapp() -> None:
 # ========================================================================
 # Enrutado
 # ========================================================================
-if seccion.startswith("📄"):
-    render_solicitudes()
+if seccion.startswith("🏠"):
+    render_panel()
+elif seccion.startswith("📄"):
+    render_solicitudes(modo_solicitudes)
+elif seccion.startswith("📁"):
+    render_seguimiento()
 elif seccion.startswith("📧"):
     render_correo()
 elif seccion.startswith("📊"):

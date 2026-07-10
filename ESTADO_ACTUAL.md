@@ -14,7 +14,12 @@ App (Streamlit) = **Centro de Operaciones** de AlumnusCare. Convierte una **coti
 - **Generali / AlumnusCare** → correo (asunto + cuerpo).
 - **ASISA** → pedida pero SIN plantilla aún (no generable).
 
-Menú lateral: **📄 Solicitudes**, **📧 Correo**, **📊 Leads**, **💬 WhatsApp**.
+Menú lateral (azul navy, TODO el menú va aquí): **🏠 Panel**, **📄 Solicitudes** (sus modos salen debajo,
+también en la barra), **📁 Seguimiento**, **📧 Correo**, **📊 Leads**, **💬 WhatsApp**.
+**🏠 Panel** = pantalla de inicio (rediseño jul 2026, "Opción A: azul corporativo con tarjetas"):
+3 accesos rápidos (alumnuscare.com · cotizador `tuseguro.alumnuscare.com/wizard/index.html` · admin
+`.../admin/auth-logout.html`, en `ENLACES` de app.py) + KPIs de la cartera + reparto por gestor/aseguradora
++ "Necesita tu atención" + KPIs de leads. Todo en vivo desde la hoja de Google y Firestore.
 
 ## Dónde vive
 - **Código local:** `C:\Users\jochi\Desktop\generador-solicitudes`
