@@ -652,6 +652,16 @@ def _cargar_leads_hoja():
     return _hoja.leer_leads()
 
 
+_PUNTO_ESTATUS = {
+    "emitida": "🟢", "pte de pago": "🟠", "solicitada": "🔵",
+    "pendiente de solicitud": "🟡", "anulada": "🔴", "contactada": "⚪",
+}
+
+
+def _punto_estatus(estatus: str) -> str:
+    return _PUNTO_ESTATUS.get(str(estatus).strip().lower(), "⚪")
+
+
 def _barras(titulo: str, datos: list[tuple[str, int]]) -> None:
     with st.container(border=True):
         st.markdown(f"**{titulo}**")
@@ -831,16 +841,33 @@ def render_seguimiento() -> None:
 
     df = pd.DataFrame([{
         "_fila": r["_fila"],
+        "•": _punto_estatus(r.get("ESTATUS", "")),
         **{c: r.get(c, "") for c in columnas},
         "Cert.": "✅" if _tiene(r.get("NOMBRE", ""), "certificado") else "—",
         "Cond.": "✅" if _tiene(r.get("NOMBRE", ""), "condiciones") else "—",
     } for r in filtradas]).astype(str)
 
-    st.caption("Edita cualquier celda, añade filas al final o bórralas con la papelera; luego pulsa "
-               "**Guardar cambios en la hoja**. Las columnas *Cert.* y *Cond.* son de solo lectura.")
+    # Columnas como en el Excel: punto de color por estatus + desplegables.
+    col_cfg = {
+        "•": st.column_config.TextColumn("•", width="small", help="Color por estatus"),
+        "Cert.": st.column_config.TextColumn("Cert.", width="small"),
+        "Cond.": st.column_config.TextColumn("Cond.", width="small"),
+    }
+    if estatuses:
+        col_cfg["ESTATUS"] = st.column_config.SelectboxColumn("ESTATUS", options=estatuses, required=False)
+    if aseguradoras:
+        col_cfg["ASEGURADORA"] = st.column_config.SelectboxColumn("ASEGURADORA", options=aseguradoras)
+    if gestores:
+        col_cfg["Gestionado x"] = st.column_config.SelectboxColumn("Gestionado x", options=gestores)
+    orden = ["•", *columnas, "Cert.", "Cond."]
+
+    st.caption("🟢 Emitida · 🟠 Pte de pago · 🔵 Solicitada · 🟡 Pte de solicitud · 🔴 Anulada · ⚪ Contactada. "
+               "Edita cualquier celda, añade filas al final o bórralas con la papelera; luego pulsa "
+               "**Guardar cambios en la hoja**. El punto de color se actualiza al recargar.")
     editado = st.data_editor(
         df, num_rows="dynamic", use_container_width=True, hide_index=True,
-        disabled=["_fila", "Cert.", "Cond."], key="seg_editor",
+        column_config=col_cfg, column_order=orden,
+        disabled=["_fila", "•", "Cert.", "Cond."], key="seg_editor",
     )
 
     originales = {int(r["_fila"]): r for r in filtradas}
