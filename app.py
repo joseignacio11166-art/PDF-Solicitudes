@@ -652,9 +652,10 @@ def _cargar_leads_hoja():
     return _hoja.leer_leads()
 
 
+# Colores como en el Excel de seguimiento.
 _PUNTO_ESTATUS = {
-    "emitida": "🟢", "pte de pago": "🟠", "solicitada": "🔵",
-    "pendiente de solicitud": "🟡", "anulada": "🔴", "contactada": "⚪",
+    "emitida": "🟢", "pte de pago": "🔵", "solicitada": "🟡",
+    "pendiente de solicitud": "🟠", "anulada": "🔴", "contactada": "⚪",
 }
 
 
@@ -861,7 +862,7 @@ def render_seguimiento() -> None:
         col_cfg["Gestionado x"] = st.column_config.SelectboxColumn("Gestionado x", options=gestores)
     orden = ["•", *columnas, "Cert.", "Cond."]
 
-    st.caption("🟢 Emitida · 🟠 Pte de pago · 🔵 Solicitada · 🟡 Pte de solicitud · 🔴 Anulada · ⚪ Contactada. "
+    st.caption("🟢 Emitida · 🔵 Pte de pago · 🟡 Solicitada · 🟠 Pte de solicitud · 🔴 Anulada · ⚪ Contactada. "
                "Edita cualquier celda, añade filas al final o bórralas con la papelera; luego pulsa "
                "**Guardar cambios en la hoja**. El punto de color se actualiza al recargar.")
     editado = st.data_editor(

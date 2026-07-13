@@ -166,9 +166,10 @@ def leer_nm(ruta: str) -> dict:
         partes = ["".join(ch for ch in _leer_celda(pg, x, top, w) if ch.isdigit())
                   for (x, top, w) in celdas]
         out[log] = "/".join(partes) if any(partes) else ""
+    # Sexo: solo cuenta una "X" real; NO la casilla vacía "☐" de la plantilla (bug anterior).
     sexo = ""
     for val, (x, top) in _NM_SEXO.items():
-        if _leer_celda(pg, x - 2, top, 12):
+        if "x" in _leer_celda(pg, x - 2, top, 12).lower():
             sexo = val
     out["Sexo"] = sexo
     return out
