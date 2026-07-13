@@ -496,58 +496,139 @@ def render_manual() -> None:
             st.info("ASISA todavía no disponible.")
 
 
+def _datos_desde_vision(v: dict) -> dict:
+    """Convierte lo que leyó la IA (visión) al formato que usan los generadores."""
+    return {
+        "nombre_completo": v.get("nombre_completo", ""),
+        "nombre": v.get("nombre", ""),
+        "apellidos": v.get("apellidos", ""),
+        "tipo_documento": v.get("tipo_documento", ""),
+        "numero_documento": v.get("numero_documento", ""),
+        "sexo": v.get("sexo", ""),
+        "nacionalidad": v.get("nacionalidad", ""),
+        "peso_kg": v.get("peso_kg", ""),
+        "altura_cm": v.get("altura_cm", ""),
+        "fecha_nacimiento": v.get("fecha_nacimiento", ""),
+        "fecha_efecto": v.get("fecha_efecto", ""),
+        "telefono_movil": v.get("telefono_movil", ""),
+        "telefono_fijo": v.get("telefono_fijo", ""),
+        "correo": v.get("correo", ""),
+        "direccion_en_espana": bool(v.get("direccion_espana", "").strip()),
+        "direccion_via": v.get("direccion_espana", ""),
+        "direccion_numero": "", "direccion_piso": "", "direccion_puerta": "",
+        "municipio": v.get("municipio", ""),
+        "provincia": v.get("provincia", ""),
+        "codigo_postal": v.get("codigo_postal", ""),
+        "repat_direccion": v.get("repat_direccion", ""),
+        "repat_poblacion": v.get("repat_poblacion", ""),
+        "repat_provincia": v.get("repat_provincia", ""),
+        "repat_cp": v.get("repat_codigo_postal", ""),
+    }
+
+
 def render_corregir() -> None:
-    """Sube un PDF ya hecho y cambia un dato sin rehacerlo todo."""
+    """Lee una solicitud (aunque sea escaneada) con IA, la revisas y genera una limpia."""
     st.header("Corregir un PDF")
-    st.caption("Sube una solicitud de Sanitas o Nueva Mutua, revisa/cambia los campos y descárgala "
-               "corregida. Los campos vacíos puedes rellenarlos; solo se tocan los que cambies. "
-               "Puedes elegir incluir la firma o dejarla en blanco.")
-    archivo = st.file_uploader("Sube el PDF a corregir", type=["pdf"], key="corr_up")
+    st.caption("Sube una solicitud (aunque sea escaneada o una foto). La **IA la lee**, revisas y "
+               "corriges los datos, y se **genera una solicitud limpia** con tus cambios. Funciona con "
+               "PDFs que otros métodos no leen.")
+    archivo = st.file_uploader("Sube la solicitud (PDF)", type=["pdf"], key="corr_up")
     if not archivo:
         return
 
-    from core import corregir as _corr
     if st.session_state.get("corr_file") != archivo.name:
-        ruta = _guardar_temporal(archivo)
         st.session_state["corr_file"] = archivo.name
-        st.session_state["corr_ruta"] = str(ruta)
-        st.session_state["corr_tipo"] = _corr.detectar(str(ruta))
-        st.session_state["corr_actuales"] = (
-            _corr.leer(str(ruta), st.session_state["corr_tipo"]) if st.session_state["corr_tipo"] else {}
-        )
+        st.session_state["corr_ruta"] = str(_guardar_temporal(archivo))
+        st.session_state.pop("corr_datos", None)
 
-    tipo = st.session_state.get("corr_tipo")
-    if not tipo:
-        st.error("No reconozco el PDF. Debe ser una solicitud de **Sanitas** o **Nueva Mutua**.")
+    if st.button("🧠 Leer la solicitud con IA"):
+        with st.spinner("La IA está leyendo la solicitud…"):
+            try:
+                from cerebro.vision import leer_solicitud
+                st.session_state["corr_datos"] = leer_solicitud(st.session_state["corr_ruta"])
+            except Exception as e:  # noqa: BLE001
+                st.error(f"No pude leer la solicitud: {e}")
+
+    v = st.session_state.get("corr_datos")
+    if not v:
+        st.info("Pulsa **Leer la solicitud con IA** para empezar.")
         return
-    actuales = st.session_state["corr_actuales"]
-    st.success(f"Detectado: **{tipo.title()}**. Cambia lo que necesites y genera el corregido.")
 
-    nuevos = {}
-    cols = st.columns(2)
-    for i, (log, val) in enumerate(actuales.items()):
-        nuevos[log] = cols[i % 2].text_input(log, val, key="corr_" + log)
+    if v.get("avisos"):
+        with st.expander(f"⚠️ {len(v['avisos'])} aviso(s) de la IA"):
+            for a in v["avisos"]:
+                st.markdown(f"- {a}")
 
-    incluir_firma = st.radio(
-        "Firma",
-        ["Incluir la firma del original", "Sin firma (en blanco)"],
-        horizontal=True,
-    ).startswith("Incluir")
+    aseg_leida = v.get("aseguradora", "")
+    opciones = ["Nueva Mutua", "Sanitas", "Generali (correo)"]
+    aseg = st.selectbox("Aseguradora", opciones,
+                        index=opciones.index(aseg_leida) if aseg_leida in opciones else 0)
+    es_nm = aseg == "Nueva Mutua"
 
-    if st.button("Generar PDF corregido", type="primary"):
-        cambios = {log: v for log, v in nuevos.items() if v != actuales.get(log, "")}
-        if not cambios and incluir_firma:
-            st.info("No cambiaste ningún dato.")
-            return
-        pdf = _corr.corregir(st.session_state["corr_ruta"], tipo, cambios, incluir_firma=incluir_firma)
-        msg = "✅ PDF corregido."
-        if cambios:
-            msg += " Cambiado: " + ", ".join(cambios.keys())
-        if not incluir_firma:
-            msg += " · sin firma"
-        st.success(msg)
-        st.download_button("⬇️ Descargar PDF corregido", data=pdf,
-                           file_name="corregido_" + archivo.name, mime="application/pdf")
+    st.subheader("Datos (revisa y corrige)")
+    c1, c2, c3 = st.columns(3)
+    v["nombre"] = c1.text_input("Nombre", v.get("nombre", ""))
+    v["apellidos"] = c2.text_input("Apellidos", v.get("apellidos", ""))
+    v["sexo"] = c3.selectbox("Sexo", ["Mujer", "Hombre"],
+                             index=1 if v.get("sexo") == "Hombre" else 0)
+    v["numero_documento"] = c1.text_input("Nº documento", v.get("numero_documento", ""))
+    v["tipo_documento"] = c2.text_input("Tipo documento", v.get("tipo_documento", "") or "Pasaporte")
+    v["nacionalidad"] = c3.text_input("Nacionalidad", v.get("nacionalidad", ""))
+    v["fecha_nacimiento"] = c1.text_input("Fecha nacimiento", v.get("fecha_nacimiento", ""))
+    v["fecha_efecto"] = c2.text_input("Fecha alta deseada", v.get("fecha_efecto", ""))
+    v["correo"] = c3.text_input("Correo", v.get("correo", ""))
+    v["telefono_movil"] = c1.text_input("Teléfono móvil", v.get("telefono_movil", ""))
+    v["telefono_fijo"] = c2.text_input("Teléfono fijo", v.get("telefono_fijo", ""))
+    peso_altura = c3.columns(2)
+    v["peso_kg"] = peso_altura[0].text_input("Peso", v.get("peso_kg", ""))
+    v["altura_cm"] = peso_altura[1].text_input("Altura", v.get("altura_cm", ""))
+
+    st.markdown("**Dirección en España**")
+    d1, d2, d3 = st.columns([2, 1, 1])
+    v["direccion_espana"] = d1.text_input("Dirección completa", v.get("direccion_espana", ""))
+    v["municipio"] = d2.text_input("Población", v.get("municipio", ""))
+    v["provincia"] = d3.text_input("Provincia", v.get("provincia", ""))
+    v["codigo_postal"] = d1.text_input("Código postal", v.get("codigo_postal", ""))
+
+    if es_nm:
+        st.markdown("**Dirección en el extranjero (repatriación)**")
+        r1, r2, r3, r4 = st.columns([2, 1, 1, 1])
+        v["repat_direccion"] = r1.text_input("Dirección (país de origen)", v.get("repat_direccion", ""))
+        v["repat_poblacion"] = r2.text_input("Población ", v.get("repat_poblacion", ""))
+        v["repat_provincia"] = r3.text_input("Provincia ", v.get("repat_provincia", ""))
+        v["repat_codigo_postal"] = r4.text_input("CP ", v.get("repat_codigo_postal", ""))
+
+    # Cuestionario de salud: TÚ decides (soluciona el "sí tonto")
+    st.markdown("**Cuestionario de salud**")
+    if v.get("salud_resumen"):
+        st.warning(f"La IA vio algo en salud: *{v['salud_resumen']}*. Decide tú qué marcar.")
+    s1, s2 = st.columns(2)
+    p1 = s1.radio("1. ¿Enfermedad de la lista?", ["No", "Sí"], horizontal=True, key="corr_p1")
+    p2 = s2.radio("2. ¿Pendiente de diagnóstico/tratamiento?", ["No", "Sí"], horizontal=True, key="corr_p2")
+
+    incluir_firma = False
+    if es_nm:
+        incluir_firma = st.radio("Firma", ["Sin firma (en blanco)", "Recuperar la firma del original"],
+                                 horizontal=True).startswith("Recuperar")
+
+    if st.button("📄 Generar solicitud corregida", type="primary"):
+        datos = _datos_desde_vision(v)
+        datos["nombre_completo"] = f"{v.get('nombre','')} {v.get('apellidos','')}".strip()
+        datos["cuestionario_salud"] = {"p1": p1, "p2": p2,
+                                       "tiene_algun_si": (p1 == "Sí" or p2 == "Sí")}
+        if aseg == "Sanitas":
+            _descarga_sanitas(datos)
+        elif aseg == "Nueva Mutua":
+            firma_png = None
+            if incluir_firma:
+                from core.corregir import extraer_firma
+                firma_png = extraer_firma(st.session_state["corr_ruta"])
+                if not firma_png:
+                    st.warning("No pude recuperar la firma; se genera sin firma.")
+            _descarga_nuevamutua(datos, firma_png=firma_png)
+        else:
+            direccion = f"{v.get('direccion_espana','')}, {v.get('municipio','')}, {v.get('codigo_postal','')}"
+            _descarga_generali(datos, direccion)
 
 
 def render_solicitudes(modo: str) -> None:
