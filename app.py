@@ -21,7 +21,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from config import BASE_DIR, GENERALI, NUEVA_MUTUA, SANITAS, OFICINA
+from config import BASE_DIR, GENERALI, NUEVA_MUTUA, SANITAS, OFICINA, SHEET_URL
 from core.leer_cotizacion import leer_cotizacion
 from core.generar_generali import generar_generali
 
@@ -759,6 +759,10 @@ def _barras(titulo: str, datos: list[tuple[str, int]]) -> None:
 def render_panel() -> None:
     """Pantalla de inicio: accesos rápidos + la foto de la operación."""
     st.title("🏠 Panel")
+
+    st.link_button("📊 Abrir la hoja de seguimiento (Google Sheets)", SHEET_URL,
+                   use_container_width=False)
+    st.caption("Ese es el archivo oficial: todo lo que cambie ahí o en el centro queda al instante.")
 
     st.markdown(
         "<div class='accesos'>" + "".join(

@@ -12,6 +12,7 @@ from pathlib import Path
 # Hoja "ALUMNUSCARE_2026__v3" (pestañas: Dashboard, Hoja1 = pólizas, Pegar leads (web)).
 # Debe estar compartida como Editor con el service account que use la app.
 SHEET_ID = os.getenv("SHEET_ID", "10xYtWPICZ_i648KpZt4QkZjY72qCGy962Z11eiMjioM")
+SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit"
 
 # --- Rutas ---------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent
