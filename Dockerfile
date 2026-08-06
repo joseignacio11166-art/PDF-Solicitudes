@@ -1,11 +1,9 @@
 # Imagen para desplegar en Google Cloud Run (o cualquier hosting con Docker).
 FROM python:3.12-slim
 
-# Dependencias del sistema. LibreOffice (Writer) convierte el Word de Allianz a PDF.
+# Dependencias del sistema mínimas (por si alguna librería las necesita).
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    libreoffice-writer \
-    fonts-dejavu fonts-liberation \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

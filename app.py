@@ -261,25 +261,15 @@ def _descarga_nuevamutua(datos: dict, firma_png: bytes | None = None) -> None:
 
 
 def _descarga_allianz(datos: dict) -> None:
-    from core.generar_allianz import docx_a_pdf, generar_allianz
+    from core.generar_allianz import generar_allianz
     hoy = date.today()
     doc = generar_allianz(datos, hoy=hoy)
     primer = (datos.get("nombre", "").split(" ") or ["estudiante"])[0] or "estudiante"
-    _DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-
-    pdf = docx_a_pdf(doc)
-    if pdf:
-        st.success("✅ Certificado de Allianz generado (PDF).")
-        st.download_button("⬇️ Descargar certificado (PDF)", data=pdf,
-                           file_name=f"Certificado_Allianz_{primer}.pdf", mime="application/pdf")
-        with st.expander("¿Necesitas editarlo? Descarga el Word"):
-            st.download_button("⬇️ Word editable", data=doc,
-                               file_name=f"Certificado_Allianz_{primer}.docx", mime=_DOCX_MIME)
-    else:
-        st.warning("No pude convertir a PDF en este entorno; te doy el Word (que sí abre en Word/Google Docs "
-                   "y desde ahí puedes exportar a PDF).")
-        st.download_button("⬇️ Descargar certificado (Word)", data=doc,
-                           file_name=f"Certificado_Allianz_{primer}.docx", mime=_DOCX_MIME)
+    st.success("✅ Certificado de Allianz generado. Ábrelo y **guárdalo como PDF** "
+               "(en Word: Archivo → Guardar como / Exportar → PDF; en Google Docs: Archivo → Descargar → PDF).")
+    st.download_button("⬇️ Descargar certificado (Word)", data=doc,
+                       file_name=f"Certificado_Allianz_{primer}.docx",
+                       mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
 
 
 def _descarga_generali(datos: dict, direccion_completa: str) -> None:

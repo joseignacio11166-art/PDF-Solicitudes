@@ -8,10 +8,6 @@ con los datos del estudiante y devuelve el .docx en memoria. Todo el texto fijo
 from __future__ import annotations
 
 import io
-import os
-import shutil
-import subprocess
-import tempfile
 import zipfile
 from datetime import date
 
@@ -65,35 +61,3 @@ def generar_allianz(datos: dict, hoy: date | None = None) -> bytes:
             data = xml.encode("utf-8") if item.filename == "word/document.xml" else zin.read(item.filename)
             zout.writestr(item, data)
     return buf.getvalue()
-
-
-def docx_a_pdf(docx_bytes: bytes) -> bytes | None:
-    """Convierte un .docx a PDF con LibreOffice (headless). None si no está disponible."""
-    soffice = shutil.which("soffice") or shutil.which("libreoffice")
-    if not soffice:
-        return None
-    tmp = tempfile.mkdtemp()
-    try:
-        src = os.path.join(tmp, "certificado.docx")
-        with open(src, "wb") as fh:
-            fh.write(docx_bytes)
-        subprocess.run(
-            [soffice, "--headless", "-env:UserInstallation=file:///tmp/lo_profile",
-             "--convert-to", "pdf", "--outdir", tmp, src],
-            check=True, timeout=120,
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-        )
-        dst = os.path.join(tmp, "certificado.pdf")
-        if os.path.exists(dst):
-            with open(dst, "rb") as fh:
-                return fh.read()
-        return None
-    except Exception:
-        return None
-    finally:
-        shutil.rmtree(tmp, ignore_errors=True)
-
-
-def generar_allianz_pdf(datos: dict, hoy: date | None = None) -> bytes | None:
-    """Genera el certificado y lo devuelve como PDF (None si no se pudo convertir)."""
-    return docx_a_pdf(generar_allianz(datos, hoy=hoy))
