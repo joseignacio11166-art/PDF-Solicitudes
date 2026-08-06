@@ -9,15 +9,12 @@ from __future__ import annotations
 
 import io
 import zipfile
-from datetime import date
+from datetime import date, datetime
 
 from config import PLANTILLAS_DIR
 
 PLANTILLA = PLANTILLAS_DIR / "allianz_certificado.docx"
 POLIZA_PREFIJO = "58995003-"
-
-_MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio",
-          "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
 
 
 def _esc(s: str) -> str:
@@ -34,16 +31,17 @@ def mas_un_ano(fecha: str) -> str:
 
 
 def generar_allianz(datos: dict, hoy: date | None = None) -> bytes:
-    hoy = hoy or date.today()
-    fcert = f"{hoy.day} de {_MESES[hoy.month - 1]} de {hoy.year}"
+    # Fecha del certificado = momento de generación, con hora (formato del original).
+    fcert = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     reps = {
-        "«NOMBRE»": datos.get("nombre", ""),
+        # Los datos que escribe la usuaria van en MAYÚSCULAS.
+        "«NOMBRE»": datos.get("nombre", "").upper(),
         "«DOCTIPO»": datos.get("doc_tipo", "pasaporte"),
-        "«DOCNUM»": datos.get("doc_num", ""),
+        "«DOCNUM»": datos.get("doc_num", "").upper(),
         "«FNAC»": datos.get("fecha_nacimiento", ""),
-        "«PAIS»": datos.get("pais", ""),
-        "«LOCALIDAD»": datos.get("localidad", ""),
+        "«PAIS»": datos.get("pais", "").upper(),
+        "«LOCALIDAD»": datos.get("localidad", "").upper(),
         "«POLIZA»": datos.get("poliza", ""),
         "«FINI»": datos.get("fecha_inicio", ""),
         "«FFIN»": datos.get("fecha_fin") or mas_un_ano(datos.get("fecha_inicio", "")),
