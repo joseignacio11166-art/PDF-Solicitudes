@@ -26,6 +26,7 @@ from core.leer_cotizacion import leer_cotizacion
 from core.generar_generali import generar_generali
 
 ASISA = "ASISA"
+ALLIANZ = "ALLIANZ"
 LOGO = str(BASE_DIR / "assets" / "alumnuscare_logo.png")
 
 st.set_page_config(page_title="AlumnusCare · Centro de Operaciones", page_icon=LOGO, layout="wide")
@@ -34,6 +35,7 @@ NOMBRE_ASEGURADORA = {
     SANITAS: "Sanitas (PDF)",
     NUEVA_MUTUA: "Nueva Mutua (PDF)",
     GENERALI: "AlumnusCare / Generali (correo)",
+    ALLIANZ: "Allianz (certificado Word)",
     ASISA: "ASISA (próximamente)",
 }
 
@@ -258,6 +260,17 @@ def _descarga_nuevamutua(datos: dict, firma_png: bytes | None = None) -> None:
     _guardar_historial(datos.get("nombre_completo", ""), "Nueva Mutua", "pdf", res["ruta"].name, datos=datos, hoy=hoy)
 
 
+def _descarga_allianz(datos: dict) -> None:
+    from core.generar_allianz import generar_allianz
+    hoy = date.today()
+    doc = generar_allianz(datos, hoy=hoy)
+    primer = (datos.get("nombre", "").split(" ") or ["estudiante"])[0] or "estudiante"
+    nombre_arch = f"Certificado_Allianz_{primer}.docx"
+    st.success("✅ Certificado de Allianz generado (Word editable).")
+    st.download_button("⬇️ Descargar certificado (Word)", data=doc, file_name=nombre_arch,
+                       mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+
+
 def _descarga_generali(datos: dict, direccion_completa: str) -> None:
     crudos_para_correo = {
         "nombre": datos.get("nombre_completo") or f"{datos.get('nombre','')} {datos.get('apellidos','')}".strip(),
@@ -395,11 +408,48 @@ def render_manual() -> None:
     st.caption("Introduce los datos del estudiante, elige la aseguradora y genera el documento. "
                "No usa la IA (no consume API).")
 
-    aseg = st.selectbox("Aseguradora", [SANITAS, NUEVA_MUTUA, GENERALI, ASISA],
+    aseg = st.selectbox("Aseguradora", [SANITAS, NUEVA_MUTUA, GENERALI, ALLIANZ, ASISA],
                         format_func=lambda a: NOMBRE_ASEGURADORA[a])
     if aseg == ASISA:
         st.info("⏳ **ASISA todavía no está disponible**: falta su plantilla. En cuanto la tengamos, "
                 "se genera igual que las demás.")
+
+    if aseg == ALLIANZ:
+        from core.generar_allianz import POLIZA_PREFIJO, mas_un_ano
+        st.caption("Genera el **Certificado de Póliza de Salud Allianz** (Word editable). "
+                   "El texto fijo (coberturas, CIF…) se mantiene; solo cambian los datos del estudiante.")
+        a1, a2 = st.columns(2)
+        with a1:
+            al_nombre = st.text_input("Nombre y apellidos", key="al_nombre",
+                                      help="Tal cual saldrá en el certificado.")
+            al_tipo = st.selectbox("Tipo de documento", ["pasaporte", "NIE", "NIF", "DNI"], key="al_tipo")
+            al_num = st.text_input("Nº de documento", key="al_num")
+            al_fnac = st.date_input("Fecha de nacimiento", value=date(2002, 1, 1),
+                                    min_value=date(1940, 1, 1), max_value=date.today(),
+                                    format="DD/MM/YYYY", key="al_fnac")
+        with a2:
+            al_pais = st.text_input("País de origen", key="al_pais")
+            al_local = st.text_input("Localidad", key="al_local")
+            al_suf = st.text_input(f"Nº de póliza ({POLIZA_PREFIJO}…)", key="al_suf",
+                                   help=f"Solo lo que va después de {POLIZA_PREFIJO}")
+            al_ini = st.date_input("Fecha de inicio", value=date.today(),
+                                   min_value=date(2020, 1, 1), max_value=date(2100, 1, 1),
+                                   format="DD/MM/YYYY", key="al_ini")
+        f_ini = al_ini.strftime("%d/%m/%Y")
+        st.caption(f"📅 Fecha de fin (automática, +1 año): **{mas_un_ano(f_ini)}** · "
+                   f"Fecha del certificado: **hoy**.")
+        if st.button("📄 Generar certificado Allianz (Word)", type="primary"):
+            if not al_nombre.strip() or not al_num.strip() or not al_suf.strip():
+                st.error("Pon al menos nombre, nº de documento y nº de póliza.")
+            else:
+                _descarga_allianz({
+                    "nombre": al_nombre.strip(), "doc_tipo": al_tipo, "doc_num": al_num.strip(),
+                    "fecha_nacimiento": al_fnac.strftime("%d/%m/%Y"),
+                    "pais": al_pais.strip(), "localidad": al_local.strip(),
+                    "poliza": POLIZA_PREFIJO + al_suf.strip().lstrip("-"),
+                    "fecha_inicio": f_ini,
+                })
+        return
 
     c1, c2, c3 = st.columns(3)
     with c1:

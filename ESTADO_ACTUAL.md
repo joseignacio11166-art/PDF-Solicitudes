@@ -12,6 +12,7 @@ App (Streamlit) = **Centro de Operaciones** de AlumnusCare. Convierte una **coti
 - **Sanitas** → PDF rellenado (AcroForm editable, sin firmar).
 - **Nueva Mutua** → PDF rellenado por coordenadas (overlay, editable). Usa la **solicitud v2 (2026)**.
 - **Generali / AlumnusCare** → correo (asunto + cuerpo).
+- **Allianz** → **Certificado** de póliza en **Word editable** (rellena plantilla `plantillas/allianz_certificado.docx` con marcadores «CAMPO»; `core/generar_allianz.py`, solo zipfile). Campos: nombre, doc, fecha nac., país, localidad, nº póliza (prefijo fijo `58995003-`), fecha inicio (fecha fin = +1 año auto, fecha certificado = hoy). En "✍️ Rellenar a mano".
 - **ASISA** → pedida pero SIN plantilla aún (no generable).
 
 Menú lateral (azul navy, TODO el menú va aquí): **🏠 Panel**, **📄 Solicitudes** (sus modos salen debajo,
