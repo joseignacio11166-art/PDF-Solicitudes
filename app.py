@@ -430,24 +430,29 @@ def render_manual() -> None:
         with a2:
             al_pais = st.text_input("País de origen", key="al_pais")
             al_local = st.text_input("Localidad", key="al_local")
-            al_suf = st.text_input(f"Nº de póliza ({POLIZA_PREFIJO}…)", key="al_suf",
-                                   help=f"Solo lo que va después de {POLIZA_PREFIJO}")
             al_ini = st.date_input("Fecha de inicio", value=date.today(),
                                    min_value=date(2020, 1, 1), max_value=date(2100, 1, 1),
                                    format="DD/MM/YYYY", key="al_ini")
-        f_ini = al_ini.strftime("%d/%m/%Y")
-        st.caption(f"📅 Fecha de fin (automática, +1 año): **{mas_un_ano(f_ini)}** · "
-                   f"Fecha del certificado: **hoy**.")
+
+        # Nº de póliza automático: 58995003- + últimos 5 dígitos del pasaporte.
+        digitos = "".join(c for c in al_num if c.isdigit())
+        poliza = POLIZA_PREFIJO + (digitos[-5:] if digitos else "")
+        st.caption(f"📇 Nº de póliza (automático): **{poliza}**  ·  "
+                   f"📅 Fecha de fin (+1 año): **{mas_un_ano(al_ini.strftime('%d/%m/%Y'))}**  ·  "
+                   f"Fecha del certificado: **hoy**")
+        if st.checkbox("El nº de póliza es distinto — escribirlo a mano", key="al_pol_manual"):
+            poliza = st.text_input("Nº de póliza", value=poliza, key="al_pol_edit")
+
         if st.button("📄 Generar certificado Allianz (Word)", type="primary"):
-            if not al_nombre.strip() or not al_num.strip() or not al_suf.strip():
-                st.error("Pon al menos nombre, nº de documento y nº de póliza.")
+            if not al_nombre.strip() or not al_num.strip():
+                st.error("Pon al menos el nombre y el nº de documento (de ahí sale la póliza).")
             else:
                 _descarga_allianz({
                     "nombre": al_nombre.strip(), "doc_tipo": al_tipo, "doc_num": al_num.strip(),
                     "fecha_nacimiento": al_fnac.strftime("%d/%m/%Y"),
                     "pais": al_pais.strip(), "localidad": al_local.strip(),
-                    "poliza": POLIZA_PREFIJO + al_suf.strip().lstrip("-"),
-                    "fecha_inicio": f_ini,
+                    "poliza": poliza,
+                    "fecha_inicio": al_ini.strftime("%d/%m/%Y"),
                 })
         return
 
