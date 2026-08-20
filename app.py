@@ -203,7 +203,8 @@ with st.sidebar:
     st.divider()
     seccion = st.radio(
         "Navegación",
-        ["🏠 Panel", "📄 Solicitudes", "📁 Seguimiento", "📧 Correo", "📊 Leads", "💬 WhatsApp"],
+        ["🏠 Panel", "📄 Solicitudes", "📁 Seguimiento", "📧 Correo", "📊 Leads",
+         "💼 Administración", "💬 WhatsApp"],
         label_visibility="collapsed",
     )
     modo_solicitudes = MODOS_SOLICITUDES[0]
@@ -1122,6 +1123,82 @@ def render_seguimiento() -> None:
                     st.error(f"No se pudo guardar: {e}")
 
 
+def _eur(x: float) -> str:
+    return f"{x:,.2f}".replace(",", "·").replace(".", ",").replace("·", ".") + " €"
+
+
+def _admin_redsys() -> None:
+    from core import redsys as R
+    st.subheader("💳 Cobros · Redsys / Paygold")
+    st.caption("Sube el export de operaciones de Redsys. **Enviado** = el cliente aún no ha pagado. "
+               "**Cobrado** = el cliente pagó → toca pagar la póliza a la aseguradora.")
+    up = st.file_uploader("Export de Redsys (CSV)", type=["csv"], key="rs_up")
+    if not up:
+        st.info("Sube el CSV de Redsys para ver el estado de los cobros.")
+        return
+    try:
+        res = R.resumen_por_pedido(R.leer_operaciones(up.getvalue()))
+    except Exception as e:  # noqa: BLE001
+        st.error(f"No pude leer el archivo: {e}")
+        return
+    t = R.totales(res)
+
+    k = st.columns(3)
+    k[0].metric("🟢 Cobrado — a pagar a aseguradora", _eur(t["cobrado"]), f"{t['n_cobrado']} cobros")
+    k[1].metric("🟡 Pendiente de cobro (cliente)", _eur(t["pendiente"]), f"{t['n_pendiente']} enviados")
+    k[2].metric("Operaciones", t["n_total"])
+
+    ver = st.radio("Ver", ["Todos", "🟢 Cobrados", "🟡 Pendientes"], horizontal=True)
+    filtro = {"🟢 Cobrados": "Cobrada", "🟡 Pendientes": "Pendiente"}.get(ver)
+    filas = [r for r in res if not filtro or r["estado"] == filtro]
+    icono = {"Cobrada": "🟢", "Pendiente": "🟡", "Fallida": "🔴"}
+    import pandas as pd
+    st.dataframe(pd.DataFrame([{
+        "•": icono.get(r["estado"], "⚪"), "Estado": r["estado"], "Cód. pedido": r["pedido"],
+        "Importe": _eur(r["importe"]), "Fecha": r["fecha"], "Tarjeta": r["tarjeta"] or "—",
+    } for r in filas]), use_container_width=True, hide_index=True)
+    st.caption("💡 Los cobros con “r” repetido son reintentos del mismo pago; al conectar con la hoja de pólizas "
+               "podremos casar cada cobro con su estudiante y marcarlo como pagado.")
+
+
+def _admin_tabla(titulo: str, ayuda: str, key: str) -> None:
+    st.subheader(titulo)
+    st.caption(ayuda + " *(Demo: por ahora se sube el archivo; luego se conectará en vivo como la hoja de pólizas.)*")
+    up = st.file_uploader("Archivo (Excel o CSV)", type=["xlsx", "xls", "csv"], key=key)
+    if not up:
+        st.info("Sube el archivo para ver la tabla.")
+        return
+    import io
+    import pandas as pd
+    try:
+        if up.name.lower().endswith((".xlsx", ".xls")):
+            xls = pd.ExcelFile(io.BytesIO(up.getvalue()))
+            hoja = st.selectbox("Pestaña", xls.sheet_names, key=key + "_h")
+            df = pd.read_excel(xls, sheet_name=hoja, header=None)
+        else:
+            df = pd.read_csv(io.BytesIO(up.getvalue()), header=None, sep=None, engine="python", encoding="latin-1")
+    except Exception as e:  # noqa: BLE001
+        st.error(f"No pude leer el archivo: {e}")
+        return
+    df = df.dropna(how="all").fillna("")
+    st.caption(f"{len(df)} filas")
+    st.dataframe(df, use_container_width=True, hide_index=True)
+
+
+def render_administracion() -> None:
+    st.title("💼 Administración")
+    st.caption("Cobros, cuentas por cobrar y por pagar. **Primera versión (demo)** para revisar con Marynell.")
+    sub = st.radio("Vista", ["💳 Cobros (Redsys)", "📥 Por cobrar (CxC)", "📤 Por pagar (CxP)"],
+                   horizontal=True, label_visibility="collapsed")
+    st.divider()
+    if sub.startswith("💳"):
+        _admin_redsys()
+    elif sub.startswith("📥"):
+        _admin_tabla("📥 Cuentas por cobrar", "Lo que le deben a Pagés (facturas emitidas pendientes de cobro).", "cxc_up")
+    else:
+        _admin_tabla("📤 Cuentas por pagar", "Lo que Pagés debe a proveedores (facturas recibidas pendientes de pago).", "cxp_up")
+
+
 def render_correo() -> None:
     st.title("📧 Correo")
     st.caption("Solicitudes que llegan al buzón **atencionestudiantes@**. Las vuelca n8n y se ven aquí.")
@@ -1363,5 +1440,7 @@ elif seccion.startswith("📧"):
     render_correo()
 elif seccion.startswith("📊"):
     render_leads()
+elif seccion.startswith("💼"):
+    render_administracion()
 else:
     render_whatsapp()
