@@ -50,8 +50,12 @@ st.markdown(
         --blue:#1CA0D4; --blue-deep:#1685B4; --blue-soft:#E2F3FB;
       }
       html, body, .stApp, [data-testid="stAppViewContainer"],
-      section[data-testid="stSidebar"], input, textarea, button, select, [class*="st-"] {
+      section[data-testid="stSidebar"], input, textarea, button, select {
         font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif !important;
+      }
+      /* No pisar la fuente de los iconos de Streamlit (Material Symbols) */
+      [data-testid="stIconMaterial"], .material-symbols-rounded, .material-symbols-outlined {
+        font-family:'Material Symbols Rounded','Material Symbols Outlined','Material Icons' !important;
       }
       .stApp{
         color:var(--ink);
@@ -1130,35 +1134,61 @@ def _eur(x: float) -> str:
 def _admin_redsys() -> None:
     from core import redsys as R
     st.subheader("💳 Cobros · Redsys / Paygold")
-    st.caption("Sube el export de operaciones de Redsys. **Enviado** = el cliente aún no ha pagado. "
-               "**Cobrado** = el cliente pagó → toca pagar la póliza a la aseguradora.")
+    st.caption("Aquí solo cuentan los cobros **autorizados** (el cliente pagó de verdad; los enviados por "
+               "error no estorban). Marca cada uno como **pagado** cuando le hayas pagado la póliza a la aseguradora.")
     up = st.file_uploader("Export de Redsys (CSV)", type=["csv"], key="rs_up")
     if not up:
-        st.info("Sube el CSV de Redsys para ver el estado de los cobros.")
+        st.info("Sube el CSV de Redsys para ver los cobros.")
         return
     try:
         res = R.resumen_por_pedido(R.leer_operaciones(up.getvalue()))
     except Exception as e:  # noqa: BLE001
         st.error(f"No pude leer el archivo: {e}")
         return
-    t = R.totales(res)
+    cobrados = [r for r in res if r["estado"] == "Cobrada"]
+    pendientes = [r for r in res if r["estado"] == "Pendiente"]
 
+    hay_bd = R.disponible()
+    pagados = R.pagos_guardados() if hay_bd else set()
+
+    total = round(sum(r["importe"] for r in cobrados), 2)
+    ya_pagado = round(sum(r["importe"] for r in cobrados if r["pedido"] in pagados), 2)
     k = st.columns(3)
-    k[0].metric("🟢 Cobrado — a pagar a aseguradora", _eur(t["cobrado"]), f"{t['n_cobrado']} cobros")
-    k[1].metric("🟡 Pendiente de cobro (cliente)", _eur(t["pendiente"]), f"{t['n_pendiente']} enviados")
-    k[2].metric("Operaciones", t["n_total"])
+    k[0].metric("Cobrado (autorizado)", _eur(total), f"{len(cobrados)} cobros")
+    k[1].metric("✅ Pagado a aseguradora", _eur(ya_pagado))
+    k[2].metric("⏳ Por pagar a aseguradora", _eur(round(total - ya_pagado, 2)))
 
-    ver = st.radio("Ver", ["Todos", "🟢 Cobrados", "🟡 Pendientes"], horizontal=True)
-    filtro = {"🟢 Cobrados": "Cobrada", "🟡 Pendientes": "Pendiente"}.get(ver)
-    filas = [r for r in res if not filtro or r["estado"] == filtro]
-    icono = {"Cobrada": "🟢", "Pendiente": "🟡", "Fallida": "🔴"}
     import pandas as pd
-    st.dataframe(pd.DataFrame([{
-        "•": icono.get(r["estado"], "⚪"), "Estado": r["estado"], "Cód. pedido": r["pedido"],
-        "Importe": _eur(r["importe"]), "Fecha": r["fecha"], "Tarjeta": r["tarjeta"] or "—",
-    } for r in filas]), use_container_width=True, hide_index=True)
-    st.caption("💡 Los cobros con “r” repetido son reintentos del mismo pago; al conectar con la hoja de pólizas "
-               "podremos casar cada cobro con su estudiante y marcarlo como pagado.")
+    df = pd.DataFrame([{
+        "Pagado": r["pedido"] in pagados,
+        "Cód. pedido": r["pedido"], "Importe": _eur(r["importe"]),
+        "Fecha": r["fecha"], "Tarjeta": r["tarjeta"] or "—",
+    } for r in cobrados])
+    edit = st.data_editor(
+        df, use_container_width=True, hide_index=True, key="rs_editor",
+        column_config={"Pagado": st.column_config.CheckboxColumn(
+            "Pagado", help="Márcalo cuando ya le hayas pagado la póliza a la aseguradora.")},
+        disabled=["Cód. pedido", "Importe", "Fecha", "Tarjeta"],
+    )
+
+    if hay_bd:
+        marcados = {row["Cód. pedido"] for _, row in edit.iterrows() if row["Pagado"]}
+        cambios = 0
+        for r in cobrados:
+            p = r["pedido"]
+            if (p in marcados) != (p in pagados):
+                R.marcar_pago(p, p in marcados)
+                cambios += 1
+        if cambios:
+            st.rerun()
+    else:
+        st.caption("ℹ️ En local no se guarda el estado de 'pagado'; en la app publicada sí.")
+
+    if pendientes:
+        with st.expander(f"🟡 {len(pendientes)} enviados sin cobrar (informativo — pueden ser errores o reintentos)"):
+            st.dataframe(pd.DataFrame([{
+                "Cód. pedido": r["pedido"], "Importe": _eur(r["importe"]), "Fecha": r["fecha"],
+            } for r in pendientes]), use_container_width=True, hide_index=True)
 
 
 def _admin_tabla(titulo: str, ayuda: str, key: str) -> None:

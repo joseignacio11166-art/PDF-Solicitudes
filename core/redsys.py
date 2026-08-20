@@ -125,6 +125,50 @@ def resumen_por_pedido(operaciones: list[dict]) -> list[dict]:
     return filas
 
 
+# ---------- Estado "pagado a la aseguradora" (Firestore) ----------
+_db = None
+_COL_PAGOS = "redsys_pagos"
+
+
+def _cliente():
+    global _db
+    if _db is None:
+        from google.cloud import firestore
+        _db = firestore.Client()
+    return _db
+
+
+def disponible() -> bool:
+    try:
+        _cliente()
+        return True
+    except Exception:
+        return False
+
+
+def _docid(pedido: str) -> str:
+    return pedido.replace("/", "__").replace(" ", "_") or "sin_pedido"
+
+
+def pagos_guardados() -> set[str]:
+    """Conjunto de 'Cód. pedido' marcados como pagados a la aseguradora."""
+    try:
+        return {d.to_dict().get("pedido", "") for d in _cliente().collection(_COL_PAGOS).stream()}
+    except Exception:
+        return set()
+
+
+def marcar_pago(pedido: str, pagado: bool) -> None:
+    try:
+        doc = _cliente().collection(_COL_PAGOS).document(_docid(pedido))
+        if pagado:
+            doc.set({"pedido": pedido, "pagado": True})
+        else:
+            doc.delete()
+    except Exception:
+        pass
+
+
 def totales(resumen: list[dict]) -> dict:
     def suma(estado):
         return round(sum(r["importe"] for r in resumen if r["estado"] == estado), 2)
