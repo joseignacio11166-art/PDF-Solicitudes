@@ -6,6 +6,50 @@ Fuente de la idea original: `CONTEXTO_PROYECTO.md`. La memoria de Claude (abajo)
 > **Para un chat nuevo:** lee este archivo entero y la memoria. La usuaria (Rose & Pagés /
 > AlumnusCare) NO es técnica: hay que guiarla clic a clic, con enlaces, y desplegar por ella.
 
+---
+
+## 📍 PUNTO ACTUAL (20 ago 2026) — leer esto primero
+
+**El centro funciona y está desplegado.** Secciones en el menú lateral: **🏠 Panel · 📄 Solicitudes
+(Adjuntar / Rellenar a mano / Corregir un PDF / Historial) · 📁 Seguimiento · 📧 Correo · 📊 Leads ·
+💼 Administración · 💬 WhatsApp**.
+
+**Aspecto (rediseño ago 2026):** look premium **crema (#F5EFE3) + azul claro AlumnusCare (#1CA0D4),
+tipografía Inter en todo**, logo original, tarjetas con sombra, barra lateral clara con el activo en azul.
+Todo el CSS vive en el bloque `st.markdown` del principio de `app.py`. (OJO: no forzar la fuente a los
+iconos Material de Streamlit o salen como texto tipo "keyboard_double…"; hay regla para preservarlos.)
+
+**Hecho y funcionando:**
+- **Solicitudes:** Sanitas (PDF), Nueva Mutua (PDF), Generali (correo), **Allianz (Certificado en Word)**. ASISA falta plantilla.
+- **✏️ Corregir un PDF:** reescrito con **VISIÓN** (`cerebro/vision.py`): la IA lee el PDF como imagen (aunque sea escaneado) y **regenera** una solicitud limpia. Sexo/mayúsculas OK.
+- **📁 Seguimiento:** lee/escribe **en vivo la hoja de Google** (fuente oficial, ya NO el Excel de SharePoint). SHEET_ID en `config.py`. Tabla editable con colores del Excel; adjunta certificado+condiciones por persona (Firestore).
+- **📧 Correo (Nivel 1):** puente Outlook→Gmail(`alumnuscareestudiantes@`)→n8n→Firestore→app. **PENDIENTE: activar el workflow en n8n** (sigue "Inactive").
+- **💼 Administración (DEMO, para Marynell — la administradora):** proyecto NUEVO = tesorería de **Pagés Seguros**. 4 vistas:
+  - **💳 Cobros (Redsys):** sube el export de Redsys/Paygold → `core/redsys.py` da los **cobros autorizados** (el resto son errores/reintentos, van a un expander); casilla **"Pagado"** por cobro (a la aseguradora), guardada en Firestore `redsys_pagos`. El export NO trae nombre, solo Cód. pedido.
+  - **🧾 Facturas (demo):** `core/factura_pages.py` genera facturas PDF **idénticas al Excel** (logo `assets/pages_logo.png`, cabecera emisor, grupo, IVA 21%, retención 19%, total en barra azul). Presets Reddo (alquiler/gastos), Quorum, MT + personalizada. Cálculo automático (probado: 8.340,75 € / 1.191,25 €).
+  - **📥 Por cobrar (CxC)** y **📤 Por pagar (CxP):** uploaders demo (muestran la tabla; luego se conectan en vivo).
+
+**PROYECTO ABIERTO: facturación/tesorería de Marynell (necesita REUNIÓN).** Pagés emite facturas mensuales
+(Reddo, Quorum, Premier Plus, MT). Las **comisiones se calculan** de reportes de vouchers: **Quorum=prima×58%**,
+**Premier Plus=prima×28%+9%**, factura Quorum aplica **×0.8532** (factor sin confirmar), Reddo alquiler fijo +
+gastos compartidos (÷2). Flujo: cliente paga por Redsys → Marynell paga a la aseguradora. **Preguntas para la
+reunión:** confirmar %/factores (qué es 0,8532), reparto Reddo, **último nº de factura** (correlativo), de dónde
+salen los reportes, si CxC/CxP puede vivir en Google Sheets. La usuaria **se va el 15/09** → dejar demo lista.
+Excels de referencia (los pasó por chat): "PAGÉS BANCOS…xlsx", "PAGÉS FACT EMITIDAS 2026.xlsx" (fórmulas de
+comisiones), zips de facturas, "OperacionesExportadas_…csv" (Redsys).
+
+**Cabos sueltos / próximos pasos:**
+1. **Activar el workflow de n8n** (correo automático) · **rotar la llave `.json`** del service account (se expuso en chat) · subir **Cloud Run a 2 GiB**.
+2. **Reunión con Marynell** → cerrar reglas de comisiones y correlativo → terminar el generador de facturas (Quorum/Premier con cálculo) y conectar CxC/CxP en vivo.
+3. Enganchar **📊 Leads** a la pestaña *Leads* de la hoja (el Panel ya la lee; la sección sigue de ejemplo).
+4. Allianz: añadirlo a Seguimiento (aseguradora + color) e Historial. WhatsApp aparcado. Jesús: apikey de precios + listar leads.
+
+**Archivos nuevos clave (ago 2026):** `core/vision.py`→ojo, está en `cerebro/vision.py` · `core/hoja.py` (Google Sheets) ·
+`core/seguimiento.py` · `core/generar_allianz.py` + `plantillas/allianz_certificado.docx` · `core/redsys.py` ·
+`core/factura_pages.py` + `assets/pages_logo.png` · `n8n/correos_nivel1.json`.
+
+---
+
 ## Qué es
 App (Streamlit) = **Centro de Operaciones** de AlumnusCare. Convierte una **cotización** en la
 **solicitud** de la aseguradora, y centraliza la operativa.
