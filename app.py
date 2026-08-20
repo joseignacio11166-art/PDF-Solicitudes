@@ -50,9 +50,11 @@ st.markdown(
         --blue:#1CA0D4; --blue-deep:#1685B4; --blue-soft:#E2F3FB;
       }
       html, body, .stApp, [data-testid="stAppViewContainer"],
-      section[data-testid="stSidebar"], input, textarea, button, select {
+      section[data-testid="stSidebar"] {
         font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif !important;
       }
+      /* La barra superior de Streamlit, en beige (no blanca) */
+      [data-testid="stHeader"], header[data-testid="stHeader"] { background:transparent !important; }
       /* No pisar la fuente de los iconos de Streamlit (Material Symbols) */
       [data-testid="stIconMaterial"], .material-symbols-rounded, .material-symbols-outlined {
         font-family:'Material Symbols Rounded','Material Symbols Outlined','Material Icons' !important;
@@ -1184,6 +1186,10 @@ def _admin_redsys() -> None:
     else:
         st.caption("ℹ️ En local no se guarda el estado de 'pagado'; en la app publicada sí.")
 
+    st.caption("ℹ️ El export de Redsys **no trae el nombre ni el concepto**, solo el *Cód. pedido* (suele ser el "
+               "pasaporte o el nº de póliza) y la tarjeta. Para ver el nombre habría que cruzar ese código con la "
+               "hoja de pólizas o el cotizador — lo dejamos para después de la reunión.")
+
     if pendientes:
         with st.expander(f"🟡 {len(pendientes)} enviados sin cobrar (informativo — pueden ser errores o reintentos)"):
             st.dataframe(pd.DataFrame([{
@@ -1215,14 +1221,78 @@ def _admin_tabla(titulo: str, ayuda: str, key: str) -> None:
     st.dataframe(df, use_container_width=True, hide_index=True)
 
 
+def _admin_facturas() -> None:
+    from core import factura_pages as F
+    st.subheader("🧾 Facturas emitidas · Pagés (demo)")
+    st.caption("Mismo formato que el Excel (logo de Pagés + cálculo Base + IVA 21% + Retención 19% + Total). "
+               "Ajusta los importes que calcule Marynell y descarga el PDF.")
+    c0 = st.columns([1, 1, 2])
+    fecha = c0[0].text_input("Fecha", "13-01-26", key="f_fecha")
+    numero = c0[1].text_input("Factura Nº", "2026/002", key="f_num")
+    tipo = c0[2].selectbox("Tipo de factura", [
+        "Reddo · Gastos compartidos", "Reddo · Alquiler", "Quorum · Comisiones", "MT", "Personalizada"], key="f_tipo")
+
+    pdf = None
+    arch = f"PAGES_{numero.replace('/', '-')}.pdf"
+    with st.container(border=True):
+        if tipo.startswith("Reddo · Gastos"):
+            g = st.columns(4)
+            e = g[0].number_input("Electricidad", value=730.85, step=0.01, key="f_e")
+            al = g[1].number_input("Alarma", value=372.71, step=0.01, key="f_al")
+            it = g[2].number_input("Internet", value=3940.93, step=0.01, key="f_it")
+            li = g[3].number_input("Limpieza/material", value=1848.69, step=0.01, key="f_li")
+            base = round(e + al + it + li, 2)
+            st.caption(f"Base {_eur(base)} · IVA 21% {_eur(round(base*0.21,2))} · **Total {_eur(round(base*1.21,2))}**")
+            pdf = F.reddo_gastos(fecha, numero, e, al, it, li)
+        elif tipo.startswith("Reddo · Alquiler"):
+            mes = st.text_input("Mes", "enero 2026", key="f_mes")
+            base = st.number_input("Importe base (€)", value=1167.89, step=0.01, key="f_base_a")
+            st.caption(f"IVA 21% {_eur(round(base*0.21,2))} · Retención 19% -{_eur(round(base*0.19,2))} · "
+                       f"**Total {_eur(round(base*1.21 - base*0.19,2))}**")
+            pdf = F.reddo_alquiler(fecha, numero, mes, base)
+        elif tipo.startswith("Quorum"):
+            mes = st.text_input("Mes de comisiones", "Noviembre 2025", key="f_qmes")
+            base = st.number_input("Comisiones (€)", value=2979.93, step=0.01, key="f_qimp")
+            st.caption(f"IVA 21% {_eur(round(base*0.21,2))} · **Total {_eur(round(base*1.21,2))}**")
+            pdf = F.quorum_comisiones(fecha, numero, mes, base)
+        elif tipo == "MT":
+            concepto = st.text_input("Concepto", "HP enero 2026", key="f_mtc")
+            base = st.number_input("Importe (€)", value=181.5, step=0.01, key="f_mti")
+            ret = st.checkbox("Aplicar retención 19%", key="f_mtr")
+            tot = round(base*1.21 - (base*0.19 if ret else 0), 2)
+            st.caption(f"IVA 21% {_eur(round(base*0.21,2))} · **Total {_eur(tot)}**")
+            pdf = F.mt_factura(fecha, numero, concepto, base, ret)
+        else:  # Personalizada
+            p = st.columns(2)
+            cli = p[0].text_input("Cliente", key="f_pcli")
+            cif = p[1].text_input("CIF cliente", key="f_pcif")
+            dire = st.text_input("Dirección cliente", key="f_pdir")
+            concepto = st.text_input("Concepto", key="f_pc")
+            base = st.number_input("Importe (€)", value=0.0, step=0.01, key="f_pi")
+            ret = st.checkbox("Aplicar retención 19%", key="f_pr")
+            tot = round(base*1.21 - (base*0.19 if ret else 0), 2)
+            st.caption(f"IVA 21% {_eur(round(base*0.21,2))} · **Total {_eur(tot)}**")
+            if cli and base:
+                pdf = F.generar_factura({"cliente": cli, "cif_cliente": ("CIF - " + cif) if cif else "",
+                                         "dir_cliente": [dire] if dire else [], "fecha": fecha, "numero": numero,
+                                         "retencion": ret, "conceptos": [(concepto, base)]})
+
+    if pdf:
+        st.download_button("⬇️ Descargar factura (PDF)", data=pdf, file_name=arch, mime="application/pdf")
+    st.info("Tras la reunión con Marynell: **nº de factura correlativo automático** y **cálculo de comisiones** "
+            "(Quorum 58 %, Premier Plus 28 %+9 %…) directamente desde el reporte de vouchers.")
+
+
 def render_administracion() -> None:
     st.title("💼 Administración")
-    st.caption("Cobros, cuentas por cobrar y por pagar. **Primera versión (demo)** para revisar con Marynell.")
-    sub = st.radio("Vista", ["💳 Cobros (Redsys)", "📥 Por cobrar (CxC)", "📤 Por pagar (CxP)"],
+    st.caption("Cobros, facturas, cuentas por cobrar y por pagar. **Primera versión (demo)** para revisar con Marynell.")
+    sub = st.radio("Vista", ["💳 Cobros (Redsys)", "🧾 Facturas (demo)", "📥 Por cobrar (CxC)", "📤 Por pagar (CxP)"],
                    horizontal=True, label_visibility="collapsed")
     st.divider()
     if sub.startswith("💳"):
         _admin_redsys()
+    elif sub.startswith("🧾"):
+        _admin_facturas()
     elif sub.startswith("📥"):
         _admin_tabla("📥 Cuentas por cobrar", "Lo que le deben a Pagés (facturas emitidas pendientes de cobro).", "cxc_up")
     else:
