@@ -11,6 +11,7 @@ reales (cotizador / n8n) más adelante sin rehacer la estructura.
 """
 from __future__ import annotations
 
+import base64
 import os
 import tempfile
 from datetime import date, datetime
@@ -1221,8 +1222,32 @@ def _admin_tabla(titulo: str, ayuda: str, key: str) -> None:
     st.dataframe(df, use_container_width=True, hide_index=True)
 
 
-def _admin_facturas() -> None:
+@st.cache_data(show_spinner=False, max_entries=30)
+def _factura_bytes(tipo: str, args: tuple) -> bytes:
+    """Genera la factura en PDF y la CACHEA.
+
+    OJO (bug resuelto ago 2026): reportlab mete la fecha/hora en el PDF, así que dos
+    llamadas seguidas con los MISMOS datos dan bytes distintos. Al pulsar "Descargar",
+    Streamlit vuelve a ejecutar el script, generaba otro PDF distinto y tiraba el fichero
+    que el navegador estaba a punto de bajarse → el botón no hacía nada. Con la caché,
+    los mismos datos devuelven SIEMPRE los mismos bytes y la descarga funciona.
+    """
     from core import factura_pages as F
+    if tipo == "reddo_gastos":
+        return F.reddo_gastos(*args)
+    if tipo == "reddo_alquiler":
+        return F.reddo_alquiler(*args)
+    if tipo == "quorum":
+        return F.quorum_comisiones(*args)
+    if tipo == "mt":
+        return F.mt_factura(*args)
+    fecha, numero, cli, cif, dire, concepto, base, ret = args
+    return F.generar_factura({"cliente": cli, "cif_cliente": ("CIF - " + cif) if cif else "",
+                              "dir_cliente": [dire] if dire else [], "fecha": fecha, "numero": numero,
+                              "retencion": ret, "conceptos": [(concepto, base)]})
+
+
+def _admin_facturas() -> None:
     st.subheader("🧾 Facturas emitidas · Pagés (demo)")
     st.caption("Mismo formato que el Excel (logo de Pagés + cálculo Base + IVA 21% + Retención 19% + Total). "
                "Ajusta los importes que calcule Marynell y descarga el PDF.")
@@ -1243,25 +1268,25 @@ def _admin_facturas() -> None:
             li = g[3].number_input("Limpieza/material", value=1848.69, step=0.01, key="f_li")
             base = round(e + al + it + li, 2)
             st.caption(f"Base {_eur(base)} · IVA 21% {_eur(round(base*0.21,2))} · **Total {_eur(round(base*1.21,2))}**")
-            pdf = F.reddo_gastos(fecha, numero, e, al, it, li)
+            pdf = _factura_bytes("reddo_gastos", (fecha, numero, e, al, it, li))
         elif tipo.startswith("Reddo · Alquiler"):
             mes = st.text_input("Mes", "enero 2026", key="f_mes")
             base = st.number_input("Importe base (€)", value=1167.89, step=0.01, key="f_base_a")
             st.caption(f"IVA 21% {_eur(round(base*0.21,2))} · Retención 19% -{_eur(round(base*0.19,2))} · "
                        f"**Total {_eur(round(base*1.21 - base*0.19,2))}**")
-            pdf = F.reddo_alquiler(fecha, numero, mes, base)
+            pdf = _factura_bytes("reddo_alquiler", (fecha, numero, mes, base))
         elif tipo.startswith("Quorum"):
             mes = st.text_input("Mes de comisiones", "Noviembre 2025", key="f_qmes")
             base = st.number_input("Comisiones (€)", value=2979.93, step=0.01, key="f_qimp")
             st.caption(f"IVA 21% {_eur(round(base*0.21,2))} · **Total {_eur(round(base*1.21,2))}**")
-            pdf = F.quorum_comisiones(fecha, numero, mes, base)
+            pdf = _factura_bytes("quorum", (fecha, numero, mes, base))
         elif tipo == "MT":
             concepto = st.text_input("Concepto", "HP enero 2026", key="f_mtc")
             base = st.number_input("Importe (€)", value=181.5, step=0.01, key="f_mti")
             ret = st.checkbox("Aplicar retención 19%", key="f_mtr")
             tot = round(base*1.21 - (base*0.19 if ret else 0), 2)
             st.caption(f"IVA 21% {_eur(round(base*0.21,2))} · **Total {_eur(tot)}**")
-            pdf = F.mt_factura(fecha, numero, concepto, base, ret)
+            pdf = _factura_bytes("mt", (fecha, numero, concepto, base, ret))
         else:  # Personalizada
             p = st.columns(2)
             cli = p[0].text_input("Cliente", key="f_pcli")
@@ -1273,12 +1298,24 @@ def _admin_facturas() -> None:
             tot = round(base*1.21 - (base*0.19 if ret else 0), 2)
             st.caption(f"IVA 21% {_eur(round(base*0.21,2))} · **Total {_eur(tot)}**")
             if cli and base:
-                pdf = F.generar_factura({"cliente": cli, "cif_cliente": ("CIF - " + cif) if cif else "",
-                                         "dir_cliente": [dire] if dire else [], "fecha": fecha, "numero": numero,
-                                         "retencion": ret, "conceptos": [(concepto, base)]})
+                pdf = _factura_bytes("personalizada",
+                                     (fecha, numero, cli, cif, dire, concepto, base, ret))
+            else:
+                st.caption("Escribe al menos el **cliente** y el **importe** para poder descargar la factura.")
 
     if pdf:
-        st.download_button("⬇️ Descargar factura (PDF)", data=pdf, file_name=arch, mime="application/pdf")
+        d1, d2 = st.columns([1, 2])
+        d1.download_button("⬇️ Descargar factura (PDF)", data=pdf, file_name=arch,
+                           mime="application/pdf", key="f_dl")
+        # Enlace alternativo: lleva el PDF dentro del propio enlace (base64), así NO depende
+        # del servidor. Si el botón de arriba no descarga (pasa en Cloud Run cuando hay más de
+        # una instancia y la descarga cae en otra), este enlace SIEMPRE funciona.
+        b64 = base64.b64encode(pdf).decode()
+        d2.markdown(
+            f'<a href="data:application/pdf;base64,{b64}" download="{arch}" '
+            'style="display:inline-block;padding:9px 14px;border-radius:10px;'
+            'border:1px solid #1CA0D4;color:#1CA0D4;text-decoration:none;font-weight:600">'
+            '🖨️ Abrir / guardar la factura</a>', unsafe_allow_html=True)
     st.info("Tras la reunión con Marynell: **nº de factura correlativo automático** y **cálculo de comisiones** "
             "(Quorum 58 %, Premier Plus 28 %+9 %…) directamente desde el reporte de vouchers.")
 
