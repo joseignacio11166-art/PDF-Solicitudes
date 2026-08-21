@@ -20,6 +20,11 @@ SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit"
 SHEET_ADMIN_ID = os.getenv("SHEET_ADMIN_ID", "1Evt-Qu4Oq6lXXG9h_hCd-UnsGCvwGw_W7HPcfmFi87w")
 SHEET_ADMIN_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ADMIN_ID}/edit"
 
+# Buzón al que se reenvían las facturas RECIBIDAS para que entren solas en la app.
+# El "+facturas" no es una cuenta nueva: es una etiqueta que Gmail entiende, así que
+# cae en el buzón de siempre pero n8n puede distinguirlas de las solicitudes.
+CORREO_FACTURAS = os.getenv("CORREO_FACTURAS", "alumnuscareestudiantes+facturas@gmail.com")
+
 # --- Rutas ---------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent
 PLANTILLAS_DIR = BASE_DIR / "plantillas"

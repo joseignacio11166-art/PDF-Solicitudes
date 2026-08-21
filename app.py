@@ -1520,8 +1520,15 @@ def _admin_pagar() -> None:
     from core import facturas as FA
 
     st.subheader("📤 Por pagar · facturas que recibe Pagés")
-    st.caption("Sube la factura y **la IA la lee sola**: proveedor, importe y vencimiento. "
-               "Tú confirmas y queda en el registro hasta que la marques Pagada.")
+    st.caption("Dos formas de meter una factura: **reenviarla al correo** (entra sola) o "
+               "**subir el PDF aquí**. En las dos, la IA la lee y tú solo confirmas.")
+
+    from config import CORREO_FACTURAS
+    with st.container(border=True):
+        m1, m2 = st.columns([1.6, 2])
+        m1.markdown("**📮 Reenvía la factura a este correo**  \ny aparecerá aquí sola en un minuto:")
+        with m2:
+            st.code(CORREO_FACTURAS, language=None)
 
     registro = FA.disponible()
     if not registro:
