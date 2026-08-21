@@ -58,25 +58,34 @@ def disponible() -> bool:
     return _hay_conexion
 
 
-# ---------------------------------------------------------------- numeración
-def siguiente_numero(por_defecto: str = "2026/001") -> str:
-    """Número que le toca a la próxima factura emitida."""
+# ------------------------------------------------- ajustes (admin_config)
+def config() -> dict:
+    """Ajustes de administración: numeración y envío por correo."""
     try:
         doc = _cliente().collection("admin_config").document("facturas").get()
         if doc.exists:
-            return (doc.to_dict() or {}).get("siguiente_numero") or por_defecto
+            return doc.to_dict() or {}
     except Exception:
         pass
-    return por_defecto
+    return {}
 
 
-def fijar_siguiente_numero(numero: str) -> bool:
+def fijar_config(campos: dict) -> bool:
     try:
-        _cliente().collection("admin_config").document("facturas").set(
-            {"siguiente_numero": numero.strip()}, merge=True)
+        _cliente().collection("admin_config").document("facturas").set(campos, merge=True)
         return True
     except Exception:
         return False
+
+
+# ---------------------------------------------------------------- numeración
+def siguiente_numero(por_defecto: str = "2026/001") -> str:
+    """Número que le toca a la próxima factura emitida."""
+    return config().get("siguiente_numero") or por_defecto
+
+
+def fijar_siguiente_numero(numero: str) -> bool:
+    return fijar_config({"siguiente_numero": numero.strip()})
 
 
 def numero_mas_uno(numero: str) -> str:

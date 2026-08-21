@@ -13,6 +13,8 @@ google-cloud-firestore>=2.16
 # Seguimiento (leer Excel/CSV)
 pandas>=2.0
 openpyxl>=3.1
+# Envio de facturas por correo (webhook de n8n)
+requests>=2.31
 # Hoja de seguimiento (Google Sheets)
 gspread>=6.0
 google-auth>=2.30

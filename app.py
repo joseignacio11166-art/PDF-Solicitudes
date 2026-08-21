@@ -1256,6 +1256,33 @@ def _a_fecha(txt: str):
 # ------------------------------------------------------------------------
 # 📥 POR COBRAR — las facturas que EMITE Pagés
 # ------------------------------------------------------------------------
+def _boton_enviar(col, f: dict, pdf: bytes | None, cfg: dict) -> None:
+    """Botón 📧 Enviar de una factura: abre una ventanita con el correo ya escrito
+    para revisarlo antes de mandarlo (una vez enviado no hay vuelta atrás)."""
+    from core import enviar as ENV
+    from core import facturas as FA
+    fid = f["_id"]
+    with col.popover("📧 Enviar", disabled=not pdf):
+        asunto_def, cuerpo_def = ENV.texto_correo(
+            f.get("cliente", ""), f.get("numero", ""), f.get("concepto", ""),
+            _eur(f.get("total", 0)))
+        dest = st.text_input("Para", cfg.get("destinatario", "jcruz@pagesseguros.com"),
+                             key="para" + fid)
+        asunto = st.text_input("Asunto", asunto_def, key="asu" + fid)
+        cuerpo = st.text_area("Mensaje", cuerpo_def, height=200, key="cue" + fid)
+        st.caption("Se adjunta: " + (f.get("archivo") or "factura.pdf"))
+        if st.button("Enviar ahora", key="env" + fid, type="primary"):
+            ok, msg = ENV.enviar_factura(cfg.get("webhook", ""), dest, asunto, cuerpo,
+                                         f.get("archivo") or "factura.pdf", pdf)
+            if ok:
+                FA.cambiar_estado(FA.EMITIDAS, fid, "Enviada")
+                st.session_state["cxc_aviso"] = (
+                    True, "Factura " + f.get("numero", "") + " enviada a " + dest + ".")
+            else:
+                st.session_state["cxc_aviso"] = (False, msg)
+            st.rerun()
+
+
 def _admin_cobrar() -> None:
     from core import facturas as FA
 
@@ -1267,8 +1294,13 @@ def _admin_cobrar() -> None:
         st.warning("⚠️ No hay conexión con el registro de facturas. Puedes crear y descargar "
                    "facturas igualmente, pero no se guardarán. (En el enlace de la app sí funciona.)")
 
+    cfg = FA.config() if registro else {}
+    aviso = st.session_state.pop("cxc_aviso", None)
+    if aviso:
+        (st.success if aviso[0] else st.error)(aviso[1])
+
     hoy_txt = date.today().strftime("%d-%m-%y")
-    num_sugerido = FA.siguiente_numero() if registro else "2026/001"
+    num_sugerido = cfg.get("siguiente_numero") or "2026/001"
 
     # ---------------------------------------------------------- emitir
     with st.expander("🧾 Emitir una factura nueva", expanded=True):
@@ -1357,6 +1389,22 @@ def _admin_cobrar() -> None:
                 st.rerun()
             st.caption("A partir de ahí la app va sumando sola (2026/014 → 2026/015…).")
 
+        with st.expander("⚙️ Envío por correo"):
+            st.caption("La app no manda el correo ella misma: se lo pide a **n8n**, que es quien "
+                       "tiene la cuenta conectada. Importa `n8n/enviar_factura.json` en n8n, "
+                       "actívalo y pega aquí la URL del webhook (la de **Production**).")
+            e1, e2 = st.columns([3, 2])
+            hook = e1.text_input("URL del webhook de n8n", cfg.get("webhook", ""),
+                                 placeholder="https://…/webhook/enviar-factura", key="f_hook")
+            dest = e2.text_input("Enviar por defecto a",
+                                 cfg.get("destinatario", "jcruz@pagesseguros.com"), key="f_dest")
+            if st.button("Guardar ajustes de envío", key="f_hook_ok"):
+                FA.fijar_config({"webhook": hook.strip(), "destinatario": dest.strip()})
+                st.success("Ajustes guardados.")
+                st.rerun()
+            if not cfg.get("webhook"):
+                st.caption("⚠️ Mientras no haya webhook, el botón 📧 Enviar avisa en vez de mandar nada.")
+
     # -------------------------------------------------------- historial
     st.markdown("#### Facturas emitidas")
     filas = FA.listar(FA.EMITIDAS) if registro else []
@@ -1374,7 +1422,7 @@ def _admin_cobrar() -> None:
 
     for f in filas:
         fid = f["_id"]
-        c = st.columns([1.5, 3, 1.4, 1.6, 1.5, 0.5])
+        c = st.columns([1.3, 2.6, 1.2, 1.4, 1.2, 1.2, 0.5])
         c[0].markdown(f"**{f.get('numero','')}**  \n"
                       f"<span style='color:#5A6B82;font-size:12px'>{f.get('fecha','')}</span>",
                       unsafe_allow_html=True)
@@ -1396,14 +1444,14 @@ def _admin_cobrar() -> None:
                           unsafe_allow_html=True)
         else:
             c[4].caption("(sin PDF)")
-        if c[5].button("🗑️", key=f"del{fid}", help="Quitar del registro"):
+        _boton_enviar(c[5], f, pdf_g, cfg)
+        if c[6].button("🗑️", key=f"del{fid}", help="Quitar del registro"):
             FA.borrar(FA.EMITIDAS, fid)
             st.rerun()
         st.divider()
 
-    st.info("**Siguiente paso:** un botón **📧 Enviar a Reddo / Quorum / MT** que mande el "
-            "correo con el PDF adjunto. Falta decidir desde qué dirección sale y tener los "
-            "correos de destino.")
+    st.caption("📧 Enviar manda el correo con la factura adjunta y la deja marcada como "
+               "**Enviada**. Puedes cambiar el destinatario en cada envío.")
 
 
 # ------------------------------------------------------------------------

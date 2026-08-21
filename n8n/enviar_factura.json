@@ -1,0 +1,67 @@
+{
+  "name": "Pagés - Enviar factura por correo",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "enviar-factura",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-enviar-factura",
+      "name": "Webhook (la app llama aquí)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "enviar-factura"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "body.pdf_base64",
+        "options": {
+          "fileName": "={{ $json.body.archivo }}",
+          "mimeType": "application/pdf"
+        }
+      },
+      "id": "convertir-pdf",
+      "name": "PDF (base64 a fichero)",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Webhook (la app llama aquí)').item.json.body.destinatario }}",
+        "subject": "={{ $('Webhook (la app llama aquí)').item.json.body.asunto }}",
+        "emailType": "text",
+        "message": "={{ $('Webhook (la app llama aquí)').item.json.body.cuerpo }}",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "data"
+              }
+            ]
+          }
+        }
+      },
+      "id": "enviar-gmail",
+      "name": "Enviar el correo (Gmail)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [440, 0]
+    }
+  ],
+  "connections": {
+    "Webhook (la app llama aquí)": {
+      "main": [[{ "node": "PDF (base64 a fichero)", "type": "main", "index": 0 }]]
+    },
+    "PDF (base64 a fichero)": {
+      "main": [[{ "node": "Enviar el correo (Gmail)", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "tags": []
+}
