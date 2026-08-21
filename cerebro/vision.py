@@ -101,3 +101,69 @@ def leer_solicitud(ruta: str) -> dict:
         if getattr(bloque, "type", "") == "tool_use" and bloque.name == "devolver_datos":
             return bloque.input
     raise RuntimeError("La IA no devolvió los datos en el formato esperado.")
+
+
+# ========================================================================
+# FACTURAS RECIBIDAS (administración: cuentas por pagar)
+# ========================================================================
+_ESQUEMA_FACTURA = {
+    "type": "object",
+    "properties": {
+        "proveedor": {"type": "string", "description": "Nombre de QUIEN EMITE la factura (el que cobra)."},
+        "cif_proveedor": {"type": "string"},
+        "numero": {"type": "string", "description": "Número de la factura."},
+        "fecha": {"type": "string", "description": "Fecha de emisión, dd/mm/aaaa."},
+        "vencimiento": {"type": "string",
+                        "description": "Fecha límite de pago, dd/mm/aaaa. Vacío si no aparece."},
+        "base": {"type": "number", "description": "Base imponible (sin IVA)."},
+        "iva": {"type": "number", "description": "Importe del IVA. 0 si no lleva."},
+        "retencion": {"type": "number", "description": "Retención/IRPF como número POSITIVO. 0 si no lleva."},
+        "total": {"type": "number", "description": "Total a pagar."},
+        "moneda": {"type": "string", "description": "EUR, USD…"},
+        "concepto": {"type": "string", "description": "Resumen corto de qué se factura."},
+        "forma_pago": {"type": "string", "description": "Transferencia, domiciliado… con IBAN si aparece."},
+        "avisos": {"type": "array", "items": {"type": "string"},
+                   "description": "Dudas o datos que no se leen bien, para que la persona los revise."},
+    },
+    "required": ["proveedor", "numero", "fecha", "base", "iva", "total", "avisos"],
+}
+
+_INSTRUCCIONES_FACTURA = """\
+Eres el asistente de administración de una correduría de seguros (Pagés Seguros).
+Recibes la IMAGEN de una factura que le han ENVIADO a Pagés y que hay que pagar.
+Lee los datos y devuélvelos con la herramienta `devolver_factura`.
+
+Reglas:
+- `proveedor` es QUIEN EMITE la factura (el que cobra), NO Pagés Seguros. Si ves a
+  Pagés como cliente/destinatario, el proveedor es el otro.
+- Importes como número, con punto decimal (1234.56), sin símbolo de moneda ni puntos
+  de millar. La `retencion` en positivo aunque en la factura reste.
+- Fechas SIEMPRE dd/mm/aaaa. Si el vencimiento no aparece, déjalo vacío y añade un aviso.
+- Si un dato no se ve, déjalo vacío (o 0) y añade un aviso. NO inventes nada.
+- Comprueba que base + iva - retencion ≈ total; si no cuadra, añade un aviso.
+"""
+
+
+def leer_factura(ruta: str) -> dict:
+    """Lee una factura recibida (PDF, aunque sea escaneada) y devuelve sus datos."""
+    client = get_client()
+    imagenes = _paginas_a_imagenes(ruta, max_paginas=3)
+    contenido = [{"type": "image",
+                  "source": {"type": "base64", "media_type": "image/jpeg", "data": b64}}
+                 for b64 in imagenes]
+    contenido.append({"type": "text", "text": "Lee esta factura y devuelve sus datos."})
+
+    resp = client.messages.create(
+        model=MODELO,
+        max_tokens=2000,
+        system=_INSTRUCCIONES_FACTURA,
+        tools=[{"name": "devolver_factura",
+                "description": "Devuelve los datos leídos de la factura.",
+                "input_schema": _ESQUEMA_FACTURA}],
+        tool_choice={"type": "tool", "name": "devolver_factura"},
+        messages=[{"role": "user", "content": contenido}],
+    )
+    for bloque in resp.content:
+        if getattr(bloque, "type", "") == "tool_use" and bloque.name == "devolver_factura":
+            return bloque.input
+    raise RuntimeError("La IA no devolvió los datos de la factura en el formato esperado.")

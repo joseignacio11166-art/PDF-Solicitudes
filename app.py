@@ -14,7 +14,7 @@ from __future__ import annotations
 import base64
 import os
 import tempfile
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 import streamlit as st
@@ -1198,30 +1198,6 @@ def _admin_redsys() -> None:
             } for r in pendientes]), use_container_width=True, hide_index=True)
 
 
-def _admin_tabla(titulo: str, ayuda: str, key: str) -> None:
-    st.subheader(titulo)
-    st.caption(ayuda + " *(Demo: por ahora se sube el archivo; luego se conectará en vivo como la hoja de pólizas.)*")
-    up = st.file_uploader("Archivo (Excel o CSV)", type=["xlsx", "xls", "csv"], key=key)
-    if not up:
-        st.info("Sube el archivo para ver la tabla.")
-        return
-    import io
-    import pandas as pd
-    try:
-        if up.name.lower().endswith((".xlsx", ".xls")):
-            xls = pd.ExcelFile(io.BytesIO(up.getvalue()))
-            hoja = st.selectbox("Pestaña", xls.sheet_names, key=key + "_h")
-            df = pd.read_excel(xls, sheet_name=hoja, header=None)
-        else:
-            df = pd.read_csv(io.BytesIO(up.getvalue()), header=None, sep=None, engine="python", encoding="latin-1")
-    except Exception as e:  # noqa: BLE001
-        st.error(f"No pude leer el archivo: {e}")
-        return
-    df = df.dropna(how="all").fillna("")
-    st.caption(f"{len(df)} filas")
-    st.dataframe(df, use_container_width=True, hide_index=True)
-
-
 @st.cache_data(show_spinner=False, max_entries=30)
 def _factura_bytes(tipo: str, args: tuple) -> bytes:
     """Genera la factura en PDF y la CACHEA.
@@ -1247,93 +1223,331 @@ def _factura_bytes(tipo: str, args: tuple) -> bytes:
                               "retencion": ret, "conceptos": [(concepto, base)]})
 
 
-def _admin_facturas() -> None:
-    st.subheader("🧾 Facturas emitidas · Pagés (demo)")
-    st.caption("Mismo formato que el Excel (logo de Pagés + cálculo Base + IVA 21% + Retención 19% + Total). "
-               "Ajusta los importes que calcule Marynell y descarga el PDF.")
-    c0 = st.columns([1, 1, 2])
-    fecha = c0[0].text_input("Fecha", "13-01-26", key="f_fecha")
-    numero = c0[1].text_input("Factura Nº", "2026/002", key="f_num")
-    tipo = c0[2].selectbox("Tipo de factura", [
-        "Reddo · Gastos compartidos", "Reddo · Alquiler", "Quorum · Comisiones", "MT", "Personalizada"], key="f_tipo")
+def _link_pdf(pdf: bytes, archivo: str, etiqueta: str = "⬇️ Descargar") -> str:
+    """Enlace con el PDF metido dentro (base64). No depende del servidor, así que
+    descarga siempre (el botón normal de Streamlit falla si la app se recarga)."""
+    b64 = base64.b64encode(pdf).decode()
+    return (f'<a href="data:application/pdf;base64,{b64}" download="{archivo}" '
+            'style="display:inline-block;padding:6px 12px;border-radius:9px;'
+            'border:1px solid #1CA0D4;color:#1CA0D4;text-decoration:none;'
+            f'font-weight:600;font-size:13px">{etiqueta}</a>')
 
-    pdf = None
-    arch = f"PAGES_{numero.replace('/', '-')}.pdf"
-    with st.container(border=True):
-        if tipo.startswith("Reddo · Gastos"):
-            g = st.columns(4)
-            e = g[0].number_input("Electricidad", value=730.85, step=0.01, key="f_e")
-            al = g[1].number_input("Alarma", value=372.71, step=0.01, key="f_al")
-            it = g[2].number_input("Internet", value=3940.93, step=0.01, key="f_it")
-            li = g[3].number_input("Limpieza/material", value=1848.69, step=0.01, key="f_li")
-            base = round(e + al + it + li, 2)
-            st.caption(f"Base {_eur(base)} · IVA 21% {_eur(round(base*0.21,2))} · **Total {_eur(round(base*1.21,2))}**")
-            pdf = _factura_bytes("reddo_gastos", (fecha, numero, e, al, it, li))
-        elif tipo.startswith("Reddo · Alquiler"):
-            mes = st.text_input("Mes", "enero 2026", key="f_mes")
-            base = st.number_input("Importe base (€)", value=1167.89, step=0.01, key="f_base_a")
-            st.caption(f"IVA 21% {_eur(round(base*0.21,2))} · Retención 19% -{_eur(round(base*0.19,2))} · "
-                       f"**Total {_eur(round(base*1.21 - base*0.19,2))}**")
-            pdf = _factura_bytes("reddo_alquiler", (fecha, numero, mes, base))
-        elif tipo.startswith("Quorum"):
-            mes = st.text_input("Mes de comisiones", "Noviembre 2025", key="f_qmes")
-            base = st.number_input("Comisiones (€)", value=2979.93, step=0.01, key="f_qimp")
-            st.caption(f"IVA 21% {_eur(round(base*0.21,2))} · **Total {_eur(round(base*1.21,2))}**")
-            pdf = _factura_bytes("quorum", (fecha, numero, mes, base))
-        elif tipo == "MT":
-            concepto = st.text_input("Concepto", "HP enero 2026", key="f_mtc")
-            base = st.number_input("Importe (€)", value=181.5, step=0.01, key="f_mti")
-            ret = st.checkbox("Aplicar retención 19%", key="f_mtr")
-            tot = round(base*1.21 - (base*0.19 if ret else 0), 2)
-            st.caption(f"IVA 21% {_eur(round(base*0.21,2))} · **Total {_eur(tot)}**")
-            pdf = _factura_bytes("mt", (fecha, numero, concepto, base, ret))
-        else:  # Personalizada
-            p = st.columns(2)
-            cli = p[0].text_input("Cliente", key="f_pcli")
-            cif = p[1].text_input("CIF cliente", key="f_pcif")
-            dire = st.text_input("Dirección cliente", key="f_pdir")
-            concepto = st.text_input("Concepto", key="f_pc")
-            base = st.number_input("Importe (€)", value=0.0, step=0.01, key="f_pi")
-            ret = st.checkbox("Aplicar retención 19%", key="f_pr")
-            tot = round(base*1.21 - (base*0.19 if ret else 0), 2)
-            st.caption(f"IVA 21% {_eur(round(base*0.21,2))} · **Total {_eur(tot)}**")
-            if cli and base:
-                pdf = _factura_bytes("personalizada",
-                                     (fecha, numero, cli, cif, dire, concepto, base, ret))
+
+_MESES_ES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
+             "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+
+
+def _mes_es(d: date | None = None) -> str:
+    """'agosto 2026' (el strftime del sistema lo daría en inglés)."""
+    d = d or date.today()
+    return f"{_MESES_ES[d.month - 1]} {d.year}"
+
+
+def _a_fecha(txt: str):
+    """'05/01/2026' o '05-01-26' → date. None si no se puede."""
+    for f in ("%d/%m/%Y", "%d-%m-%Y", "%d/%m/%y", "%d-%m-%y", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(str(txt).strip(), f).date()
+        except Exception:
+            continue
+    return None
+
+
+# ------------------------------------------------------------------------
+# 📥 POR COBRAR — las facturas que EMITE Pagés
+# ------------------------------------------------------------------------
+def _admin_cobrar() -> None:
+    from core import facturas as FA
+
+    st.subheader("📥 Por cobrar · facturas que emite Pagés")
+    st.caption("Crea la factura, descárgala y lleva el control: **Emitida → Enviada → Cobrada**.")
+
+    registro = FA.disponible()
+    if not registro:
+        st.warning("⚠️ No hay conexión con el registro de facturas. Puedes crear y descargar "
+                   "facturas igualmente, pero no se guardarán. (En el enlace de la app sí funciona.)")
+
+    hoy_txt = date.today().strftime("%d-%m-%y")
+    num_sugerido = FA.siguiente_numero() if registro else "2026/001"
+
+    # ---------------------------------------------------------- emitir
+    with st.expander("🧾 Emitir una factura nueva", expanded=True):
+        c0 = st.columns([1, 1, 2])
+        fecha = c0[0].text_input("Fecha", hoy_txt, key="f_fecha")
+        numero = c0[1].text_input("Factura Nº", num_sugerido, key="f_num")
+        tipo = c0[2].selectbox("Tipo de factura", [
+            "Reddo · Alquiler", "Reddo · Gastos compartidos", "Quorum · Comisiones",
+            "MT", "Otro cliente"], key="f_tipo")
+
+        pdf, base, ret_pct, cliente, concepto = None, 0.0, 0.0, "", ""
+        with st.container(border=True):
+            if tipo.startswith("Reddo · Alquiler"):
+                cliente = "REDDO CREDIT, S.L."
+                mes = st.text_input("Mes", _mes_es(), key="f_mes")
+                base = st.number_input("Importe base (€)", value=1167.89, step=0.01, key="f_base_a")
+                ret_pct, concepto = 0.19, f"Alquiler oficina · {mes}"
+                pdf = _factura_bytes("reddo_alquiler", (fecha, numero, mes, base))
+            elif tipo.startswith("Reddo · Gastos"):
+                cliente = "REDDO CREDIT, S.L."
+                g = st.columns(4)
+                e = g[0].number_input("Electricidad", value=730.85, step=0.01, key="f_e")
+                al = g[1].number_input("Alarma", value=372.71, step=0.01, key="f_al")
+                it = g[2].number_input("Internet", value=3940.93, step=0.01, key="f_it")
+                li = g[3].number_input("Limpieza/material", value=1848.69, step=0.01, key="f_li")
+                base, concepto = round(e + al + it + li, 2), "Gastos compartidos"
+                pdf = _factura_bytes("reddo_gastos", (fecha, numero, e, al, it, li))
+            elif tipo.startswith("Quorum"):
+                cliente = "QUORUM LOGISTIC CORP"
+                mes = st.text_input("Mes de comisiones", "Noviembre 2025", key="f_qmes")
+                base = st.number_input("Comisiones (€)", value=2979.93, step=0.01, key="f_qimp")
+                concepto = f"Comisiones {mes}"
+                pdf = _factura_bytes("quorum", (fecha, numero, mes, base))
+            elif tipo == "MT":
+                cliente = "MARÍA TERESA YABUR ADDIE"
+                concepto = st.text_input("Concepto", "HP enero 2026", key="f_mtc")
+                base = st.number_input("Importe (€)", value=181.5, step=0.01, key="f_mti")
+                ret_pct = 0.19 if st.checkbox("Aplicar retención 19 %", key="f_mtr") else 0.0
+                pdf = _factura_bytes("mt", (fecha, numero, concepto, base, ret_pct > 0))
             else:
-                st.caption("Escribe al menos el **cliente** y el **importe** para poder descargar la factura.")
+                p = st.columns(2)
+                cliente = p[0].text_input("Cliente", key="f_pcli")
+                cif = p[1].text_input("CIF cliente", key="f_pcif")
+                dire = st.text_input("Dirección cliente", key="f_pdir")
+                concepto = st.text_input("Concepto", key="f_pc")
+                base = st.number_input("Importe (€)", value=0.0, step=0.01, key="f_pi")
+                ret_pct = 0.19 if st.checkbox("Aplicar retención 19 %", key="f_pr") else 0.0
+                if cliente and base:
+                    pdf = _factura_bytes("otro", (fecha, numero, cliente, cif, dire,
+                                                  concepto, base, ret_pct > 0))
+                else:
+                    st.caption("Escribe al menos el **cliente** y el **importe**.")
 
-    if pdf:
-        d1, d2 = st.columns([1, 2])
-        d1.download_button("⬇️ Descargar factura (PDF)", data=pdf, file_name=arch,
-                           mime="application/pdf", key="f_dl")
-        # Enlace alternativo: lleva el PDF dentro del propio enlace (base64), así NO depende
-        # del servidor. Si el botón de arriba no descarga (pasa en Cloud Run cuando hay más de
-        # una instancia y la descarga cae en otra), este enlace SIEMPRE funciona.
-        b64 = base64.b64encode(pdf).decode()
-        d2.markdown(
-            f'<a href="data:application/pdf;base64,{b64}" download="{arch}" '
-            'style="display:inline-block;padding:9px 14px;border-radius:10px;'
-            'border:1px solid #1CA0D4;color:#1CA0D4;text-decoration:none;font-weight:600">'
-            '🖨️ Abrir / guardar la factura</a>', unsafe_allow_html=True)
-    st.info("Tras la reunión con Marynell: **nº de factura correlativo automático** y **cálculo de comisiones** "
-            "(Quorum 58 %, Premier Plus 28 %+9 %…) directamente desde el reporte de vouchers.")
+            iva = round(base * 0.21, 2)
+            reten = round(base * ret_pct, 2)
+            total = round(base + iva - reten, 2)
+            resumen = f"Base {_eur(base)} · IVA 21 % {_eur(iva)}"
+            if reten:
+                resumen += f" · Retención 19 % -{_eur(reten)}"
+            st.caption(resumen + f" · **Total {_eur(total)}**")
+
+        if pdf:
+            arch = f"PAGES_{numero.replace('/', '-')}.pdf"
+            b1, b2 = st.columns([1.2, 2])
+            if b1.button("✅ Emitir y guardar", key="f_guardar", type="primary",
+                         disabled=not registro,
+                         help=None if registro else "Necesita conexión con el registro"):
+                ok = FA.guardar_emitida(numero, cliente, concepto, fecha, base, iva,
+                                        reten, total, pdf=pdf, archivo=arch)
+                if ok:
+                    FA.fijar_siguiente_numero(FA.numero_mas_uno(numero))
+                    st.success(f"Factura **{numero}** guardada. La siguiente será la "
+                               f"**{FA.numero_mas_uno(numero)}**.")
+                    st.rerun()
+                else:
+                    st.error("No pude guardarla en el registro. El PDF sí puedes descargarlo.")
+            b2.markdown(_link_pdf(pdf, arch, "⬇️ Descargar el PDF"), unsafe_allow_html=True)
+
+    if registro:
+        with st.expander("⚙️ Numeración"):
+            n1, n2 = st.columns([1, 2])
+            nuevo = n1.text_input("La próxima factura será la", num_sugerido, key="f_sig")
+            if n2.button("Guardar numeración", key="f_sig_ok"):
+                FA.fijar_siguiente_numero(nuevo)
+                st.success("Numeración actualizada.")
+                st.rerun()
+            st.caption("A partir de ahí la app va sumando sola (2026/014 → 2026/015…).")
+
+    # -------------------------------------------------------- historial
+    st.markdown("#### Facturas emitidas")
+    filas = FA.listar(FA.EMITIDAS) if registro else []
+    if not filas:
+        st.info("Todavía no hay ninguna factura guardada. Las que emitas aparecerán aquí, "
+                "con su estado y para volver a descargarlas cuando quieras.")
+        return
+
+    por_cobrar = sum(f.get("total", 0) for f in filas if f.get("estado") != "Cobrada")
+    cobrado = sum(f.get("total", 0) for f in filas if f.get("estado") == "Cobrada")
+    k = st.columns(3)
+    k[0].metric("Facturas emitidas", len(filas))
+    k[1].metric("Pendiente de cobro", _eur(por_cobrar))
+    k[2].metric("Cobrado", _eur(cobrado))
+
+    for f in filas:
+        fid = f["_id"]
+        c = st.columns([1.5, 3, 1.4, 1.6, 1.5, 0.5])
+        c[0].markdown(f"**{f.get('numero','')}**  \n"
+                      f"<span style='color:#5A6B82;font-size:12px'>{f.get('fecha','')}</span>",
+                      unsafe_allow_html=True)
+        c[1].markdown(f"{f.get('cliente','')}  \n"
+                      f"<span style='color:#5A6B82;font-size:12px'>{f.get('concepto','')}</span>",
+                      unsafe_allow_html=True)
+        c[2].markdown(f"**{_eur(f.get('total', 0))}**")
+        estados = FA.ESTADOS_EMITIDA
+        actual = f.get("estado", "Emitida")
+        idx = estados.index(actual) if actual in estados else 0
+        nuevo = c[3].selectbox("Estado", estados, index=idx, key=f"est{fid}",
+                               label_visibility="collapsed")
+        if nuevo != actual:
+            FA.cambiar_estado(FA.EMITIDAS, fid, nuevo)
+            st.rerun()
+        pdf_g = FA.pdf_de(f)
+        if pdf_g:
+            c[4].markdown(_link_pdf(pdf_g, f.get("archivo") or "factura.pdf"),
+                          unsafe_allow_html=True)
+        else:
+            c[4].caption("(sin PDF)")
+        if c[5].button("🗑️", key=f"del{fid}", help="Quitar del registro"):
+            FA.borrar(FA.EMITIDAS, fid)
+            st.rerun()
+        st.divider()
+
+    st.info("**Siguiente paso:** un botón **📧 Enviar a Reddo / Quorum / MT** que mande el "
+            "correo con el PDF adjunto. Falta decidir desde qué dirección sale y tener los "
+            "correos de destino.")
+
+
+# ------------------------------------------------------------------------
+# 📤 POR PAGAR — las facturas que RECIBE Pagés
+# ------------------------------------------------------------------------
+def _admin_pagar() -> None:
+    from core import facturas as FA
+
+    st.subheader("📤 Por pagar · facturas que recibe Pagés")
+    st.caption("Sube la factura y **la IA la lee sola**: proveedor, importe y vencimiento. "
+               "Tú confirmas y queda en el registro hasta que la marques Pagada.")
+
+    registro = FA.disponible()
+    if not registro:
+        st.warning("⚠️ No hay conexión con el registro de facturas. Puedes leer facturas con la "
+                   "IA, pero no se guardarán. (En el enlace de la app sí funciona.)")
+
+    up = st.file_uploader("Factura recibida (PDF)", type=["pdf"], key="cxp_pdf")
+    if up and st.button("🔍 Leer la factura con IA", key="cxp_leer", type="primary"):
+        with st.spinner("La IA está leyendo la factura…"):
+            try:
+                from cerebro.vision import leer_factura
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+                    tmp.write(up.getvalue())
+                    ruta = tmp.name
+                st.session_state["cxp_datos"] = leer_factura(ruta)
+                st.session_state["cxp_bytes"] = up.getvalue()
+                st.session_state["cxp_nombre"] = up.name
+            except Exception as e:  # noqa: BLE001
+                st.error(f"No pude leer la factura: {e}")
+
+    datos = st.session_state.get("cxp_datos")
+    if datos:
+        with st.container(border=True):
+            st.markdown("**Revisa lo que ha leído la IA** y corrige lo que haga falta:")
+            a = st.columns([2, 1, 1])
+            proveedor = a[0].text_input("Proveedor", datos.get("proveedor", ""), key="cxp_prov")
+            numero = a[1].text_input("Nº factura", datos.get("numero", ""), key="cxp_num")
+            fecha = a[2].text_input("Fecha", datos.get("fecha", ""), key="cxp_fec")
+            b = st.columns([2, 1, 1, 1])
+            concepto = b[0].text_input("Concepto", datos.get("concepto", ""), key="cxp_con")
+            base = b[1].number_input("Base (€)", value=float(datos.get("base") or 0), step=0.01, key="cxp_base")
+            iva = b[2].number_input("IVA (€)", value=float(datos.get("iva") or 0), step=0.01, key="cxp_iva")
+            reten = b[3].number_input("Retención (€)", value=float(datos.get("retencion") or 0),
+                                      step=0.01, key="cxp_ret")
+            c = st.columns([1, 1, 2])
+            venc = c[0].text_input("Vence el", datos.get("vencimiento", ""),
+                                   placeholder="dd/mm/aaaa", key="cxp_venc")
+            total = round(base + iva - reten, 2)
+            c[1].metric("Total a pagar", _eur(total))
+            for av in datos.get("avisos", []) or []:
+                st.caption(f"• {av}")
+            if not venc:
+                st.caption("⚠️ Sin fecha de vencimiento no se puede avisar de cuándo toca pagarla.")
+
+            g1, g2 = st.columns([1.2, 3])
+            if g1.button("💾 Guardar en el registro", key="cxp_ok", type="primary",
+                         disabled=not registro):
+                ok = FA.guardar_recibida(proveedor, numero, fecha, venc, base, iva, total,
+                                         concepto=concepto,
+                                         pdf=st.session_state.get("cxp_bytes"),
+                                         archivo=st.session_state.get("cxp_nombre", ""))
+                if ok:
+                    for k in ("cxp_datos", "cxp_bytes", "cxp_nombre"):
+                        st.session_state.pop(k, None)
+                    st.success("Guardada como **Pendiente**.")
+                    st.rerun()
+                else:
+                    st.error("No pude guardarla en el registro.")
+            if g2.button("Descartar", key="cxp_no"):
+                for k in ("cxp_datos", "cxp_bytes", "cxp_nombre"):
+                    st.session_state.pop(k, None)
+                st.rerun()
+
+    # -------------------------------------------------------- historial
+    st.markdown("#### Facturas por pagar")
+    filas = FA.listar(FA.RECIBIDAS) if registro else []
+    if not filas:
+        st.info("Todavía no hay facturas registradas. Sube una arriba y la IA hace el resto.")
+        return
+
+    pendientes = [f for f in filas if f.get("estado") != "Pagada"]
+    total_pend = sum(f.get("total", 0) for f in pendientes)
+    limite = date.today() + timedelta(days=7)
+    urgentes = [f for f in pendientes
+                if (_a_fecha(f.get("vencimiento", "")) or date.max) <= limite]
+    k = st.columns(3)
+    k[0].metric("Pendientes de pago", len(pendientes))
+    k[1].metric("Importe pendiente", _eur(total_pend))
+    k[2].metric("Vencen esta semana", len(urgentes))
+    if urgentes:
+        st.error("⏰ **Vencen esta semana (o ya vencieron):** " +
+                 " · ".join(f"{f.get('proveedor','')} {_eur(f.get('total',0))}" for f in urgentes))
+
+    for f in filas:
+        fid = f["_id"]
+        c = st.columns([2.4, 2.4, 1.3, 1.2, 1.5, 1.3, 0.5])
+        c[0].markdown(f"**{f.get('proveedor','')}**  \n"
+                      f"<span style='color:#5A6B82;font-size:12px'>{f.get('numero','')} · "
+                      f"{f.get('fecha','')}</span>", unsafe_allow_html=True)
+        c[1].markdown(f"<span style='font-size:13px'>{f.get('concepto','')}</span>",
+                      unsafe_allow_html=True)
+        c[2].markdown(f"**{_eur(f.get('total', 0))}**")
+        venc = f.get("vencimiento", "")
+        fvenc = _a_fecha(venc)
+        color = "#C0392B" if (fvenc and fvenc <= limite and f.get("estado") != "Pagada") else "#5A6B82"
+        c[3].markdown(f"<span style='color:{color};font-size:12px'>{venc or '— sin vto.'}</span>",
+                      unsafe_allow_html=True)
+        estados = FA.ESTADOS_RECIBIDA
+        actual = f.get("estado", "Pendiente")
+        idx = estados.index(actual) if actual in estados else 0
+        nuevo = c[4].selectbox("Estado", estados, index=idx, key=f"rest{fid}",
+                               label_visibility="collapsed")
+        if nuevo != actual:
+            FA.cambiar_estado(FA.RECIBIDAS, fid, nuevo)
+            st.rerun()
+        pdf_g = FA.pdf_de(f)
+        if pdf_g:
+            c[5].markdown(_link_pdf(pdf_g, f.get("archivo") or "factura.pdf", "⬇️ Ver"),
+                          unsafe_allow_html=True)
+        else:
+            c[5].caption("(sin PDF)")
+        if c[6].button("🗑️", key=f"rdel{fid}", help="Quitar del registro"):
+            FA.borrar(FA.RECIBIDAS, fid)
+            st.rerun()
+        st.divider()
+
+    st.info("**Siguiente paso:** que Marynell reenvíe la factura a un correo y entre aquí sola, "
+            "sin subir nada. El circuito correo → app ya funciona con las solicitudes.")
 
 
 def render_administracion() -> None:
     st.title("💼 Administración")
-    st.caption("Cobros, facturas, cuentas por cobrar y por pagar. **Primera versión (demo)** para revisar con Marynell.")
-    sub = st.radio("Vista", ["💳 Cobros (Redsys)", "🧾 Facturas (demo)", "📥 Por cobrar (CxC)", "📤 Por pagar (CxP)"],
+    st.caption("Cobros, facturas por cobrar y por pagar. **Primera versión** para revisar con Marynell.")
+    sub = st.radio("Vista", ["💳 Cobros (Redsys)", "📥 Por cobrar", "📤 Por pagar"],
                    horizontal=True, label_visibility="collapsed")
     st.divider()
     if sub.startswith("💳"):
         _admin_redsys()
-    elif sub.startswith("🧾"):
-        _admin_facturas()
     elif sub.startswith("📥"):
-        _admin_tabla("📥 Cuentas por cobrar", "Lo que le deben a Pagés (facturas emitidas pendientes de cobro).", "cxc_up")
+        _admin_cobrar()
     else:
-        _admin_tabla("📤 Cuentas por pagar", "Lo que Pagés debe a proveedores (facturas recibidas pendientes de pago).", "cxp_up")
+        _admin_pagar()
+
 
 
 def render_correo() -> None:
