@@ -265,3 +265,205 @@ def volcar_pagar(registros: list[dict]) -> bool:
                          ["Pagada", "Pendiente"], _DINERO_PAGAR)
     except Exception:
         return False
+
+
+# ========================================================================
+# RESUMEN — el "dashboard" de la hoja
+# ========================================================================
+RESUMEN = "Resumen"
+
+_EUROS = {"type": "NUMBER", "pattern": '#,##0.00" €"'}
+
+
+def _a_fecha(txt):
+    from datetime import datetime
+    for f in ("%d/%m/%Y", "%d-%m-%Y", "%d/%m/%y", "%d-%m-%y", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(str(txt).strip(), f).date()
+        except Exception:
+            continue
+    return None
+
+
+def _suma(registros, estado=None, distinto=None) -> tuple[int, float]:
+    """(cuántas facturas, cuánto suman) filtrando por estado."""
+    filas = [r for r in registros
+             if (estado is None or r.get("estado") == estado)
+             and (distinto is None or r.get("estado") != distinto)]
+    return len(filas), round(sum(float(r.get("total") or 0) for r in filas), 2)
+
+
+def _barra(sid: int, fila: int, columnas: int = 4) -> list[dict]:
+    """Una banda azul marino de ancho completo, como los títulos del Excel."""
+    rango = {"sheetId": sid, "startRowIndex": fila, "endRowIndex": fila + 1,
+             "startColumnIndex": 1, "endColumnIndex": 1 + columnas}
+    return [
+        {"mergeCells": {"mergeType": "MERGE_ALL", "range": rango}},
+        {"repeatCell": {
+            "range": rango,
+            "cell": {"userEnteredFormat": {
+                "backgroundColor": _NAVY, "verticalAlignment": "MIDDLE",
+                "horizontalAlignment": "LEFT",
+                "textFormat": {"bold": True, "fontSize": 11, "fontFamily": "Inter",
+                               "foregroundColor": _BLANCO}}},
+            "fields": "userEnteredFormat(backgroundColor,verticalAlignment,"
+                      "horizontalAlignment,textFormat)"}},
+        {"updateDimensionProperties": {
+            "range": {"sheetId": sid, "dimension": "ROWS", "startIndex": fila,
+                      "endIndex": fila + 1},
+            "properties": {"pixelSize": 28}, "fields": "pixelSize"}},
+    ]
+
+
+def volcar_resumen(emitidas: list[dict], recibidas: list[dict]) -> bool:
+    """Escribe la pestaña 'Resumen': los KPIs de las dos cuentas de un vistazo."""
+    try:
+        from datetime import date, timedelta
+        libro = _libro()
+        try:
+            ws = libro.worksheet(RESUMEN)
+        except Exception:
+            ws = libro.add_worksheet(title=RESUMEN, rows=30, cols=6, index=0)
+        sid = ws.id
+
+        # ---------------------------------------------------------- números
+        n_emi, t_emi = _suma(emitidas)
+        _, t_cob = _suma(emitidas, estado="Cobrada")
+        _, t_pte = _suma(emitidas, distinto="Cobrada")
+        n_rec, _ = _suma(recibidas)
+        _, t_pag = _suma(recibidas, estado="Pagada")
+        _, t_deb = _suma(recibidas, distinto="Pagada")
+        limite = date.today() + timedelta(days=7)
+        urgentes = [r for r in recibidas if r.get("estado") != "Pagada"
+                    and (_a_fecha(r.get("vencimiento", "")) or date.max) <= limite]
+        t_urg = round(sum(float(r.get("total") or 0) for r in urgentes), 2)
+
+        # ---------------------------------------------------------- rejilla
+        v = [[""] * 5 for _ in range(23)]
+        v[1][1] = "Dashboard · Administración Pagés"
+        v[2][1] = "Se actualiza solo cada vez que cambias algo en el centro de operaciones."
+        v[4][1] = "CUENTAS POR COBRAR · lo que nos deben"
+        v[6][1], v[6][2], v[6][3], v[6][4] = ("Facturas emitidas", "Pendiente de cobro",
+                                              "Ya cobrado", "Total emitido")
+        v[7][1], v[7][2], v[7][3], v[7][4] = n_emi, t_pte, t_cob, t_emi
+        v[10][1] = "CUENTAS POR PAGAR · lo que debemos"
+        v[12][1], v[12][2], v[12][3], v[12][4] = ("Facturas registradas", "Pendiente de pago",
+                                                  "Vencen esta semana", "Ya pagado")
+        v[13][1], v[13][2], v[13][3], v[13][4] = n_rec, t_deb, t_urg, t_pag
+        v[16][1] = "SALDO"
+        v[18][1] = "Nos deben menos lo que debemos"
+        v[18][2] = round(t_pte - t_deb, 2)
+        if urgentes:
+            v[20][1] = "⏰ Vencen esta semana:"
+            v[20][2] = " · ".join(f"{r.get('proveedor', '')} {float(r.get('total') or 0):.2f} EUR"
+                                  for r in urgentes[:4])
+
+        ws.clear()
+        try:
+            ws.resize(rows=24, cols=6)
+        except Exception:
+            pass
+        ws.update(v, "A1")
+
+        # -------------------------------------------------------- maquillaje
+        gris = {"red": 0.45, "green": 0.50, "blue": 0.55}
+        pet = [
+            {"repeatCell": {
+                "range": {"sheetId": sid, "startRowIndex": 0, "endRowIndex": 24,
+                          "startColumnIndex": 0, "endColumnIndex": 6},
+                "cell": {"userEnteredFormat": {
+                    "backgroundColor": _BLANCO, "verticalAlignment": "MIDDLE",
+                    "textFormat": {"fontFamily": "Inter", "fontSize": 10}}},
+                "fields": "userEnteredFormat(backgroundColor,verticalAlignment,textFormat)"}},
+            {"updateSheetProperties": {
+                "properties": {"sheetId": sid, "gridProperties": {"hideGridlines": True}},
+                "fields": "gridProperties.hideGridlines"}},
+            {"repeatCell": {
+                "range": {"sheetId": sid, "startRowIndex": 1, "endRowIndex": 2,
+                          "startColumnIndex": 1, "endColumnIndex": 2},
+                "cell": {"userEnteredFormat": {"textFormat": {
+                    "bold": True, "fontSize": 18, "fontFamily": "Inter",
+                    "foregroundColor": _NAVY}}},
+                "fields": "userEnteredFormat.textFormat"}},
+            {"repeatCell": {
+                "range": {"sheetId": sid, "startRowIndex": 2, "endRowIndex": 3,
+                          "startColumnIndex": 1, "endColumnIndex": 2},
+                "cell": {"userEnteredFormat": {"textFormat": {
+                    "italic": True, "fontSize": 9, "fontFamily": "Inter",
+                    "foregroundColor": gris}}},
+                "fields": "userEnteredFormat.textFormat"}},
+            {"updateDimensionProperties": {
+                "range": {"sheetId": sid, "dimension": "COLUMNS", "startIndex": 0, "endIndex": 1},
+                "properties": {"pixelSize": 28}, "fields": "pixelSize"}},
+            {"updateDimensionProperties": {
+                "range": {"sheetId": sid, "dimension": "COLUMNS", "startIndex": 1, "endIndex": 5},
+                "properties": {"pixelSize": 190}, "fields": "pixelSize"}},
+        ]
+        pet += _barra(sid, 4) + _barra(sid, 10) + _barra(sid, 16)
+
+        for fila_lbl, fila_val in ((6, 7), (12, 13)):
+            pet.append({"repeatCell": {
+                "range": {"sheetId": sid, "startRowIndex": fila_lbl, "endRowIndex": fila_lbl + 1,
+                          "startColumnIndex": 1, "endColumnIndex": 5},
+                "cell": {"userEnteredFormat": {
+                    "backgroundColor": _CREMA, "horizontalAlignment": "CENTER",
+                    "textFormat": {"bold": True, "fontSize": 9, "fontFamily": "Inter",
+                                   "foregroundColor": _NAVY}}},
+                "fields": "userEnteredFormat(backgroundColor,horizontalAlignment,textFormat)"}})
+            pet.append({"repeatCell": {
+                "range": {"sheetId": sid, "startRowIndex": fila_val, "endRowIndex": fila_val + 1,
+                          "startColumnIndex": 1, "endColumnIndex": 5},
+                "cell": {"userEnteredFormat": {
+                    "horizontalAlignment": "CENTER", "numberFormat": _EUROS,
+                    "textFormat": {"bold": True, "fontSize": 16, "fontFamily": "Inter",
+                                   "foregroundColor": _NAVY}}},
+                "fields": "userEnteredFormat(horizontalAlignment,numberFormat,textFormat)"}})
+            # el contador de facturas es un número pelado, no euros
+            pet.append({"repeatCell": {
+                "range": {"sheetId": sid, "startRowIndex": fila_val, "endRowIndex": fila_val + 1,
+                          "startColumnIndex": 1, "endColumnIndex": 2},
+                "cell": {"userEnteredFormat": {
+                    "numberFormat": {"type": "NUMBER", "pattern": "0"}}},
+                "fields": "userEnteredFormat.numberFormat"}})
+            pet.append({"updateDimensionProperties": {
+                "range": {"sheetId": sid, "dimension": "ROWS", "startIndex": fila_val,
+                          "endIndex": fila_val + 1},
+                "properties": {"pixelSize": 42}, "fields": "pixelSize"}})
+            pet.append({"updateBorders": {
+                "range": {"sheetId": sid, "startRowIndex": fila_lbl, "endRowIndex": fila_val + 1,
+                          "startColumnIndex": 1, "endColumnIndex": 5},
+                "innerVertical": {"style": "SOLID", "width": 1, "color": _GRIS_BORDE},
+                "top": {"style": "SOLID", "width": 1, "color": _GRIS_BORDE},
+                "bottom": {"style": "SOLID", "width": 1, "color": _GRIS_BORDE},
+                "left": {"style": "SOLID", "width": 1, "color": _GRIS_BORDE},
+                "right": {"style": "SOLID", "width": 1, "color": _GRIS_BORDE}}})
+
+        pet.append({"repeatCell": {
+            "range": {"sheetId": sid, "startRowIndex": 18, "endRowIndex": 19,
+                      "startColumnIndex": 2, "endColumnIndex": 3},
+            "cell": {"userEnteredFormat": {
+                "numberFormat": _EUROS,
+                "textFormat": {"bold": True, "fontSize": 14, "fontFamily": "Inter",
+                               "foregroundColor": _NAVY}}},
+            "fields": "userEnteredFormat(numberFormat,textFormat)"}})
+        pet.append({"repeatCell": {
+            "range": {"sheetId": sid, "startRowIndex": 20, "endRowIndex": 21,
+                      "startColumnIndex": 1, "endColumnIndex": 5},
+            "cell": {"userEnteredFormat": {"textFormat": {
+                "fontSize": 10, "fontFamily": "Inter",
+                "foregroundColor": {"red": 0.75, "green": 0.22, "blue": 0.17}}}},
+            "fields": "userEnteredFormat.textFormat"}})
+
+        try:
+            libro.batch_update({"requests": pet})
+            # Los títulos de las bandas se escriben DESPUÉS de fusionarlas: si se
+            # escriben antes, al fusionar Google se queda solo con la celda de arriba
+            # a la izquierda y a veces se pierde el texto.
+            ws.update([["CUENTAS POR COBRAR · lo que nos deben"]], "B5")
+            ws.update([["CUENTAS POR PAGAR · lo que debemos"]], "B11")
+            ws.update([["SALDO"]], "B17")
+        except Exception:
+            pass
+        return True
+    except Exception:
+        return False

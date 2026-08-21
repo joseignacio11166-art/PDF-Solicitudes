@@ -1279,9 +1279,14 @@ def _volcar_hoja(coleccion: str) -> bool:
     try:
         from core import facturas as FA
         from core import hoja_admin as HA
+        emitidas = FA.listar(FA.EMITIDAS)
+        recibidas = FA.listar(FA.RECIBIDAS)
         if coleccion == FA.EMITIDAS:
-            return HA.volcar_cobrar(FA.listar(FA.EMITIDAS))
-        return HA.volcar_pagar(FA.listar(FA.RECIBIDAS))
+            ok = HA.volcar_cobrar(emitidas)
+        else:
+            ok = HA.volcar_pagar(recibidas)
+        HA.volcar_resumen(emitidas, recibidas)   # el dashboard mira las dos cuentas
+        return ok
     except Exception:
         return False
 
@@ -1529,6 +1534,8 @@ def _admin_pagar() -> None:
         m1.markdown("**📮 Reenvía la factura a este correo**  \ny aparecerá aquí sola en un minuto:")
         with m2:
             st.code(CORREO_FACTURAS, language=None)
+        st.caption("Las facturas de **más de 1 MB** no caben por correo (límite de la base de "
+                   "datos): esas se suben aquí abajo a mano.")
 
     registro = FA.disponible()
     if not registro:
