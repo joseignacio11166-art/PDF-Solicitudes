@@ -1256,6 +1256,49 @@ def _a_fecha(txt: str):
 # ------------------------------------------------------------------------
 # 📥 POR COBRAR — las facturas que EMITE Pagés
 # ------------------------------------------------------------------------
+def _clave_cliente(nombre: str) -> str:
+    """'REDDO CREDIT, S.L.' -> 'reddo'. Sirve de clave para guardar a qué correo se
+    le manda cada cliente (Firestore no admite puntos en las claves)."""
+    import unicodedata
+    sin_tildes = unicodedata.normalize("NFKD", nombre or "")
+    sin_tildes = "".join(c for c in sin_tildes if not unicodedata.combining(c))
+    limpio = "".join(c for c in sin_tildes if c.isalnum() or c.isspace())
+    return (limpio.strip().split() or ["otro"])[0].lower()
+
+
+def _destinatario_de(cliente: str, cfg: dict) -> str:
+    """El correo fijo de ese cliente; si no hay, el destinatario por defecto."""
+    fijos = cfg.get("destinatarios") or {}
+    return (fijos.get(_clave_cliente(cliente))
+            or cfg.get("destinatario") or "jcruz@pagesseguros.com")
+
+
+def _volcar_hoja(coleccion: str) -> bool:
+    """Reescribe la pestaña que toque de la hoja de administración (espejo del
+    registro). Si falla no rompe nada: el dato bueno sigue estando en la app."""
+    try:
+        from core import facturas as FA
+        from core import hoja_admin as HA
+        if coleccion == FA.EMITIDAS:
+            return HA.volcar_cobrar(FA.listar(FA.EMITIDAS))
+        return HA.volcar_pagar(FA.listar(FA.RECIBIDAS))
+    except Exception:
+        return False
+
+
+def _enlace_hoja(coleccion: str, key: str) -> None:
+    """Enlace a la hoja de Google + botón para reescribirla a mano."""
+    from config import SHEET_ADMIN_URL
+    h1, h2 = st.columns([1.3, 3])
+    h1.link_button("📊 Abrir la hoja", SHEET_ADMIN_URL, use_container_width=True)
+    if h2.button("🔄 Actualizar la hoja", key=key):
+        if _volcar_hoja(coleccion):
+            st.success("Hoja actualizada.")
+        else:
+            st.error("No pude escribir en la hoja. Comprueba que esté compartida como "
+                     "**Editor** con `321150927024-compute@developer.gserviceaccount.com`.")
+
+
 def _boton_enviar(col, f: dict, pdf: bytes | None, cfg: dict) -> None:
     """Botón 📧 Enviar de una factura: abre una ventanita con el correo ya escrito
     para revisarlo antes de mandarlo (una vez enviado no hay vuelta atrás)."""
@@ -1266,7 +1309,7 @@ def _boton_enviar(col, f: dict, pdf: bytes | None, cfg: dict) -> None:
         asunto_def, cuerpo_def = ENV.texto_correo(
             f.get("cliente", ""), f.get("numero", ""), f.get("concepto", ""),
             _eur(f.get("total", 0)))
-        dest = st.text_input("Para", cfg.get("destinatario", "jcruz@pagesseguros.com"),
+        dest = st.text_input("Para", _destinatario_de(f.get("cliente", ""), cfg),
                              key="para" + fid)
         asunto = st.text_input("Asunto", asunto_def, key="asu" + fid)
         cuerpo = st.text_area("Mensaje", cuerpo_def, height=200, key="cue" + fid)
@@ -1276,6 +1319,7 @@ def _boton_enviar(col, f: dict, pdf: bytes | None, cfg: dict) -> None:
                                          f.get("archivo") or "factura.pdf", pdf)
             if ok:
                 FA.cambiar_estado(FA.EMITIDAS, fid, "Enviada")
+                _volcar_hoja(FA.EMITIDAS)
                 st.session_state["cxc_aviso"] = (
                     True, "Factura " + f.get("numero", "") + " enviada a " + dest + ".")
             else:
@@ -1372,6 +1416,7 @@ def _admin_cobrar() -> None:
                                         reten, total, pdf=pdf, archivo=arch)
                 if ok:
                     FA.fijar_siguiente_numero(FA.numero_mas_uno(numero))
+                    _volcar_hoja(FA.EMITIDAS)
                     st.success(f"Factura **{numero}** guardada. La siguiente será la "
                                f"**{FA.numero_mas_uno(numero)}**.")
                     st.rerun()
@@ -1398,8 +1443,18 @@ def _admin_cobrar() -> None:
                                  placeholder="https://…/webhook/enviar-factura", key="f_hook")
             dest = e2.text_input("Enviar por defecto a",
                                  cfg.get("destinatario", "jcruz@pagesseguros.com"), key="f_dest")
+            st.caption("**A quién se le manda cada cliente.** Se rellena una vez y ella ya no "
+                       "escribe nada: al darle a 📧 Enviar, el correo va puesto.")
+            fijos = dict(cfg.get("destinatarios") or {})
+            d = st.columns(3)
+            nuevos = {
+                "reddo": d[0].text_input("Reddo", fijos.get("reddo", ""), key="f_d_reddo"),
+                "quorum": d[1].text_input("Quorum", fijos.get("quorum", ""), key="f_d_quorum"),
+                "maria": d[2].text_input("MT (María Teresa)", fijos.get("maria", ""), key="f_d_mt"),
+            }
             if st.button("Guardar ajustes de envío", key="f_hook_ok"):
-                FA.fijar_config({"webhook": hook.strip(), "destinatario": dest.strip()})
+                FA.fijar_config({"webhook": hook.strip(), "destinatario": dest.strip(),
+                                 "destinatarios": {k: v.strip() for k, v in nuevos.items() if v.strip()}})
                 st.success("Ajustes guardados.")
                 st.rerun()
             if not cfg.get("webhook"):
@@ -1407,6 +1462,8 @@ def _admin_cobrar() -> None:
 
     # -------------------------------------------------------- historial
     st.markdown("#### Facturas emitidas")
+    if registro:
+        _enlace_hoja(FA.EMITIDAS, "hoja_cxc")
     filas = FA.listar(FA.EMITIDAS) if registro else []
     if not filas:
         st.info("Todavía no hay ninguna factura guardada. Las que emitas aparecerán aquí, "
@@ -1437,6 +1494,7 @@ def _admin_cobrar() -> None:
                                label_visibility="collapsed")
         if nuevo != actual:
             FA.cambiar_estado(FA.EMITIDAS, fid, nuevo)
+            _volcar_hoja(FA.EMITIDAS)
             st.rerun()
         pdf_g = FA.pdf_de(f)
         if pdf_g:
@@ -1447,6 +1505,7 @@ def _admin_cobrar() -> None:
         _boton_enviar(c[5], f, pdf_g, cfg)
         if c[6].button("🗑️", key=f"del{fid}", help="Quitar del registro"):
             FA.borrar(FA.EMITIDAS, fid)
+            _volcar_hoja(FA.EMITIDAS)
             st.rerun()
         st.divider()
 
@@ -1515,6 +1574,7 @@ def _admin_pagar() -> None:
                                          pdf=st.session_state.get("cxp_bytes"),
                                          archivo=st.session_state.get("cxp_nombre", ""))
                 if ok:
+                    _volcar_hoja(FA.RECIBIDAS)
                     for k in ("cxp_datos", "cxp_bytes", "cxp_nombre"):
                         st.session_state.pop(k, None)
                     st.success("Guardada como **Pendiente**.")
@@ -1528,6 +1588,8 @@ def _admin_pagar() -> None:
 
     # -------------------------------------------------------- historial
     st.markdown("#### Facturas por pagar")
+    if registro:
+        _enlace_hoja(FA.RECIBIDAS, "hoja_cxp")
     filas = FA.listar(FA.RECIBIDAS) if registro else []
     if not filas:
         st.info("Todavía no hay facturas registradas. Sube una arriba y la IA hace el resto.")
@@ -1567,6 +1629,7 @@ def _admin_pagar() -> None:
                                label_visibility="collapsed")
         if nuevo != actual:
             FA.cambiar_estado(FA.RECIBIDAS, fid, nuevo)
+            _volcar_hoja(FA.RECIBIDAS)
             st.rerun()
         pdf_g = FA.pdf_de(f)
         if pdf_g:
@@ -1576,6 +1639,7 @@ def _admin_pagar() -> None:
             c[5].caption("(sin PDF)")
         if c[6].button("🗑️", key=f"rdel{fid}", help="Quitar del registro"):
             FA.borrar(FA.RECIBIDAS, fid)
+            _volcar_hoja(FA.RECIBIDAS)
             st.rerun()
         st.divider()
 

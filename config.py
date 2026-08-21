@@ -14,6 +14,12 @@ from pathlib import Path
 SHEET_ID = os.getenv("SHEET_ID", "10xYtWPICZ_i648KpZt4QkZjY72qCGy962Z11eiMjioM")
 SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit"
 
+# Hoja de ADMINISTRACIÓN (tesorería de Pagés): pestañas "Cuentas por cobrar" y
+# "Cuentas por pagar". Aparte de la de pólizas a propósito: esa lleva datos de salud
+# de estudiantes y la de administración se puede compartir con Marynell sin problema.
+SHEET_ADMIN_ID = os.getenv("SHEET_ADMIN_ID", "1Evt-Qu4Oq6lXXG9h_hCd-UnsGCvwGw_W7HPcfmFi87w")
+SHEET_ADMIN_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ADMIN_ID}/edit"
+
 # --- Rutas ---------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent
 PLANTILLAS_DIR = BASE_DIR / "plantillas"
