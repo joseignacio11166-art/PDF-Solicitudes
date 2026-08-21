@@ -1,0 +1,59 @@
+{
+  "name": "Pagés - Facturas recibidas por correo",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": { "item": [{ "mode": "everyMinute" }] },
+        "simple": false,
+        "filters": {
+          "q": "to:alumnuscareestudiantes+facturas@gmail.com has:attachment"
+        },
+        "options": { "downloadAttachments": true }
+      },
+      "id": "gmail-facturas",
+      "name": "Gmail - Factura recibida",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Saca el PDF adjunto de cada correo y lo deja en base64.\n// getBinaryDataBuffer funciona tanto si n8n guarda el fichero en memoria\n// como en disco (leer .binary[clave].data a pelo solo vale en memoria).\nconst salida = [];\nconst entradas = $input.all();\n\nfor (let i = 0; i < entradas.length; i++) {\n  const item = entradas[i];\n  const bin = item.binary || {};\n  const claves = Object.keys(bin);\n  if (claves.length === 0) continue;\n\n  const clave =\n    claves.find(k => (bin[k].fileName || '').toLowerCase().endsWith('.pdf')) ||\n    claves.find(k => (bin[k].mimeType || '').includes('pdf')) ||\n    claves[0];\n\n  const buffer = await this.helpers.getBinaryDataBuffer(i, clave);\n\n  salida.push({\n    json: {\n      remitente: item.json.from || item.json.From || '',\n      asunto: item.json.subject || item.json.Subject || '',\n      fecha: item.json.date || item.json.Date || '',\n      archivo: bin[clave].fileName || 'factura.pdf',\n      pdf_base64: buffer.toString('base64'),\n    },\n  });\n}\n\nreturn salida;"
+      },
+      "id": "sacar-pdf",
+      "name": "Sacar el PDF del correo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://firestore.googleapis.com/v1/projects/project-d06489fe-0e21-4087-b1a/databases/(default)/documents/facturas_entrantes",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ fields: { remitente: { stringValue: $json.remitente }, asunto: { stringValue: $json.asunto }, fecha: { stringValue: $json.fecha }, archivo: { stringValue: $json.archivo }, pdf_b64: { stringValue: $json.pdf_base64 }, estado: { stringValue: 'Nuevo' } } }) }}",
+        "options": {}
+      },
+      "id": "guardar-firestore",
+      "name": "Dejarla en la bandeja de la app",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 0]
+    }
+  ],
+  "connections": {
+    "Gmail - Factura recibida": {
+      "main": [[{ "node": "Sacar el PDF del correo", "type": "main", "index": 0 }]]
+    },
+    "Sacar el PDF del correo": {
+      "main": [[{ "node": "Dejarla en la bandeja de la app", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "tags": []
+}

@@ -23,6 +23,9 @@ from datetime import datetime, timezone
 
 EMITIDAS = "facturas_emitidas"
 RECIBIDAS = "facturas_recibidas"
+# Bandeja: lo que n8n deja aqui cuando llega una factura por correo, a la espera
+# de que alguien la lea con la IA y la confirme.
+ENTRANTES = "facturas_entrantes"
 
 ESTADOS_EMITIDA = ["Emitida", "Enviada", "Cobrada"]
 ESTADOS_RECIBIDA = ["Pendiente", "Pagada"]
@@ -153,6 +156,23 @@ def listar(coleccion: str, limite: int = 300) -> list[dict]:
              .limit(limite))
         salida = []
         for d in q.stream():
+            r = d.to_dict() or {}
+            r["_id"] = d.id
+            salida.append(r)
+        return salida
+    except Exception:
+        return []
+
+
+def listar_entrantes(limite: int = 50) -> list[dict]:
+    """Facturas que han llegado por correo y estan sin procesar.
+
+    Ojo: NO se ordena. Estos documentos los escribe n8n por la API REST y no
+    llevan el campo `creada`; si ordenaramos por el, Firestore los dejaria fuera
+    (una consulta ordenada ignora los documentos que no tienen ese campo)."""
+    try:
+        salida = []
+        for d in _cliente().collection(ENTRANTES).limit(limite).stream():
             r = d.to_dict() or {}
             r["_id"] = d.id
             salida.append(r)

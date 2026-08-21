@@ -1528,6 +1528,39 @@ def _admin_pagar() -> None:
         st.warning("⚠️ No hay conexión con el registro de facturas. Puedes leer facturas con la "
                    "IA, pero no se guardarán. (En el enlace de la app sí funciona.)")
 
+    # --- lo que ha llegado por correo (n8n lo deja en la bandeja) ------------
+    entrantes = FA.listar_entrantes() if registro else []
+    if entrantes:
+        st.success(f"📬 **{len(entrantes)} factura(s) han llegado por correo** y esperan a que "
+                   "las revises.")
+        for e in entrantes:
+            eid = e["_id"]
+            c = st.columns([3, 3, 1.6])
+            c[0].markdown(f"**{e.get('archivo', 'factura.pdf')}**  \n"
+                          f"<span style='color:#5A6B82;font-size:12px'>{e.get('remitente','')}</span>",
+                          unsafe_allow_html=True)
+            c[1].markdown(f"<span style='font-size:13px'>{e.get('asunto','')}</span>",
+                          unsafe_allow_html=True)
+            if c[2].button("🔍 Leer con IA", key="ent" + eid):
+                pdf_e = FA.pdf_de(e)
+                if not pdf_e:
+                    st.error("Ese correo no traía un PDF que pueda leer.")
+                else:
+                    with st.spinner("La IA está leyendo la factura…"):
+                        try:
+                            from cerebro.vision import leer_factura
+                            with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+                                tmp.write(pdf_e)
+                                ruta = tmp.name
+                            st.session_state["cxp_datos"] = leer_factura(ruta)
+                            st.session_state["cxp_bytes"] = pdf_e
+                            st.session_state["cxp_nombre"] = e.get("archivo", "factura.pdf")
+                            st.session_state["cxp_entrante"] = eid
+                            st.rerun()
+                        except Exception as err:  # noqa: BLE001
+                            st.error(f"No pude leer la factura: {err}")
+        st.divider()
+
     up = st.file_uploader("Factura recibida (PDF)", type=["pdf"], key="cxp_pdf")
     if up and st.button("🔍 Leer la factura con IA", key="cxp_leer", type="primary"):
         with st.spinner("La IA está leyendo la factura…"):
@@ -1539,6 +1572,7 @@ def _admin_pagar() -> None:
                 st.session_state["cxp_datos"] = leer_factura(ruta)
                 st.session_state["cxp_bytes"] = up.getvalue()
                 st.session_state["cxp_nombre"] = up.name
+                st.session_state.pop("cxp_entrante", None)
             except Exception as e:  # noqa: BLE001
                 st.error(f"No pude leer la factura: {e}")
 
@@ -1569,20 +1603,24 @@ def _admin_pagar() -> None:
             g1, g2 = st.columns([1.2, 3])
             if g1.button("💾 Guardar en el registro", key="cxp_ok", type="primary",
                          disabled=not registro):
+                entrante = st.session_state.get("cxp_entrante")
                 ok = FA.guardar_recibida(proveedor, numero, fecha, venc, base, iva, total,
                                          concepto=concepto,
                                          pdf=st.session_state.get("cxp_bytes"),
-                                         archivo=st.session_state.get("cxp_nombre", ""))
+                                         archivo=st.session_state.get("cxp_nombre", ""),
+                                         origen="correo" if entrante else "subida a mano")
                 if ok:
+                    if entrante:
+                        FA.borrar(FA.ENTRANTES, entrante)
                     _volcar_hoja(FA.RECIBIDAS)
-                    for k in ("cxp_datos", "cxp_bytes", "cxp_nombre"):
+                    for k in ("cxp_datos", "cxp_bytes", "cxp_nombre", "cxp_entrante"):
                         st.session_state.pop(k, None)
                     st.success("Guardada como **Pendiente**.")
                     st.rerun()
                 else:
                     st.error("No pude guardarla en el registro.")
             if g2.button("Descartar", key="cxp_no"):
-                for k in ("cxp_datos", "cxp_bytes", "cxp_nombre"):
+                for k in ("cxp_datos", "cxp_bytes", "cxp_nombre", "cxp_entrante"):
                     st.session_state.pop(k, None)
                 st.rerun()
 
@@ -1643,8 +1681,8 @@ def _admin_pagar() -> None:
             st.rerun()
         st.divider()
 
-    st.info("**Siguiente paso:** que Marynell reenvíe la factura a un correo y entre aquí sola, "
-            "sin subir nada. El circuito correo → app ya funciona con las solicitudes.")
+    st.caption("Las facturas que Marynell reenvíe al correo aparecen arriba solas, listas para "
+               "leer. Y siempre se puede subir una a mano.")
 
 
 def render_administracion() -> None:

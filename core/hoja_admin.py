@@ -30,6 +30,22 @@ _CAB_COBRAR = ["Nº factura", "Cliente", "Concepto", "Fecha", "Base", "IVA",
 _CAB_PAGAR = ["Proveedor", "Nº factura", "Concepto", "Fecha", "Vence el", "Base",
               "IVA", "Total", "Estado", "Pagada el", "Cómo entró"]
 
+# Columnas (0-based) que llevan dinero en cada pestaña.
+_DINERO_COBRAR = [4, 5, 6, 7]
+_DINERO_PAGAR = [5, 6, 7]
+# Anchos en píxeles, por columna.
+_ANCHOS_COBRAR = [95, 210, 300, 90, 100, 90, 100, 110, 100, 100, 100]
+_ANCHOS_PAGAR = [210, 110, 300, 90, 95, 100, 90, 110, 100, 100, 120]
+
+# Colores de los estados (los mismos que usa el centro).
+_COLORES = {
+    "Cobrada": (0.85, 0.94, 0.85), "Pagada": (0.85, 0.94, 0.85),      # verde
+    "Enviada": (0.85, 0.92, 0.98),                                     # azul
+    "Emitida": (1.00, 0.95, 0.80), "Pendiente": (1.00, 0.90, 0.80),    # ámbar
+}
+_CREMA = {"red": 0.96, "green": 0.94, "blue": 0.89}
+_AZUL_TEXTO = {"red": 0.08, "green": 0.28, "blue": 0.45}
+
 _libro_cache = None
 
 
@@ -56,11 +72,11 @@ def url() -> str:
 
 
 def _pestana(titulo: str, columnas: int):
-    """Devuelve la pestaña; si no existe la crea. Si la hoja aún tiene la pestaña
-    vacía que Google crea por defecto ('Hoja 1'), la reaprovecha en vez de sumar otra."""
+    """Devuelve (pestaña, recién_creada). Si la hoja aún tiene la pestaña vacía que
+    Google crea por defecto ('Hoja 1'), la reaprovecha en vez de sumar otra."""
     libro = _libro()
     try:
-        return libro.worksheet(titulo)
+        return libro.worksheet(titulo), False
     except Exception:
         pass
     for ws in libro.worksheets():
@@ -68,20 +84,91 @@ def _pestana(titulo: str, columnas: int):
         if nombre in ("hoja 1", "hoja1", "sheet1", "hoja de cálculo 1"):
             if not any(any(c for c in fila) for fila in ws.get_all_values()):
                 ws.update_title(titulo)
-                return ws
-    return libro.add_worksheet(title=titulo, rows=200, cols=max(columnas, 12))
+                return ws, True
+    return libro.add_worksheet(title=titulo, rows=300, cols=max(columnas, 12)), True
 
 
-def _escribir(ws, cabeceras: list[str], filas: list[list]) -> None:
+def _peticiones_formato(ws, cabeceras: list[str], dinero: list[int],
+                        anchos: list[int], col_estado: int, filas: int) -> list[dict]:
+    """Cabecera, anchos, formato de euros y filtro. Se puede repetir sin ensuciar."""
+    sid = ws.id
+    n = len(cabeceras)
+    peticiones = [
+        # Cabecera: fondo crema, texto azul, negrita, centrada.
+        {"repeatCell": {
+            "range": {"sheetId": sid, "startRowIndex": 0, "endRowIndex": 1,
+                      "startColumnIndex": 0, "endColumnIndex": n},
+            "cell": {"userEnteredFormat": {
+                "backgroundColor": _CREMA,
+                "horizontalAlignment": "CENTER",
+                "verticalAlignment": "MIDDLE",
+                "textFormat": {"bold": True, "fontSize": 10, "foregroundColor": _AZUL_TEXTO}}},
+            "fields": "userEnteredFormat(backgroundColor,horizontalAlignment,"
+                      "verticalAlignment,textFormat)"}},
+        # Fila de cabecera un poco más alta.
+        {"updateDimensionProperties": {
+            "range": {"sheetId": sid, "dimension": "ROWS", "startIndex": 0, "endIndex": 1},
+            "properties": {"pixelSize": 34}, "fields": "pixelSize"}},
+        # Congelar la cabecera.
+        {"updateSheetProperties": {
+            "properties": {"sheetId": sid, "gridProperties": {"frozenRowCount": 1}},
+            "fields": "gridProperties.frozenRowCount"}},
+    ]
+    for i, ancho in enumerate(anchos[:n]):
+        peticiones.append({"updateDimensionProperties": {
+            "range": {"sheetId": sid, "dimension": "COLUMNS", "startIndex": i, "endIndex": i + 1},
+            "properties": {"pixelSize": ancho}, "fields": "pixelSize"}})
+    for i in dinero:
+        peticiones.append({"repeatCell": {
+            "range": {"sheetId": sid, "startRowIndex": 1, "startColumnIndex": i,
+                      "endColumnIndex": i + 1},
+            "cell": {"userEnteredFormat": {
+                "numberFormat": {"type": "NUMBER", "pattern": '#,##0.00" €"'},
+                "horizontalAlignment": "RIGHT"}},
+            "fields": "userEnteredFormat(numberFormat,horizontalAlignment)"}})
+    peticiones.append({"repeatCell": {
+        "range": {"sheetId": sid, "startRowIndex": 1, "startColumnIndex": col_estado,
+                  "endColumnIndex": col_estado + 1},
+        "cell": {"userEnteredFormat": {"horizontalAlignment": "CENTER"}},
+        "fields": "userEnteredFormat(horizontalAlignment)"}})
+    if filas:
+        peticiones.append({"setBasicFilter": {"filter": {"range": {
+            "sheetId": sid, "startRowIndex": 0, "endRowIndex": filas + 1,
+            "startColumnIndex": 0, "endColumnIndex": n}}}})
+    return peticiones
+
+
+def _peticiones_colores(ws, col_estado: int, estados: list[str]) -> list[dict]:
+    """Colorea la columna Estado según su valor. Solo al crear la pestaña: las reglas
+    de formato condicional se acumularían si se añadieran en cada volcado."""
+    sid = ws.id
+    fuera = []
+    for i, estado in enumerate(estados):
+        r, g, b = _COLORES.get(estado, (1, 1, 1))
+        fuera.append({"addConditionalFormatRule": {"index": i, "rule": {
+            "ranges": [{"sheetId": sid, "startRowIndex": 1,
+                        "startColumnIndex": col_estado, "endColumnIndex": col_estado + 1}],
+            "booleanRule": {
+                "condition": {"type": "TEXT_EQ",
+                              "values": [{"userEnteredValue": estado}]},
+                "format": {"backgroundColor": {"red": r, "green": g, "blue": b}}}}}})
+    return fuera
+
+
+def _escribir(titulo: str, cabeceras: list[str], filas: list[list],
+              dinero: list[int], anchos: list[int], estados: list[str]) -> bool:
+    ws, nueva = _pestana(titulo, len(cabeceras))
     ws.clear()
     ws.update([cabeceras] + filas, "A1")
-    ws.freeze(rows=1)
+    col_estado = cabeceras.index("Estado")
+    peticiones = _peticiones_formato(ws, cabeceras, dinero, anchos, col_estado, len(filas))
+    if nueva:
+        peticiones += _peticiones_colores(ws, col_estado, estados)
     try:
-        ws.format(f"A1:{chr(64 + len(cabeceras))}1",
-                  {"textFormat": {"bold": True},
-                   "backgroundColor": {"red": 0.96, "green": 0.94, "blue": 0.89}})
+        _libro().batch_update({"requests": peticiones})
     except Exception:
-        pass  # el formato es un adorno: si falla, los datos ya están
+        pass  # el maquillaje es un extra: si falla, los datos ya están escritos
+    return True
 
 
 def volcar_cobrar(registros: list[dict]) -> bool:
@@ -92,8 +179,8 @@ def volcar_cobrar(registros: list[dict]) -> bool:
                   r.get("retencion", 0), r.get("total", 0), r.get("estado", ""),
                   r.get("enviada_el", ""), r.get("cobrada_el", "")]
                  for r in registros]
-        _escribir(_pestana(COBRAR, len(_CAB_COBRAR)), _CAB_COBRAR, filas)
-        return True
+        return _escribir(COBRAR, _CAB_COBRAR, filas, _DINERO_COBRAR, _ANCHOS_COBRAR,
+                         ["Cobrada", "Enviada", "Emitida"])
     except Exception:
         return False
 
@@ -106,7 +193,7 @@ def volcar_pagar(registros: list[dict]) -> bool:
                   r.get("iva", 0), r.get("total", 0), r.get("estado", ""),
                   r.get("pagada_el", ""), r.get("origen", "")]
                  for r in registros]
-        _escribir(_pestana(PAGAR, len(_CAB_PAGAR)), _CAB_PAGAR, filas)
-        return True
+        return _escribir(PAGAR, _CAB_PAGAR, filas, _DINERO_PAGAR, _ANCHOS_PAGAR,
+                         ["Pagada", "Pendiente"])
     except Exception:
         return False
